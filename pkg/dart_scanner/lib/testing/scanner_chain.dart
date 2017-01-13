@@ -2,11 +2,13 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE.md file.
 
+library dart_scanner.testing.scanner_chain;
+
 import 'package:testing/testing.dart';
 
-import 'package:scanner/scanner.dart';
+import 'package:dart_scanner/scanner.dart';
 
-import 'package:scanner/io.dart';
+import 'package:dart_scanner/io.dart';
 
 class Read extends Step<TestDescription, List<int>, ChainContext> {
   const Read();

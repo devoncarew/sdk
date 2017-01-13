@@ -4,7 +4,7 @@
 
 import 'package:testing/testing.dart';
 
-import 'package:scanner/testing/scanner_chain.dart';
+import 'package:dart_scanner/testing/scanner_chain.dart';
 
 Future<ChainContext> createContext(
     Chain suite, Map<String, String> enviroment) async {

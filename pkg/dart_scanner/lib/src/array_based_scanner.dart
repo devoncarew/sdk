@@ -2,7 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library scanner.array_based_scanner;
+library dart_scanner.array_based_scanner;
 
 import 'keyword.dart' show
     Keyword;
@@ -31,7 +31,7 @@ import 'characters.dart' show
 import 'abstract_scanner.dart' show
     AbstractScanner;
 
-import 'package:link/link.dart' show
+import 'package:compiler_util/link.dart' show
     Link;
 
 abstract class ArrayBasedScanner extends AbstractScanner {

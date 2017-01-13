@@ -2,6 +2,6 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE.md file.
 
-import 'package:scanner/src/main.dart' as scanner;
+import 'package:dart_scanner/src/main.dart' as dart_scanner;
 
-main(List<String> arguments) => scanner.main(arguments);
+main(List<String> arguments) => dart_scanner.main(arguments);
