@@ -2,23 +2,34 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library dart2js.parser.partial;
+library parser.class_member_parser;
 
-import '../common.dart';
-import '../options.dart' show ParserOptions;
-import '../tokens/token.dart' show BeginGroupToken, ErrorToken, Token;
-import '../tokens/token_constants.dart' as Tokens show EOF_TOKEN;
-import '../util/characters.dart' as Characters show $CLOSE_CURLY_BRACKET;
-import 'listener.dart' show Listener;
-import 'parser.dart' show Parser;
+import 'package:scanner/src/token.dart' show
+    BeginGroupToken,
+    ErrorToken,
+    Token;
 
-class PartialParser extends Parser {
-  PartialParser(Listener listener, ParserOptions options)
-      : super(listener, options);
+import 'package:scanner/src/token_constants.dart' show
+    EOF_TOKEN;
 
-  Token parseClassBody(Token token) => skipClassBody(token);
+import 'listener.dart' show
+    Listener;
 
-  Token fullParseClassBody(Token token) => super.parseClassBody(token);
+import 'error_kind.dart' show
+    ErrorKind;
+
+import 'parser.dart' show
+    Parser,
+    optional;
+
+/// Parser similar to [TopLevelParser] but also parses class members (excluding
+/// their bodies).
+class ClassMemberParser extends Parser {
+  ClassMemberParser(Listener listener,
+      {bool asyncAwaitKeywordsEnabled: false,
+       bool enableGenericMethodSyntax: false})
+      : super(listener, asyncAwaitKeywordsEnabled: asyncAwaitKeywordsEnabled,
+          enableGenericMethodSyntax: enableGenericMethodSyntax);
 
   Token parseExpression(Token token) => skipExpression(token);
 
@@ -39,7 +50,7 @@ class PartialParser extends Parser {
     while (true) {
       final kind = token.kind;
       final value = token.stringValue;
-      if ((identical(kind, Tokens.EOF_TOKEN)) ||
+      if ((identical(kind, EOF_TOKEN)) ||
           (identical(value, ';')) ||
           (identical(value, ',')) ||
           (identical(value, '}')) ||
@@ -100,20 +111,6 @@ class PartialParser extends Parser {
     return token;
   }
 
-  Token skipClassBody(Token token) {
-    if (!optional('{', token)) {
-      return listener.expectedClassBodyToSkip(token);
-    }
-    BeginGroupToken beginGroupToken = token;
-    Token endGroup = beginGroupToken.endGroup;
-    if (endGroup == null) {
-      return listener.unmatched(beginGroupToken);
-    } else if (!identical(endGroup.kind, Characters.$CLOSE_CURLY_BRACKET)) {
-      return listener.unmatched(beginGroupToken);
-    }
-    return endGroup;
-  }
-
   Token skipAsyncModifier(Token token) {
     String value = token.stringValue;
     if (identical(value, 'async')) {
@@ -140,7 +137,7 @@ class PartialParser extends Parser {
     String value = token.stringValue;
     if (identical(value, ';')) {
       if (!allowAbstract) {
-        listener.reportError(token, MessageKind.BODY_EXPECTED);
+        listener.reportError(token, ErrorKind.EXPECTED_BODY);
       }
       listener.handleNoFunctionBody(token);
     } else {
@@ -156,22 +153,5 @@ class PartialParser extends Parser {
       listener.skippedFunctionBody(token);
     }
     return token;
-  }
-
-  Token parseFormalParameters(Token token) => skipFormals(token);
-
-  Token skipFormals(Token token) {
-    listener.beginOptionalFormalParameters(token);
-    if (!optional('(', token)) {
-      if (optional(';', token)) {
-        listener.recoverableError(token, "expected '('");
-        return token;
-      }
-      return listener.unexpected(token);
-    }
-    BeginGroupToken beginGroupToken = token;
-    Token endToken = beginGroupToken.endGroup;
-    listener.endFormalParameters(0, token, endToken);
-    return endToken.next;
   }
 }

@@ -2,105 +2,34 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library dart2js.parser.partial;
+library parser.top_level_parser;
 
-import '../common.dart';
-import '../options.dart' show ParserOptions;
-import '../tokens/token.dart' show BeginGroupToken, ErrorToken, Token;
-import '../tokens/token_constants.dart' as Tokens show EOF_TOKEN;
-import '../util/characters.dart' as Characters show $CLOSE_CURLY_BRACKET;
-import 'listener.dart' show Listener;
-import 'parser.dart' show Parser;
+import 'package:scanner/src/token.dart' show
+    BeginGroupToken,
+    Token;
 
-class PartialParser extends Parser {
-  PartialParser(Listener listener, ParserOptions options)
-      : super(listener, options);
+import 'package:scanner/src/characters.dart' show
+    $CLOSE_CURLY_BRACKET;
 
-  Token parseClassBody(Token token) => skipClassBody(token);
+import 'listener.dart' show
+    Listener;
 
-  Token fullParseClassBody(Token token) => super.parseClassBody(token);
+import 'class_member_parser.dart' show
+    ClassMemberParser;
 
-  Token parseExpression(Token token) => skipExpression(token);
+import 'parser.dart' show
+    optional;
 
-  Token parseArgumentsOpt(Token token) {
-    // This method is overridden for two reasons:
-    // 1. Avoid generating events for arguments.
-    // 2. Avoid calling skip expression for each argument (which doesn't work).
-    listener.handleNoArguments(token);
-    if (optional('(', token)) {
-      BeginGroupToken begin = token;
-      return begin.endGroup.next;
-    } else {
-      return token;
-    }
-  }
+/// Parser which only parses top-level elements, but ignores their bodies.
+/// Use [Parser] to parse everything.
+class TopLevelParser extends ClassMemberParser {
+  TopLevelParser(Listener listener,
+      {bool asyncAwaitKeywordsEnabled: false,
+       bool enableGenericMethodSyntax: false})
+      : super(listener, asyncAwaitKeywordsEnabled: asyncAwaitKeywordsEnabled,
+          enableGenericMethodSyntax: enableGenericMethodSyntax);
 
-  Token skipExpression(Token token) {
-    while (true) {
-      final kind = token.kind;
-      final value = token.stringValue;
-      if ((identical(kind, Tokens.EOF_TOKEN)) ||
-          (identical(value, ';')) ||
-          (identical(value, ',')) ||
-          (identical(value, '}')) ||
-          (identical(value, ')')) ||
-          (identical(value, ']'))) {
-        break;
-      }
-      if (identical(value, '=') ||
-          identical(value, '?') ||
-          identical(value, ':') ||
-          identical(value, '??')) {
-        var nextValue = token.next.stringValue;
-        if (identical(nextValue, 'const')) {
-          token = token.next;
-          nextValue = token.next.stringValue;
-        }
-        if (identical(nextValue, '{')) {
-          // Handle cases like this:
-          // class Foo {
-          //   var map;
-          //   Foo() : map = {};
-          //   Foo.x() : map = true ? {} : {};
-          // }
-          BeginGroupToken begin = token.next;
-          token = (begin.endGroup != null) ? begin.endGroup : token;
-          token = token.next;
-          continue;
-        }
-        if (identical(nextValue, '<')) {
-          // Handle cases like this:
-          // class Foo {
-          //   var map;
-          //   Foo() : map = <String, Foo>{};
-          //   Foo.x() : map = true ? <String, Foo>{} : <String, Foo>{};
-          // }
-          BeginGroupToken begin = token.next;
-          token = (begin.endGroup != null) ? begin.endGroup : token;
-          token = token.next;
-          if (identical(token.stringValue, '{')) {
-            begin = token;
-            token = (begin.endGroup != null) ? begin.endGroup : token;
-            token = token.next;
-          }
-          continue;
-        }
-      }
-      if (!mayParseFunctionExpressions && identical(value, '{')) {
-        break;
-      }
-      if (token is BeginGroupToken) {
-        BeginGroupToken begin = token;
-        token = (begin.endGroup != null) ? begin.endGroup : token;
-      } else if (token is ErrorToken) {
-        listener.reportErrorToken(token);
-      }
-      token = token.next;
-    }
-    return token;
-  }
-
-  Token skipClassBody(Token token) {
+  Token parseClassBody(Token token) {
     if (!optional('{', token)) {
       return listener.expectedClassBodyToSkip(token);
     }
@@ -108,70 +37,9 @@ class PartialParser extends Parser {
     Token endGroup = beginGroupToken.endGroup;
     if (endGroup == null) {
       return listener.unmatched(beginGroupToken);
-    } else if (!identical(endGroup.kind, Characters.$CLOSE_CURLY_BRACKET)) {
+    } else if (!identical(endGroup.kind, $CLOSE_CURLY_BRACKET)) {
       return listener.unmatched(beginGroupToken);
     }
     return endGroup;
-  }
-
-  Token skipAsyncModifier(Token token) {
-    String value = token.stringValue;
-    if (identical(value, 'async')) {
-      token = token.next;
-      value = token.stringValue;
-
-      if (identical(value, '*')) {
-        token = token.next;
-      }
-    } else if (identical(value, 'sync')) {
-      token = token.next;
-      value = token.stringValue;
-
-      if (identical(value, '*')) {
-        token = token.next;
-      }
-    }
-    return token;
-  }
-
-  Token parseFunctionBody(Token token, bool isExpression, bool allowAbstract) {
-    assert(!isExpression);
-    token = skipAsyncModifier(token);
-    String value = token.stringValue;
-    if (identical(value, ';')) {
-      if (!allowAbstract) {
-        listener.reportError(token, MessageKind.BODY_EXPECTED);
-      }
-      listener.handleNoFunctionBody(token);
-    } else {
-      if (identical(value, '=>')) {
-        token = parseExpression(token.next);
-        expectSemicolon(token);
-      } else if (value == '=') {
-        token = parseRedirectingFactoryBody(token);
-        expectSemicolon(token);
-      } else {
-        token = skipBlock(token);
-      }
-      listener.skippedFunctionBody(token);
-    }
-    return token;
-  }
-
-  Token parseFormalParameters(Token token) => skipFormals(token);
-
-  Token skipFormals(Token token) {
-    listener.beginOptionalFormalParameters(token);
-    if (!optional('(', token)) {
-      if (optional(';', token)) {
-        listener.recoverableError(token, "expected '('");
-        return token;
-      }
-      return listener.unexpected(token);
-    }
-    BeginGroupToken beginGroupToken = token;
-    Token endToken = beginGroupToken.endGroup;
-    listener.endFormalParameters(0, token, endToken);
-    return endToken.next;
   }
 }
