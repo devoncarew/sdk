@@ -6,7 +6,7 @@ library dart_scanner.testing.scanner_chain;
 
 import 'package:testing/testing.dart';
 
-import 'package:dart_scanner/scanner.dart';
+import 'package:dart_scanner/dart_scanner.dart';
 
 import 'package:dart_scanner/io.dart';
 

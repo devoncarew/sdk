@@ -2,13 +2,13 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library parser.top_level_parser;
+library dart_parser.top_level_parser;
 
-import 'package:scanner/src/token.dart' show
+import 'package:dart_scanner/src/token.dart' show
     BeginGroupToken,
     Token;
 
-import 'package:scanner/src/characters.dart' show
+import 'package:dart_scanner/src/characters.dart' show
     $CLOSE_CURLY_BRACKET;
 
 import 'listener.dart' show

@@ -7,7 +7,7 @@ library dart_scanner.main;
 import '../io.dart' show
     readBytesFromFileSync;
 
-import '../scanner.dart' show
+import '../dart_scanner.dart' show
     scan;
 
 scanAll(Map<Uri, List<int>> files) {

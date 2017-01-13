@@ -2,7 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library parser.error_kind;
+library dart_parser.error_kind;
 
 enum ErrorKind {
   EMPTY_NAMED_PARAMETER_LIST,

@@ -4,11 +4,11 @@
 
 import 'package:testing/testing.dart';
 
-import 'package:scanner/scanner.dart';
+import 'package:dart_scanner/dart_scanner.dart';
 
-import 'package:scanner/testing/scanner_chain.dart';
+import 'package:dart_scanner/testing/scanner_chain.dart';
 
-import 'package:parser/parser.dart';
+import 'package:dart_parser/dart_parser.dart';
 
 Future<ChainContext> createContext(
     Chain suite, Map<String, String> enviroment) async {

@@ -2,12 +2,12 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library parser;
+library dart_parser;
 
-import 'package:scanner/src/keyword.dart' show
+import 'package:dart_scanner/src/keyword.dart' show
     Keyword;
 
-import 'package:scanner/src/precedence.dart' show
+import 'package:dart_scanner/src/precedence.dart' show
     ASSIGNMENT_PRECEDENCE,
     AS_INFO,
     CASCADE_PRECEDENCE,
@@ -25,14 +25,14 @@ import 'package:scanner/src/precedence.dart' show
     QUESTION_PERIOD_INFO,
     RELATIONAL_PRECEDENCE;
 
-import 'package:scanner/src/token.dart' show
+import 'package:dart_scanner/src/token.dart' show
     BeginGroupToken,
     isUserDefinableOperator,
     KeywordToken,
     SymbolToken,
     Token;
 
-import 'package:scanner/src/token_constants.dart' show
+import 'package:dart_scanner/src/token_constants.dart' show
     BAD_INPUT_TOKEN,
     COMMA_TOKEN,
     DOUBLE_TOKEN,
@@ -56,10 +56,10 @@ import 'package:scanner/src/token_constants.dart' show
     STRING_INTERPOLATION_TOKEN,
     STRING_TOKEN;
 
-import 'package:scanner/src/characters.dart' show
+import 'package:dart_scanner/src/characters.dart' show
     $CLOSE_CURLY_BRACKET;
 
-import 'package:link/link.dart' show
+import 'package:compiler_util/link.dart' show
     Link;
 
 import 'listener.dart' show

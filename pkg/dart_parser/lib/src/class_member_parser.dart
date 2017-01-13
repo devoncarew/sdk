@@ -2,14 +2,14 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library parser.class_member_parser;
+library dart_parser.class_member_parser;
 
-import 'package:scanner/src/token.dart' show
+import 'package:dart_scanner/src/token.dart' show
     BeginGroupToken,
     ErrorToken,
     Token;
 
-import 'package:scanner/src/token_constants.dart' show
+import 'package:dart_scanner/src/token_constants.dart' show
     EOF_TOKEN;
 
 import 'listener.dart' show

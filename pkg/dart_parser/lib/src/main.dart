@@ -2,7 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library parser.main;
+library dart_parser.main;
 
 import 'dart:convert' show
     LineSplitter,
@@ -11,13 +11,13 @@ import 'dart:convert' show
 import 'dart:io' show
     File;
 
-import 'package:scanner/src/token.dart' show
+import 'package:dart_scanner/src/token.dart' show
     Token;
 
-import 'package:scanner/io.dart' show
+import 'package:dart_scanner/io.dart' show
     readBytesFromFileSync;
 
-import 'package:scanner/scanner.dart' show
+import 'package:dart_scanner/dart_scanner.dart' show
     scan;
 
 import 'listener.dart' show

@@ -4,7 +4,7 @@
 
 library dart_scanner.abstract_scanner;
 
-import '../scanner.dart' show
+import '../dart_scanner.dart' show
     Scanner;
 
 import 'keyword.dart' show

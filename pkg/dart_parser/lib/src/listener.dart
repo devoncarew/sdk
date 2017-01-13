@@ -2,13 +2,13 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library parser.listener;
+library dart_parser.listener;
 
-import 'package:scanner/src/precedence.dart' show
+import 'package:dart_scanner/src/precedence.dart' show
     EOF_INFO,
     IDENTIFIER_INFO;
 
-import 'package:scanner/src/token.dart' show
+import 'package:dart_scanner/src/token.dart' show
     BadInputToken,
     BeginGroupToken,
     ErrorToken,
