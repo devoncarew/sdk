@@ -1,0 +1,130 @@
+{
+"":"Copyright (c) 2016, the Dart project authors. Please see the AUTHORS file",
+"":"for details. All rights reserved. Use of this source code is governed by a",
+"":"BSD-style license that can be found in the LICENSE.md file.",
+  "packages": "../../.packages",
+  "suites": [
+    {
+      "name": "scanner",
+      "kind": "Chain",
+      "source": "../dart_scanner/test/scanner_suite.dart",
+      "path": "../../",
+      "status": "../dart_scanner/test/scanner.status",
+      "pattern": [
+        "\\.dart$"
+      ],
+      "exclude": [
+      ]
+    },
+    {
+      "name": "parser",
+      "kind": "Chain",
+      "source": "../dart_parser/test/parser_suite.dart",
+      "path": "../../",
+      "status": "../dart_parser/test/parser.status",
+      "pattern": [
+        "\\.dart$"
+      ],
+      "exclude": [
+        "README.dart",
+        "/sdk/xcodebuild/",
+        "/sdk/out/",
+        "/sdk/build/",
+        "/sdk/tools/sdks/",
+        "/sdk/generated/"
+      ]
+    },
+    {
+      "name": "outline",
+      "kind": "Chain",
+      "source": "test/outline_test.dart",
+      "path": "test/",
+      "status": "test/outline.status",
+      "pattern": [
+        "\\.dart$"
+      ],
+      "exclude": [
+        "/test/.*_test\\.dart$"
+      ]
+    },
+    {
+      "name": "compile",
+      "kind": "Chain",
+      "source": "test/compile_test.dart",
+      "path": "test/",
+      "status": "test/compile.status",
+      "pattern": [
+        "\\.dart$"
+      ],
+      "exclude": [
+        "/test/.*_test\\.dart$"
+      ]
+    },
+    {
+      "name": "kompile",
+      "kind": "Chain",
+      "source": "test/kompile_test.dart",
+      "path": "test/",
+      "status": "test/kompile.status",
+      "pattern": [
+        "\\.dart$"
+      ],
+      "exclude": [
+        "/test/.*_test\\.dart$"
+      ]
+    },
+    {
+      "name": "language",
+      "kind": "Chain",
+      "source": "test/sdk_test.dart",
+      "path": "../../tests/language/",
+      "status": "test/language.status",
+      "process-multitests": true,
+      "pattern": [
+        "_test\\.dart$"
+      ],
+      "": "deep_nesting{1,2}_negative_test are ignored because they cause a",
+      "": "crash that we're ignoring for now (it was fixed in Rasta).",
+      "": "The other tests are excluded because they try to use 'none' as ",
+      "": "subtest name in multi test.",
+      "": "Tracked by: https://github.com/dart-lang/sdk/issues/28436",
+      "exclude": [
+        "/sdk/tests/language/deep_nesting1_negative_test\\.dart$",
+        "/sdk/tests/language/deep_nesting2_negative_test\\.dart$",
+        "/sdk/tests/language/async_switch_test\\.dart$",
+        "/sdk/tests/language/arg_param_trailing_comma_test\\.dart$",
+        "/sdk/tests/language/assert_initializer_test\\.dart$",
+        "/sdk/tests/language/deferred_type_dependency_test\\.dart$",
+        "/sdk/tests/language/mixin_of_mixin_test\\.dart$",
+        "/sdk/tests/language/regress_23996_test\\.dart$",
+        "/sdk/tests/language/round_test\\.dart$"
+      ]
+    }
+  ],
+  "analyze": {
+    "uris": [
+      "bin",
+      "lib",
+      "lib/src",
+      "lib/src/analyzer",
+      "lib/src/builder",
+      "lib/src/dill",
+      "lib/src/kernel",
+      "lib/src/source",
+      "test/outline_test.dart",
+      "../dart_scanner/bin",
+      "../dart_scanner/lib",
+      "../dart_scanner/lib/src",
+      "../dart_scanner/lib/testing",
+      "../dart_scanner/test",
+      "../dart_parser/bin",
+      "../dart_parser/lib",
+      "../dart_parser/lib/src",
+      "../dart_parser/test"
+    ],
+    "exclude": [
+      "/pkg/analyzer/",
+      "/third_party/pkg/"
+    ]
+  }
+}
