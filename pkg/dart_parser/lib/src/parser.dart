@@ -2772,7 +2772,10 @@ class Parser {
   Token parseForInRest(Token awaitToken, Token forToken, Token token) {
     assert(optional('in', token));
     Token inKeyword = token;
-    token = parseExpression(token.next);
+    token = token.next;
+    listener.beginForInExpression(token);
+    token = parseExpression(token);
+    listener.endForInExpression(token);
     token = expect(')', token);
     listener.beginForInBody(token);
     token = parseStatement(token);
