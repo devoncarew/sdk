@@ -178,6 +178,13 @@ class Listener {
     logEvent("ForIn");
   }
 
+  void beginForInExpression(Token token) {
+  }
+
+  void endForInExpression(Token token) {
+    logEvent("ForInExpression");
+  }
+
   void beginForInBody(Token token) {
   }
 
