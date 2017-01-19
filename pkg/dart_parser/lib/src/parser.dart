@@ -27,10 +27,11 @@ import 'package:dart_scanner/src/precedence.dart' show
 
 import 'package:dart_scanner/src/token.dart' show
     BeginGroupToken,
-    isUserDefinableOperator,
+    ErrorToken,
     KeywordToken,
     SymbolToken,
-    Token;
+    Token,
+    isUserDefinableOperator;
 
 import 'package:dart_scanner/src/token_constants.dart' show
     BAD_INPUT_TOKEN,
@@ -1343,6 +1344,20 @@ class Parser {
     return peekAfterType(token);
   }
 
+  Token skipClassBody(Token token) {
+    if (!optional('{', token)) {
+      return listener.expectedClassBodyToSkip(token);
+    }
+    BeginGroupToken beginGroupToken = token;
+    Token endGroup = beginGroupToken.endGroup;
+    if (endGroup == null) {
+      return listener.unmatched(beginGroupToken);
+    } else if (!identical(endGroup.kind, $CLOSE_CURLY_BRACKET)) {
+      return listener.unmatched(beginGroupToken);
+    }
+    return endGroup;
+  }
+
   Token parseClassBody(Token token) {
     Token begin = token;
     listener.beginClassBody(token);
@@ -1698,6 +1713,30 @@ class Parser {
     return token;
   }
 
+  Token skipFunctionBody(Token token, bool isExpression, bool allowAbstract) {
+    assert(!isExpression);
+    token = skipAsyncModifier(token);
+    String value = token.stringValue;
+    if (identical(value, ';')) {
+      if (!allowAbstract) {
+        listener.reportError(token, ErrorKind.EXPECTED_BODY);
+      }
+      listener.handleNoFunctionBody(token);
+    } else {
+      if (identical(value, '=>')) {
+        token = parseExpression(token.next);
+        expectSemicolon(token);
+      } else if (value == '=') {
+        token = parseRedirectingFactoryBody(token);
+        expectSemicolon(token);
+      } else {
+        token = skipBlock(token);
+      }
+      listener.skippedFunctionBody(token);
+    }
+    return token;
+  }
+
   Token parseFunctionBody(Token token, bool isExpression, bool allowAbstract) {
     if (optional(';', token)) {
       if (!allowAbstract) {
@@ -1730,6 +1769,26 @@ class Parser {
     }
     listener.endFunctionBody(statementCount, begin, token);
     expect('}', token);
+    return token;
+  }
+
+  Token skipAsyncModifier(Token token) {
+    String value = token.stringValue;
+    if (identical(value, 'async')) {
+      token = token.next;
+      value = token.stringValue;
+
+      if (identical(value, '*')) {
+        token = token.next;
+      }
+    } else if (identical(value, 'sync')) {
+      token = token.next;
+      value = token.stringValue;
+
+      if (identical(value, '*')) {
+        token = token.next;
+      }
+    }
     return token;
   }
 
@@ -1999,6 +2058,71 @@ class Parser {
     token = parseExpression(token);
     listener.endExpressionStatement(token);
     return expectSemicolon(token);
+  }
+
+  Token skipExpression(Token token) {
+    while (true) {
+      final kind = token.kind;
+      final value = token.stringValue;
+      if ((identical(kind, EOF_TOKEN)) ||
+          (identical(value, ';')) ||
+          (identical(value, ',')) ||
+          (identical(value, '}')) ||
+          (identical(value, ')')) ||
+          (identical(value, ']'))) {
+        break;
+      }
+      if (identical(value, '=') ||
+          identical(value, '?') ||
+          identical(value, ':') ||
+          identical(value, '??')) {
+        var nextValue = token.next.stringValue;
+        if (identical(nextValue, 'const')) {
+          token = token.next;
+          nextValue = token.next.stringValue;
+        }
+        if (identical(nextValue, '{')) {
+          // Handle cases like this:
+          // class Foo {
+          //   var map;
+          //   Foo() : map = {};
+          //   Foo.x() : map = true ? {} : {};
+          // }
+          BeginGroupToken begin = token.next;
+          token = (begin.endGroup != null) ? begin.endGroup : token;
+          token = token.next;
+          continue;
+        }
+        if (identical(nextValue, '<')) {
+          // Handle cases like this:
+          // class Foo {
+          //   var map;
+          //   Foo() : map = <String, Foo>{};
+          //   Foo.x() : map = true ? <String, Foo>{} : <String, Foo>{};
+          // }
+          BeginGroupToken begin = token.next;
+          token = (begin.endGroup != null) ? begin.endGroup : token;
+          token = token.next;
+          if (identical(token.stringValue, '{')) {
+            begin = token;
+            token = (begin.endGroup != null) ? begin.endGroup : token;
+            token = token.next;
+          }
+          continue;
+        }
+      }
+      if (!mayParseFunctionExpressions && identical(value, '{')) {
+        break;
+      }
+      if (token is BeginGroupToken) {
+        BeginGroupToken begin = token;
+        token = (begin.endGroup != null) ? begin.endGroup : token;
+      } else if (token is ErrorToken) {
+        listener.reportErrorToken(token);
+      }
+      token = token.next;
+    }
+    return token;
   }
 
   Token parseExpression(Token token) {
@@ -2578,6 +2702,16 @@ class Parser {
     token = parseArgumentsOpt(token);
     listener.endSend(token);
     return token;
+  }
+
+  Token skipArgumentsOpt(Token token) {
+    listener.handleNoArguments(token);
+    if (optional('(', token)) {
+      BeginGroupToken begin = token;
+      return begin.endGroup.next;
+    } else {
+      return token;
+    }
   }
 
   Token parseArgumentsOpt(Token token) {
