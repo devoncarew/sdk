@@ -20,10 +20,10 @@ import 'package:dart_scanner/src/token.dart' show
 import 'error_kind.dart' show
     ErrorKind;
 
-/**
- * A parser event listener that does nothing except throw exceptions
- * on parser errors.
- */
+/// A parser event listener that does nothing except throw exceptions
+/// on parser errors.
+///
+/// Events are methods that begin with one of: `begin`, `end`, or `handle`.
 class Listener {
   final List<ParserError> recoverableErrors = <ParserError>[];
 
@@ -214,6 +214,7 @@ class Listener {
     logEvent("NoFunctionBody");
   }
 
+  // TODO(ahe): Rename to `handleFunctionBodySkipped`.
   void skippedFunctionBody(Token token) {}
 
   void beginFunctionName(Token token) {}
@@ -739,6 +740,7 @@ class Listener {
     logEvent("YieldStatement");
   }
 
+  // TODO(ahe): Rename to `handleUnexpected`.
   Token expected(String string, Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -748,6 +750,7 @@ class Listener {
     return skipToEof(token);
   }
 
+  // TODO(ahe): Move away from this class.
   Token synthesizeIdentifier(Token token) {
     Token synthesizedToken = new StringToken.fromString(
         IDENTIFIER_INFO, '?', token.charOffset);
@@ -755,6 +758,7 @@ class Listener {
     return synthesizedToken;
   }
 
+  // TODO(ahe): Rename to `handleIdentifierExpected`.
   Token expectedIdentifier(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -764,6 +768,7 @@ class Listener {
     return skipToEof(token);
   }
 
+  // TODO(ahe): Rename to `handleTypeExpected`.
   Token expectedType(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -773,6 +778,7 @@ class Listener {
     return skipToEof(token);
   }
 
+  // TODO(ahe): Rename to `handleExpressionExpected`.
   Token expectedExpression(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -782,6 +788,7 @@ class Listener {
     return skipToEof(token);
   }
 
+  // TODO(ahe): Merge with `handleUnexpected` (nee `expected`).
   Token unexpected(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -791,6 +798,7 @@ class Listener {
     return skipToEof(token);
   }
 
+  // TODO(ahe): Rename to `handleBlockToSkipExpected`.
   Token expectedBlockToSkip(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -800,6 +808,7 @@ class Listener {
     return skipToEof(token);
   }
 
+  // TODO(ahe): Rename to `handleFunctionBodyExpected`.
   Token expectedFunctionBody(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -809,6 +818,7 @@ class Listener {
     return skipToEof(token);
   }
 
+  // TODO(ahe): Rename to `handleClassBodyExpected`.
   Token expectedClassBody(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -818,6 +828,7 @@ class Listener {
     return skipToEof(token);
   }
 
+  // TODO(ahe): Rename to `handleClassBodyToSkipExpected`.
   Token expectedClassBodyToSkip(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -827,6 +838,7 @@ class Listener {
     return skipToEof(token);
   }
 
+  // TODO(ahe): Rename to `handleDeclarationExpected`.
   Token expectedDeclaration(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -836,6 +848,7 @@ class Listener {
     return skipToEof(token);
   }
 
+  // TODO(ahe): Rename to `handleUnmatched`.
   Token unmatched(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -845,17 +858,20 @@ class Listener {
     return skipToEof(token);
   }
 
-  skipToEof(Token token) {
+  // TODO(ahe): Move away from this class.
+  Token skipToEof(Token token) {
     while (!identical(token.info, EOF_INFO)) {
       token = token.next;
     }
     return token;
   }
 
+  // TODO(ahe): Merge with `handleError` (nee `reportError`).
   void error(String message, Token token) {
     throw new ParserError(token, ErrorKind.UNSPECIFIED, {'text': message});
   }
 
+  // TODO(ahe): Rename to `handleError`.
   void reportError(Token token, ErrorKind kind, [Map arguments = const {}]) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -864,10 +880,12 @@ class Listener {
     }
   }
 
+  // TODO(ahe): Move away from this class.
   void reportErrorHelper(Token token, ErrorKind kind, Map arguments) {
     recoverableErrors.add(new ParserError(token, kind, arguments));
   }
 
+  // TODO(ahe): Move away from this class.
   void reportErrorToken(ErrorToken token) {
     if (token is BadInputToken) {
       String hex = token.character.toRadixString(16);
