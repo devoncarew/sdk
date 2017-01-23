@@ -14,8 +14,8 @@ import '../elements/modelx.dart' show FunctionElementX;
 import '../js_backend/backend_helpers.dart' show BackendHelpers;
 import '../js_backend/js_backend.dart';
 import '../js_emitter/js_emitter.dart' show CodeEmitterTask, NativeEmitter;
-import '../tokens/token.dart' show BeginGroupToken, Token;
-import '../tokens/token_constants.dart' as Tokens show EOF_TOKEN;
+import 'package:dart_scanner/dart_scanner.dart' show BeginGroupToken, Token;
+import 'package:dart_scanner/dart_scanner.dart' as Tokens show EOF_TOKEN;
 import '../tree/tree.dart';
 import '../universe/use.dart' show StaticUse, TypeUse;
 import '../universe/world_impact.dart'

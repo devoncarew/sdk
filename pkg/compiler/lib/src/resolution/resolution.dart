@@ -37,7 +37,7 @@ import '../elements/modelx.dart'
         TypedefElementX;
 import '../enqueue.dart';
 import '../options.dart';
-import '../tokens/token.dart'
+import 'package:dart_scanner/dart_scanner.dart'
     show
         isBinaryOperator,
         isMinusOperator,

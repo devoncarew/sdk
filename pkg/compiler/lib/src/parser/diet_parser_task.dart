@@ -9,10 +9,9 @@ import '../common/backend_api.dart' show Backend;
 import '../common/tasks.dart' show CompilerTask, Measurer;
 import '../elements/elements.dart' show CompilationUnitElement;
 import '../id_generator.dart';
-import '../tokens/token.dart' show Token;
+import 'package:dart_scanner/dart_scanner.dart' show Token;
 import 'element_listener.dart' show ElementListener, ScannerOptions;
-import 'listener.dart' show ParserError;
-import 'partial_parser.dart' show PartialParser;
+import 'package:dart_parser/dart_parser.dart' show ParserError, TopLevelParser;
 
 class DietParserTask extends CompilerTask {
   final IdGenerator _idGenerator;
@@ -31,7 +30,7 @@ class DietParserTask extends CompilerTask {
           canUseNative: _backend.canLibraryUseNative(compilationUnit.library));
       ElementListener listener = new ElementListener(
           scannerOptions, _reporter, compilationUnit, _idGenerator);
-      PartialParser parser = new PartialParser(listener);
+      TopLevelParser parser = new TopLevelParser(listener);
       try {
         parser.parseUnit(tokens);
       } on ParserError catch (_) {

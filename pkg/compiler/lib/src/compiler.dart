@@ -65,7 +65,7 @@ import 'scanner/scanner_task.dart' show ScannerTask;
 import 'script.dart' show Script;
 import 'serialization/task.dart' show SerializationTask;
 import 'ssa/nodes.dart' show HInstruction;
-import 'tokens/token.dart' show StringToken, Token, TokenPair;
+import 'package:dart_scanner/dart_scanner.dart' show StringToken, Token;
 import 'tokens/token_map.dart' show TokenMap;
 import 'tree/tree.dart' show Node, TypeAnnotation;
 import 'typechecker.dart' show TypeCheckerTask;
@@ -268,7 +268,7 @@ abstract class Compiler implements LibraryLoaderListener {
     }
 
     _parsingContext =
-        new ParsingContext(reporter, parser, patchParser, backend);
+        new ParsingContext(reporter, parser, scanner, patchParser, backend);
 
     tasks.addAll(backend.tasks);
   }
@@ -1641,6 +1641,9 @@ class CompilerDiagnosticReporter extends DiagnosticReporter {
         api.Diagnostic.CRASH);
   }
 
+  @override
+  SourceSpan spanFromToken(Token token) => spanFromTokens(token, token);
+
   SourceSpan spanFromTokens(Token begin, Token end, [Uri uri]) {
     if (begin == null || end == null) {
       // TODO(ahe): We can almost always do better. Often it is only
@@ -1789,10 +1792,6 @@ class CompilerDiagnosticReporter extends DiagnosticReporter {
       return node;
     } else if (node is Node) {
       return spanFromNode(node);
-    } else if (node is TokenPair) {
-      return spanFromTokens(node.begin, node.end);
-    } else if (node is Token) {
-      return spanFromTokens(node, node);
     } else if (node is HInstruction) {
       return spanFromHInstruction(node);
     } else if (node is Element) {

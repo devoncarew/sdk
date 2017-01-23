@@ -4,12 +4,13 @@
 
 import '../common.dart';
 import '../parser/element_listener.dart' show ElementListener;
-import '../tokens/token.dart' show BeginGroupToken, Token;
-import '../tokens/token_constants.dart' as Tokens show STRING_TOKEN;
+import 'package:dart_scanner/dart_scanner.dart' show BeginGroupToken, Token;
+import 'package:dart_scanner/src/token_constants.dart' as Tokens show
+    STRING_TOKEN;
 
 void checkAllowedLibrary(ElementListener listener, Token token) {
   if (listener.scannerOptions.canUseNative) return;
-  listener.reportError(token, MessageKind.NATIVE_NOT_SUPPORTED);
+  listener.reportErrorMessageToken(token, MessageKind.NATIVE_NOT_SUPPORTED);
 }
 
 Token handleNativeBlockToSkip(ElementListener listener, Token token) {

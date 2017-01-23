@@ -17,7 +17,7 @@ import 'elements/modelx.dart'
 import 'elements/visitor.dart' show ElementVisitor;
 import 'js_backend/js_backend.dart' show JavaScriptBackend;
 import 'resolution/tree_elements.dart' show TreeElements;
-import 'tokens/token.dart' show Token;
+import 'package:dart_scanner/dart_scanner.dart' show Token;
 import 'tree/tree.dart';
 import 'util/util.dart';
 import 'world.dart' show ClosedWorldRefiner;

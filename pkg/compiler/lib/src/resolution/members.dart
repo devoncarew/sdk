@@ -27,7 +27,7 @@ import '../elements/modelx.dart'
         VariableElementX,
         VariableList;
 import '../options.dart';
-import '../tokens/token.dart' show isUserDefinableOperator;
+import 'package:dart_scanner/dart_scanner.dart' show isUserDefinableOperator;
 import '../tree/tree.dart';
 import '../universe/call_structure.dart' show CallStructure;
 import '../universe/feature.dart' show Feature;
@@ -3598,7 +3598,8 @@ class ResolverVisitor extends MappingVisitor<ResolutionResult> {
   ResolutionResult visitYield(Yield node) {
     if (!resolution.target.supportsAsyncAwait) {
       reporter.reportErrorMessage(
-          node.yieldToken, MessageKind.ASYNC_AWAIT_NOT_SUPPORTED);
+          reporter.spanFromToken(node.yieldToken),
+          MessageKind.ASYNC_AWAIT_NOT_SUPPORTED);
     } else {
       if (!currentAsyncMarker.isYielding) {
         reporter.reportErrorMessage(node, MessageKind.INVALID_YIELD);
@@ -3737,7 +3738,8 @@ class ResolverVisitor extends MappingVisitor<ResolutionResult> {
   ResolutionResult visitAwait(Await node) {
     if (!resolution.target.supportsAsyncAwait) {
       reporter.reportErrorMessage(
-          node.awaitToken, MessageKind.ASYNC_AWAIT_NOT_SUPPORTED);
+          reporter.spanFromToken(node.awaitToken),
+          MessageKind.ASYNC_AWAIT_NOT_SUPPORTED);
     } else {
       if (!currentAsyncMarker.isAsync) {
         reporter.reportErrorMessage(node, MessageKind.INVALID_AWAIT);
@@ -3998,7 +4000,8 @@ class ResolverVisitor extends MappingVisitor<ResolutionResult> {
       if (resolution.commonElements.isSymbolConstructor(constructor) &&
           !resolution.mirrorUsageAnalyzerTask
               .hasMirrorUsage(enclosingElement)) {
-        reporter.reportHintMessage(node.newToken, MessageKind.NON_CONST_BLOAT,
+        reporter.reportHintMessage(reporter.spanFromToken(node.newToken),
+            MessageKind.NON_CONST_BLOAT,
             {'name': commonElements.symbolClass.name});
       }
       registry.registerNewStructure(
@@ -4270,11 +4273,13 @@ class ResolverVisitor extends MappingVisitor<ResolutionResult> {
   ResolutionResult visitAsyncForIn(AsyncForIn node) {
     if (!resolution.target.supportsAsyncAwait) {
       reporter.reportErrorMessage(
-          node.awaitToken, MessageKind.ASYNC_AWAIT_NOT_SUPPORTED);
+          reporter.spanFromToken(node.awaitToken),
+          MessageKind.ASYNC_AWAIT_NOT_SUPPORTED);
     } else {
       if (!currentAsyncMarker.isAsync) {
         reporter.reportErrorMessage(
-            node.awaitToken, MessageKind.INVALID_AWAIT_FOR_IN);
+            reporter.spanFromToken(node.awaitToken),
+            MessageKind.INVALID_AWAIT_FOR_IN);
       }
       registry.registerFeature(Feature.ASYNC_FOR_IN);
       registry.registerDynamicUse(new DynamicUse(Selectors.current, null));
@@ -4674,7 +4679,8 @@ class ResolverVisitor extends MappingVisitor<ResolutionResult> {
     visit(node.tryBlock);
     if (node.catchBlocks.isEmpty && node.finallyBlock == null) {
       reporter.reportErrorMessage(
-          node.getEndToken().next, MessageKind.NO_CATCH_NOR_FINALLY);
+          reporter.spanFromToken(node.getEndToken().next),
+          MessageKind.NO_CATCH_NOR_FINALLY);
     }
     visit(node.catchBlocks);
     visit(node.finallyBlock);

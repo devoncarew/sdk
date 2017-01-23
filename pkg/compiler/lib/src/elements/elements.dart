@@ -13,11 +13,11 @@ import '../ordered_typeset.dart' show OrderedTypeSet;
 import '../resolution/scope.dart' show Scope;
 import '../resolution/tree_elements.dart' show TreeElements;
 import '../script.dart';
-import '../tokens/token.dart'
+import 'package:dart_scanner/dart_scanner.dart'
     show Token, isUserDefinableOperator, isMinusOperator;
 import '../tree/tree.dart';
 import '../universe/call_structure.dart';
-import '../util/characters.dart' show $_;
+import 'package:dart_scanner/src/characters.dart' show $_;
 import '../util/util.dart';
 import '../world.dart' show ClosedWorld;
 import 'entities.dart';

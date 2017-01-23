@@ -16,8 +16,22 @@ import 'src/parser.dart' show
 import 'src/listener.dart' show
     ParserError;
 
+export 'src/parser.dart' show
+    Parser;
+
 export 'src/listener.dart' show
-    ParserError;
+    Listener,
+    ParserError,
+    closeBraceFor;
+
+export 'src/error_kind.dart' show
+    ErrorKind;
+
+export 'src/top_level_parser.dart' show
+    TopLevelParser;
+
+export 'src/class_member_parser.dart' show
+    ClassMemberParser;
 
 List<ParserError> parse(Token tokens) {
   Listener listener = new Listener();

@@ -23,7 +23,7 @@ import '../tree/tree.dart';
 import '../universe/call_structure.dart' show CallStructure;
 import '../universe/selector.dart' show Selector, SelectorKind;
 import '../universe/world_builder.dart' show CodegenWorldBuilder;
-import '../util/characters.dart';
+import 'package:dart_scanner/src/characters.dart';
 import '../util/util.dart';
 import '../world.dart' show ClosedWorld;
 import 'backend.dart';

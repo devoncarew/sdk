@@ -20,8 +20,8 @@ import '../resolution/scope.dart'
 import '../resolution/tree_elements.dart' show TreeElements;
 import '../resolution/typedefs.dart' show TypedefCyclicVisitor;
 import '../script.dart';
-import '../tokens/token.dart' show ErrorToken, Token;
-import '../tokens/token_constants.dart' as Tokens show EOF_TOKEN;
+import 'package:dart_scanner/dart_scanner.dart' show ErrorToken, Token;
+import 'package:dart_scanner/dart_scanner.dart' as Tokens show EOF_TOKEN;
 import '../tree/tree.dart';
 import '../util/util.dart';
 import 'common.dart';

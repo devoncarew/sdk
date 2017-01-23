@@ -8,7 +8,7 @@ import '../common.dart';
 import '../elements/elements.dart' show Element, ElementKind, Elements;
 import '../elements/modelx.dart'
     show ClassElementX, ElementX, FieldElementX, VariableList;
-import '../tokens/token.dart' show Token;
+import 'package:dart_scanner/dart_scanner.dart' show Token;
 import '../tree/tree.dart';
 import 'element_listener.dart' show ScannerOptions;
 import 'node_listener.dart' show NodeListener;

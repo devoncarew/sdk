@@ -25,7 +25,7 @@ import '../resolution/scope.dart' show Scope;
 import '../resolution/tree_elements.dart' show TreeElements;
 import '../script.dart';
 import '../serialization/constant_serialization.dart';
-import '../tokens/token.dart' show Token;
+import 'package:dart_scanner/dart_scanner.dart' show Token;
 import '../tree/tree.dart';
 import '../util/util.dart' show Link, LinkBuilder;
 import 'keys.dart';

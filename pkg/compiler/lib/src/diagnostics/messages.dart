@@ -62,7 +62,7 @@
 
 library dart2js.messages;
 
-import '../tokens/token.dart' show ErrorToken, Token;
+import 'package:dart_scanner/dart_scanner.dart' show ErrorToken, Token;
 import 'generated/shared_messages.dart' as shared_messages;
 import 'invariant.dart' show invariant;
 import 'spannable.dart' show CURRENT_ELEMENT_SPANNABLE;

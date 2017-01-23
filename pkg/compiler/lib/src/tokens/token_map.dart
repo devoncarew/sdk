@@ -4,7 +4,7 @@
 
 library dart2js.tokens.token_map;
 
-import 'token.dart' show Token;
+import 'package:dart_scanner/dart_scanner.dart' show Token;
 
 /**
  * Key class used in [TokenMap] in which the hash code for a token is based

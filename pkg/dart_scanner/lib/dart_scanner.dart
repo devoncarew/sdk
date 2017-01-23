@@ -10,6 +10,31 @@ import 'src/token.dart' show
 import 'src/utf8_bytes_scanner.dart' show
     Utf8BytesScanner;
 
+export 'src/token.dart' show
+    BeginGroupToken,
+    ErrorToken,
+    KeywordToken,
+    StringToken,
+    SymbolToken,
+    Token,
+    isBinaryOperator,
+    isMinusOperator,
+    isTernaryOperator,
+    isUnaryOperator,
+    isUserDefinableOperator;
+
+export 'src/token_constants.dart' show
+    EOF_TOKEN;
+
+export 'src/utf8_bytes_scanner.dart' show
+    Utf8BytesScanner;
+
+export 'src/string_scanner.dart' show
+    StringScanner;
+
+export 'src/keyword.dart' show
+    Keyword;
+
 abstract class Scanner {
   List<int> get lineStarts;
   Token tokenize();

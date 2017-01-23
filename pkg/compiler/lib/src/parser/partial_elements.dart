@@ -31,14 +31,13 @@ import '../elements/modelx.dart'
         TypedefElementX,
         VariableList;
 import '../elements/visitor.dart' show ElementVisitor;
-import '../tokens/token.dart' show Token;
-import '../tokens/token_constants.dart' as Tokens show EOF_TOKEN;
+import 'package:dart_scanner/dart_scanner.dart' show Token;
+import 'package:dart_scanner/dart_scanner.dart' as Tokens show EOF_TOKEN;
 import '../tree/tree.dart';
-import 'class_element_parser.dart' show ClassElementParser;
-import 'listener.dart' show ParserError;
+import 'package:dart_parser/dart_parser.dart'
+    show ClassMemberParser, Parser, ParserError;
 import 'member_listener.dart' show MemberListener;
 import 'node_listener.dart' show NodeListener;
-import 'parser.dart' show Parser;
 
 abstract class PartialElement implements DeclarationSite {
   Token beginToken;
@@ -374,13 +373,14 @@ class PartialClassElement extends ClassElementX with PartialElement {
       parsing.measure(() {
         MemberListener listener = new MemberListener(
             parsing.getScannerOptionsFor(this), reporter, this);
-        Parser parser = new ClassElementParser(listener);
+        Parser parser = new ClassMemberParser(listener);
         try {
           Token token = parser.parseTopLevelDeclaration(beginToken);
           assert(identical(token, endToken.next));
           cachedNode = listener.popNode();
-          assert(invariant(beginToken, listener.nodes.isEmpty,
-              message: "Non-empty listener stack: ${listener.nodes}"));
+          assert(invariant(reporter.spanFromToken(beginToken),
+                  listener.nodes.isEmpty,
+                  message: "Non-empty listener stack: ${listener.nodes}"));
         } on ParserError {
           // TODO(ahe): Often, a ParserError is thrown while parsing the class
           // body. This means that the stack actually contains most of the
@@ -443,7 +443,7 @@ Node parse(ParsingContext parsing, ElementX element, PartialElement partial,
         doParse(new Parser(listener));
       } on ParserError catch (e) {
         partial.hasParseError = true;
-        return new ErrorNode(element.position, e.reason);
+        return new ErrorNode(element.position, e.kind, e.arguments);
       }
       Node node = listener.popNode();
       assert(listener.nodes.isEmpty);

@@ -7,8 +7,10 @@ library dart2js.parser.node_listener;
 import '../common.dart';
 import '../elements/elements.dart' show CompilationUnitElement;
 import '../native/native.dart' as native;
-import '../tokens/precedence_constants.dart' as Precedence show INDEX_INFO;
-import '../tokens/token.dart' show ErrorToken, StringToken, Token;
+import 'package:dart_scanner/src/precedence.dart' as Precedence show
+    INDEX_INFO;
+import 'package:dart_scanner/dart_scanner.dart' show
+    ErrorToken, StringToken, Token;
 import '../tree/tree.dart';
 import '../util/util.dart' show Link;
 import 'element_listener.dart' show ElementListener, ScannerOptions;
@@ -247,7 +249,8 @@ class NodeListener extends ElementListener {
   }
 
   void handleOnError(Token token, var errorInformation) {
-    reporter.internalError(token, "'${token.value}': ${errorInformation}");
+    reporter.internalError(reporter.spanFromToken(token),
+        "'${token.value}': ${errorInformation}");
   }
 
   Token expectedFunctionBody(Token token) {
@@ -318,11 +321,12 @@ class NodeListener extends ElementListener {
       pushNode(new Send(receiver, new Operator(token), arguments));
     }
     if (identical(tokenString, '===')) {
-      reporter.reportErrorMessage(token, MessageKind.UNSUPPORTED_EQ_EQ_EQ,
-          {'lhs': receiver, 'rhs': argument});
+      reporter.reportErrorMessage(reporter.spanFromToken(token),
+          MessageKind.UNSUPPORTED_EQ_EQ_EQ, {'lhs': receiver, 'rhs': argument});
     }
     if (identical(tokenString, '!==')) {
-      reporter.reportErrorMessage(token, MessageKind.UNSUPPORTED_BANG_EQ_EQ,
+      reporter.reportErrorMessage(reporter.spanFromToken(token),
+          MessageKind.UNSUPPORTED_BANG_EQ_EQ,
           {'lhs': receiver, 'rhs': argument});
     }
   }
@@ -496,7 +500,8 @@ class NodeListener extends ElementListener {
     pushNode(new Rethrow(throwToken, endToken));
     if (identical(throwToken.stringValue, 'throw')) {
       reporter.reportErrorMessage(
-          throwToken, MessageKind.MISSING_EXPRESSION_IN_THROW);
+          reporter.spanFromToken(throwToken),
+          MessageKind.MISSING_EXPRESSION_IN_THROW);
     }
   }
 

@@ -22,14 +22,15 @@ import '../elements/modelx.dart'
 import '../id_generator.dart';
 import '../native/native.dart' as native;
 import '../string_validator.dart' show StringValidator;
-import '../tokens/keyword.dart' show Keyword;
-import '../tokens/precedence_constants.dart' as Precedence show BAD_INPUT_INFO;
-import '../tokens/token.dart'
-    show BeginGroupToken, ErrorToken, KeywordToken, Token;
-import '../tokens/token_constants.dart' as Tokens show EOF_TOKEN;
+import 'package:dart_scanner/dart_scanner.dart'
+    show Keyword, BeginGroupToken, ErrorToken, KeywordToken, Token;
+import 'package:dart_scanner/dart_scanner.dart' as Tokens show EOF_TOKEN;
+import 'package:dart_scanner/src/precedence.dart' as Precedence show
+    BAD_INPUT_INFO;
 import '../tree/tree.dart';
 import '../util/util.dart' show Link, LinkBuilder;
-import 'listener.dart' show closeBraceFor, Listener, ParserError, VERBOSE;
+import 'package:dart_parser/dart_parser.dart' show
+    closeBraceFor, Listener, ParserError;
 import 'partial_elements.dart'
     show
         PartialClassElement,
@@ -38,6 +39,8 @@ import 'partial_elements.dart'
         PartialFunctionElement,
         PartialMetadataAnnotation,
         PartialTypedefElement;
+
+const bool VERBOSE = false;
 
 /// Options used for scanning.
 ///
@@ -233,7 +236,8 @@ class ElementListener extends Listener {
   void endTopLevelDeclaration(Token token) {
     if (!metadata.isEmpty) {
       MetadataAnnotationX first = metadata.first;
-      recoverableError(first.beginToken, 'Metadata not supported here.');
+      recoverableError(reporter.spanFromToken(first.beginToken),
+          'Metadata not supported here.');
       metadata.clear();
     }
   }
@@ -603,7 +607,8 @@ class ElementListener extends Listener {
     return next;
   }
 
-  void recoverableError(Spannable node, String message) {
+  // TODO(ahe): XXX
+  void recoverableError(/* Spannable */ node, String message) {
     // TODO(johnniwinther): Make recoverable errors non-fatal.
     reportFatalError(node, message);
   }
@@ -737,14 +742,22 @@ class ElementListener extends Listener {
 
   /// Don't call this method. Should only be used as a last resort when there
   /// is no feasible way to recover from a parser error.
-  void reportFatalError(Spannable spannable, String message) {
+  // TODO(ahe): XXX
+  void reportFatalError(/* Spannable */ spannable, String message) {
     reportError(spannable, MessageKind.GENERIC, {'text': message});
     // Some parse errors are infeasible to recover from, so we throw an error.
-    throw new ParserError(message);
+    throw new ParserError(spannable, null, {'text': message}); // TODO(ahe): XXX
   }
 
+  // TODO(ahe): XXX
   @override
-  void reportErrorHelper(Spannable spannable, MessageKind errorCode,
+  void reportError(token, kind, [Map arguments = const {}]) {
+    super.reportError(token, kind, arguments);
+  }
+
+  // TODO(ahe): XXX
+  @override
+  void reportErrorHelper(/* Spannable */ spannable, /* MessageKind */ errorCode,
       [Map arguments = const {}]) {
     if (currentMemberHasParseError) return; // Error already reported.
     if (suppressParseErrors) return;
@@ -752,5 +765,10 @@ class ElementListener extends Listener {
       memberErrors = memberErrors.tail.prepend(true);
     }
     reporter.reportErrorMessage(spannable, errorCode, arguments);
+  }
+
+  void reportErrorMessageToken(Token token, MessageKind errorCode,
+      [Map arguments = const {}]) {
+    reportErrorHelper(reporter.spanFromToken(token), errorCode, arguments);
   }
 }

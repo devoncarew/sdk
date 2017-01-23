@@ -54,7 +54,8 @@ import '../../js_backend/js_backend.dart'
 import '../../universe/call_structure.dart' show CallStructure;
 import '../../universe/selector.dart' show Selector;
 import '../../universe/world_builder.dart' show CodegenWorldBuilder;
-import '../../util/characters.dart' show $$, $A, $HASH, $Z, $a, $z;
+import 'package:dart_scanner/src/characters.dart'
+    show $$, $A, $HASH, $Z, $a, $z;
 import '../../util/uri_extras.dart' show relativize;
 import '../../util/util.dart' show equalElements;
 import '../../world.dart' show ClosedWorld;
