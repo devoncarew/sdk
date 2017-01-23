@@ -19,10 +19,9 @@ import 'src/listener.dart' show
 export 'src/listener.dart' show
     ParserError;
 
-List<ParserError> parse(Token tokens, {bool enableGenericMethodSyntax: false}) {
+List<ParserError> parse(Token tokens) {
   Listener listener = new Listener();
-  Parser parser = new Parser(listener,
-      enableGenericMethodSyntax: enableGenericMethodSyntax);
+  Parser parser = new Parser(listener);
   parser.parseUnit(tokens);
   return listener.recoverableErrors;
 }

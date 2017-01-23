@@ -17,10 +17,8 @@ import 'parser.dart' show
 /// their bodies).
 class ClassMemberParser extends Parser {
   ClassMemberParser(Listener listener,
-      {bool asyncAwaitKeywordsEnabled: false,
-       bool enableGenericMethodSyntax: false})
-      : super(listener, asyncAwaitKeywordsEnabled: asyncAwaitKeywordsEnabled,
-          enableGenericMethodSyntax: enableGenericMethodSyntax);
+      {bool asyncAwaitKeywordsEnabled: false})
+      : super(listener, asyncAwaitKeywordsEnabled: asyncAwaitKeywordsEnabled);
 
   Token parseExpression(Token token) => skipExpression(token);
 

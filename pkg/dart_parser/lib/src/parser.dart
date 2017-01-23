@@ -115,11 +115,7 @@ class Parser {
 
   bool asyncAwaitKeywordsEnabled;
 
-  final bool enableGenericMethodSyntax;
-
-  Parser(this.listener,
-         {this.asyncAwaitKeywordsEnabled: false,
-          this.enableGenericMethodSyntax: false});
+  Parser(this.listener, {this.asyncAwaitKeywordsEnabled: false});
 
   Token parseUnit(Token token) {
     listener.beginCompilationUnit(token);
@@ -383,30 +379,12 @@ class Parser {
 
   Token parseTypedef(Token token) {
     Token typedefKeyword = token;
-    if (optional('=', peekAfterType(token.next))) {
-      // TODO(aprelev@gmail.com): Remove deprecated 'typedef' mixin application,
-      // remove corresponding diagnostic from members.dart.
-      listener.beginNamedMixinApplication(token);
-      token = parseIdentifier(token.next);
-      token = parseTypeVariablesOpt(token);
-      token = expect('=', token);
-      token = parseModifiers(token);
-      token = parseMixinApplication(token);
-      Token implementsKeyword = null;
-      if (optional('implements', token)) {
-        implementsKeyword = token;
-        token = parseTypeList(token.next);
-      }
-      listener.endNamedMixinApplication(
-          typedefKeyword, implementsKeyword, token);
-    } else {
-      listener.beginFunctionTypeAlias(token);
-      token = parseReturnTypeOpt(token.next);
-      token = parseIdentifier(token);
-      token = parseTypeVariablesOpt(token);
-      token = parseFormalParameters(token);
-      listener.endFunctionTypeAlias(typedefKeyword, token);
-    }
+    listener.beginFunctionTypeAlias(token);
+    token = parseReturnTypeOpt(token.next);
+    token = parseIdentifier(token);
+    token = parseTypeVariablesOpt(token);
+    token = parseFormalParameters(token);
+    listener.endFunctionTypeAlias(typedefKeyword, token);
     return expect(';', token);
   }
 
@@ -465,6 +443,15 @@ class Parser {
   Token parseFormalParameter(Token token, FormalParameterType type) {
     token = parseMetadataStar(token, forParameter: true);
     listener.beginFormalParameter(token);
+
+    // Skip over `covariant` token, if the next token is an identifier or
+    // modifier.
+    // This enables the case where `covariant` is the name of the parameter:
+    //    void foo(covariant);
+    if (identical(token.stringValue, 'covariant') &&
+        (token.next.isIdentifier() || isModifier(token.next))) {
+      token = token.next;
+    }
     token = parseModifiers(token);
     // TODO(ahe): Validate that there are formal parameters if void.
     token = parseReturnTypeOpt(token);
@@ -481,7 +468,7 @@ class Parser {
       listener.handleNoTypeVariables(token);
       token = parseFormalParameters(token);
       listener.handleFunctionTypedFormalParameter(token);
-    } else if (enableGenericMethodSyntax && optional('<', token)) {
+    } else if (optional('<', token)) {
       listener.beginFunctionTypedFormalParameter(token);
       token = parseTypeVariablesOpt(token);
       token = parseFormalParameters(token);
@@ -600,7 +587,7 @@ class Parser {
   /// Returns token after match if [token] matches identifier ('.' identifier)?,
   /// and otherwise returns null. Does not produce listener events.
   Token tryParseQualified(Token token) {
-    if (!identical(token.kind, IDENTIFIER_TOKEN)) return null;
+    if (!isValidTypeReference(token)) return null;
     token = token.next;
     if (!identical(token.kind, PERIOD_TOKEN)) return token;
     token = token.next;
@@ -705,17 +692,10 @@ class Parser {
     var isMixinApplication = optional('=', peekAfterType(token.next));
     if (isMixinApplication) {
       listener.beginNamedMixinApplication(begin);
-      token = parseIdentifier(token.next);
-      token = parseTypeVariablesOpt(token);
-      token = expect('=', token);
     } else {
       listener.beginClassDeclaration(begin);
     }
 
-    // TODO(aprelev@gmail.com): Once 'typedef' named mixin application is
-    // removed, move modifiers for named mixin application to the bottom of
-    // listener stack. This is so stacks for class declaration and named
-    // mixin application look similar.
     int modifierCount = 0;
     if (abstractKeyword != null) {
       parseModifier(abstractKeyword);
@@ -724,6 +704,9 @@ class Parser {
     listener.handleModifiers(modifierCount);
 
     if (isMixinApplication) {
+      token = parseIdentifier(token.next);
+      token = parseTypeVariablesOpt(token);
+      token = expect('=', token);
       return parseNamedMixinApplication(token, classKeyword);
     } else {
       return parseClass(begin, classKeyword);
@@ -799,8 +782,7 @@ class Parser {
     listener.beginTypeVariable(token);
     token = parseIdentifier(token);
     Token extendsOrSuper = null;
-    if (optional('extends', token) ||
-        (enableGenericMethodSyntax && optional('super', token))) {
+    if (optional('extends', token) || optional('super', token)) {
       extendsOrSuper = token;
       token = parseType(token.next);
     } else {
@@ -1027,9 +1009,29 @@ class Parser {
     return null;
   }
 
+  /// Removes the optional `covariant` token from the modifiers, if there
+  /// is no `static` in the list, and `covariant` is the first modifier.
+  Link<Token> removeOptCovariantTokenIfNotStatic(Link<Token> modifiers) {
+    if (modifiers.isEmpty ||
+        !identical(modifiers.first.stringValue, 'covariant')) {
+      return modifiers;
+    }
+    for (Token modifier in modifiers.tail) {
+      if (identical(modifier.stringValue, 'static')) {
+        return modifiers;
+      }
+    }
+    return modifiers.tail;
+  }
+
   Token parseFields(Token start, Link<Token> modifiers, Token type,
       Token getOrSet, Token name, bool isTopLevel) {
     bool hasType = type != null;
+
+    if (getOrSet == null && !isTopLevel) {
+      modifiers = removeOptCovariantTokenIfNotStatic(modifiers);
+    }
+
     Token varFinalOrConst =
         expectVarFinalOrConst(modifiers, hasType, !isTopLevel);
     bool isVar = false;
@@ -1108,7 +1110,7 @@ class Parser {
     }
     Token token = parseIdentifier(name);
 
-    if (enableGenericMethodSyntax && getOrSet == null) {
+    if (getOrSet == null) {
       token = parseTypeVariablesOpt(token);
     } else {
       listener.handleNoTypeVariables(token);
@@ -1393,7 +1395,7 @@ class Parser {
     if (isFactoryDeclaration(token)) {
       token = parseFactoryMethod(token);
       listener.endMember();
-      assert (token != null);
+      assert(token != null);
       return token;
     }
 
@@ -1440,7 +1442,7 @@ class Parser {
           (identical(value, '.')) ||
           (identical(value, '{')) ||
           (identical(value, '=>')) ||
-          (enableGenericMethodSyntax && identical(value, '<'))) {
+          (identical(value, '<'))) {
         isField = false;
         break;
       } else if (identical(value, ';')) {
@@ -1535,7 +1537,7 @@ class Parser {
     }
 
     token = parseQualifiedRestOpt(token);
-    if (enableGenericMethodSyntax && getOrSet == null) {
+    if (getOrSet == null) {
       token = parseTypeVariablesOpt(token);
     } else {
       listener.handleNoTypeVariables(token);
@@ -1626,7 +1628,7 @@ class Parser {
     }
     token = parseQualifiedRestOpt(token);
     listener.endFunctionName(token);
-    if (enableGenericMethodSyntax && getOrSet == null) {
+    if (getOrSet == null) {
       token = parseTypeVariablesOpt(token);
     } else {
       listener.handleNoTypeVariables(token);
@@ -1671,11 +1673,7 @@ class Parser {
     listener.beginFunctionName(token);
     token = parseIdentifier(token);
     listener.endFunctionName(token);
-    if (enableGenericMethodSyntax) {
-      token = parseTypeVariablesOpt(token);
-    } else {
-      listener.handleNoTypeVariables(token);
-    }
+    token = parseTypeVariablesOpt(token);
     token = parseFormalParameters(token);
     listener.handleNoInitializers();
     bool previousAsyncAwaitKeywordsEnabled = asyncAwaitKeywordsEnabled;
@@ -1951,8 +1949,7 @@ class Parser {
           // by '{', '=>', 'async', or 'sync'.
           return parseFunctionDeclaration(token);
         }
-      } else if (enableGenericMethodSyntax &&
-          identical(afterIdKind, LT_TOKEN)) {
+      } else if (identical(afterIdKind, LT_TOKEN)) {
         // We are looking at "type identifier '<'".
         BeginGroupToken beginAngle = afterId;
         Token endAngle = beginAngle.endGroup;
@@ -1987,7 +1984,7 @@ class Parser {
             identical(afterParens, 'sync')) {
           return parseFunctionDeclaration(token);
         }
-      } else if (enableGenericMethodSyntax && optional('<', token.next)) {
+      } else if (optional('<', token.next)) {
         BeginGroupToken beginAngle = token.next;
         Token endAngle = beginAngle.endGroup;
         if (endAngle != null &&
@@ -2501,8 +2498,7 @@ class Parser {
   Token parseLiteralListOrMapOrFunction(Token token, Token constKeyword) {
     assert(optional('<', token));
     BeginGroupToken begin = token;
-    if (enableGenericMethodSyntax &&
-        constKeyword == null &&
+    if (constKeyword == null &&
         begin.endGroup != null &&
         identical(begin.endGroup.next.kind, OPEN_PAREN_TOKEN)) {
       token = parseTypeVariablesOpt(token);
@@ -2545,7 +2541,7 @@ class Parser {
   }
 
   bool isFunctionDeclaration(Token token) {
-    if (enableGenericMethodSyntax && optional('<', token)) {
+    if (optional('<', token)) {
       BeginGroupToken begin = token;
       if (begin.endGroup == null) return false;
       token = begin.endGroup.next;
@@ -2694,7 +2690,7 @@ class Parser {
   Token parseSend(Token token) {
     listener.beginSend(token);
     token = parseIdentifier(token);
-    if (enableGenericMethodSyntax && isValidMethodTypeArguments(token)) {
+    if (isValidMethodTypeArguments(token)) {
       token = parseTypeArgumentsOpt(token);
     } else {
       listener.handleNoTypeArguments(token);

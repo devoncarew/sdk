@@ -16,11 +16,8 @@ import 'class_member_parser.dart' show
 /// Parser which only parses top-level elements, but ignores their bodies.
 /// Use [Parser] to parse everything.
 class TopLevelParser extends ClassMemberParser {
-  TopLevelParser(Listener listener,
-      {bool asyncAwaitKeywordsEnabled: false,
-       bool enableGenericMethodSyntax: false})
-      : super(listener, asyncAwaitKeywordsEnabled: asyncAwaitKeywordsEnabled,
-          enableGenericMethodSyntax: enableGenericMethodSyntax);
+  TopLevelParser(Listener listener, {bool asyncAwaitKeywordsEnabled: false})
+      : super(listener, asyncAwaitKeywordsEnabled: asyncAwaitKeywordsEnabled);
 
   Token parseClassBody(Token token) => skipClassBody(token);
 }
