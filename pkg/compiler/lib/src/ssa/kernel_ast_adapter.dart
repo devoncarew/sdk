@@ -955,7 +955,7 @@ class Constantifier extends ir.ExpressionVisitor<ConstantExpression> {
   ConstantExpression visitStaticGet(ir.StaticGet node) {
     Element element = astAdapter.getMember(node.target);
     if (element.isField) {
-      return new VariableConstantExpression(element as MemberElement);
+      return new VariableConstantExpression(element as VariableElement);
     }
     astAdapter.reporter.internalError(
         CURRENT_ELEMENT_SPANNABLE, "Unexpected constant target: $element.");
