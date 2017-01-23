@@ -120,10 +120,10 @@
       "../dart_parser/bin",
       "../dart_parser/lib",
       "../dart_parser/lib/src",
-      "../dart_parser/test"
+      "../dart_parser/test",
+      "../compiler/lib/src/dart2js.dart"
     ],
     "exclude": [
-      "/pkg/analyzer/",
       "/third_party/pkg/"
     ]
   }
