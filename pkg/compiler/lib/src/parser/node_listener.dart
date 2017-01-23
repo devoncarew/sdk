@@ -288,7 +288,8 @@ class NodeListener extends ElementListener {
       reportErrorToken(token);
     } else {
       reportFatalError(
-          token, "Expected a function body, but got '${token.value}'.");
+          reporter.spanFromToken(token),
+          "Expected a function body, but got '${token.value}'.");
     }
     return skipToEof(token);
   }
@@ -300,7 +301,8 @@ class NodeListener extends ElementListener {
       return skipToEof(token);
     } else {
       reportFatalError(
-          token, "Expected a class body, but got '${token.value}'.");
+          reporter.spanFromToken(token),
+          "Expected a class body, but got '${token.value}'.");
       return skipToEof(token);
     }
   }
@@ -343,7 +345,8 @@ class NodeListener extends ElementListener {
       if (argumentSend == null) {
         // TODO(ahe): The parser should diagnose this problem, not
         // this listener.
-        reportFatalError(argument, 'Expected an identifier.');
+        reportFatalError(reporter.spanFromSpannable(argument),
+            "Expected an identifier.");
       }
       if (argumentSend.receiver != null) internalError(node: argument);
       if (argument is SendSet) internalError(node: argument);
@@ -408,7 +411,7 @@ class NodeListener extends ElementListener {
   void reportNotAssignable(Node node) {
     // TODO(ahe): The parser should diagnose this problem, not this
     // listener.
-    reportFatalError(node, 'Not assignable.');
+    reportFatalError(reporter.spanFromSpannable(node), "Not assignable.");
   }
 
   @override

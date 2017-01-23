@@ -77,7 +77,7 @@ class MemberListener extends NodeListener {
     Element memberElement;
     if (isConstructor) {
       if (getOrSet != null) {
-        recoverableError(getOrSet, 'illegal modifier');
+        recoverableError(reporter.spanFromToken(getOrSet), 'illegal modifier');
       }
       memberElement = new PartialConstructorElement(name, beginToken, endToken,
           ElementKind.GENERATIVE_CONSTRUCTOR, method.modifiers, enclosingClass);

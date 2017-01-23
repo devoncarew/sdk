@@ -868,7 +868,8 @@ class Listener {
 
   // TODO(ahe): Merge with `handleError` (nee `reportError`).
   void error(String message, Token token) {
-    throw new ParserError(token, ErrorKind.UNSPECIFIED, {'text': message});
+    throw new ParserError.fromTokens(
+        token, token, ErrorKind.Unspecified, {'text': message});
   }
 
   // TODO(ahe): Rename to `handleError`.
@@ -882,7 +883,8 @@ class Listener {
 
   // TODO(ahe): Move away from this class.
   void reportErrorHelper(Token token, ErrorKind kind, Map arguments) {
-    recoverableErrors.add(new ParserError(token, kind, arguments));
+    recoverableErrors.add(
+        new ParserError.fromTokens(token, token, kind, arguments));
   }
 
   // TODO(ahe): Move away from this class.
@@ -894,13 +896,13 @@ class Listener {
         hex = "$padding$hex";
       }
       reportErrorHelper(
-          token, ErrorKind.INVALID_INPUT_CHARACTER, {'characterHex': hex});
+          token, ErrorKind.InvalidInputCharacter, {'characterHex': hex});
     } else if (token is UnterminatedToken) {
       ErrorKind kind;
       var arguments = const {};
       switch (token.start) {
         case '1e':
-          kind = ErrorKind.MISSING_EXPONENT;
+          kind = ErrorKind.MissingExponent;
           break;
         case '"':
         case "'":
@@ -910,20 +912,20 @@ class Listener {
         case "r'":
         case 'r"""':
         case "r'''":
-          kind = ErrorKind.UNTERMINATED_STRING;
+          kind = ErrorKind.UnterminatedString;
           arguments = {'quote': token.start};
           break;
         case '0x':
-          kind = ErrorKind.EXPECTED_HEX_DIGIT;
+          kind = ErrorKind.ExpectedHexDigit;
           break;
         case r'$':
-          kind = ErrorKind.MALFORMED_STRING_LITERAL;
+          kind = ErrorKind.MalformedStringLiteral;
           break;
         case '/*':
-          kind = ErrorKind.UNTERMINATED_COMMENT;
+          kind = ErrorKind.UnterminatedComment;
           break;
         default:
-          kind = ErrorKind.UNTERMINATED_TOKEN;
+          kind = ErrorKind.UnterminatedToken;
           break;
       }
       reportErrorHelper(token, kind, arguments);
@@ -931,7 +933,7 @@ class Listener {
       String begin = token.begin.value;
       String end = closeBraceFor(begin);
       reportErrorHelper(
-          token, ErrorKind.UNMATCHED_TOKEN, {'begin': begin, 'end': end});
+          token, ErrorKind.UnmatchedToken, {'begin': begin, 'end': end});
     } else {
       error(token.assertionMessage, token);
     }
@@ -949,13 +951,21 @@ String closeBraceFor(String openBrace) {
 }
 
 class ParserError {
-  final Token token;
+  /// Character offset from the beginning of file where this error starts.
+  final int beginOffset;
+
+  /// Character offset from the beginning of file where this error ends.
+  final int endOffset;
 
   final ErrorKind kind;
 
   final Map arguments;
 
-  ParserError(this.token, this.kind, this.arguments);
+  ParserError(this.beginOffset, this.endOffset, this.kind, this.arguments);
 
-  String toString() => "@${token.charOffset}: $kind $arguments";
+  ParserError.fromTokens(Token begin, Token end, ErrorKind kind, Map arguments)
+      : this(begin.charOffset, end.charOffset + end.charCount, kind,
+          arguments);
+
+  String toString() => "@${beginOffset}: $kind $arguments";
 }

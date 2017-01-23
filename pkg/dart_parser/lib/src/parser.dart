@@ -482,10 +482,10 @@ class Parser {
       listener.handleValuedFormalParameter(equal, token);
       if (type.isRequired) {
         listener.reportError(
-            equal, ErrorKind.REQUIRED_PARAMETER_WITH_DEFAULT);
+            equal, ErrorKind.RequiredParameterWithDefault);
       } else if (type.isPositional && identical(':', value)) {
         listener.reportError(
-            equal, ErrorKind.POSITIONAL_PARAMETER_WITH_EQUALS);
+            equal, ErrorKind.PositionalParameterWithEquals);
       }
     }
     listener.endFormalParameter(thisKeyword);
@@ -513,8 +513,8 @@ class Parser {
       listener.reportError(
           token,
           isNamed
-              ? ErrorKind.EMPTY_NAMED_PARAMETER_LIST
-              : ErrorKind.EMPTY_OPTIONAL_PARAMETER_LIST);
+              ? ErrorKind.EmptyNamedParameterList
+              : ErrorKind.EmptyOptionalParameterList);
     }
     listener.endOptionalFormalParameters(parameterCount, begin, token);
     if (isNamed) {
@@ -1001,8 +1001,8 @@ class Parser {
     }
     listener.handleModifiers(modifierCount);
     var kind = hasTypeOrModifier
-        ? ErrorKind.EXTRANEOUS_MODIFIER
-        : ErrorKind.EXTRANEOUS_MODIFIER_REPLACE;
+        ? ErrorKind.ExtraneousModifier
+        : ErrorKind.ExtraneousModifierReplace;
     for (Token modifier in modifierList) {
       listener.reportError(modifier, kind, {'modifier': modifier});
     }
@@ -1043,8 +1043,8 @@ class Parser {
 
     if (getOrSet != null) {
       var kind = (hasModifier || hasType)
-          ? ErrorKind.EXTRANEOUS_MODIFIER
-          : ErrorKind.EXTRANEOUS_MODIFIER_REPLACE;
+          ? ErrorKind.ExtraneousModifier
+          : ErrorKind.ExtraneousModifierReplace;
       listener.reportError(getOrSet, kind, {'modifier': getOrSet});
     }
 
@@ -1055,11 +1055,11 @@ class Parser {
       // TODO(ahe): This error is reported twice, second time is from
       // [parseVariablesDeclarationMaybeSemicolon] via
       // [PartialFieldListElement.parseNode].
-      listener.reportError(type, ErrorKind.INVALID_VOID);
+      listener.reportError(type, ErrorKind.InvalidVoid);
     } else {
       parseType(type);
       if (isVar) {
-        listener.reportError(modifiers.head, ErrorKind.EXTRANEOUS_MODIFIER,
+        listener.reportError(modifiers.head, ErrorKind.ExtraneousModifier,
             {'modifier': modifiers.head});
       }
     }
@@ -1093,7 +1093,7 @@ class Parser {
         externalModifier = modifier;
       } else {
         listener.reportError(
-            modifier, ErrorKind.EXTRANEOUS_MODIFIER, {'modifier': modifier});
+            modifier, ErrorKind.ExtraneousModifier, {'modifier': modifier});
       }
     }
     if (externalModifier != null) {
@@ -1255,7 +1255,7 @@ class Parser {
     if (identical(token.kind, STRING_TOKEN)) {
       return parseLiteralString(token);
     } else {
-      listener.reportError(token, ErrorKind.EXPECTED_STRING);
+      listener.reportError(token, ErrorKind.ExpectedString);
       return parseExpression(token);
     }
   }
@@ -1491,7 +1491,7 @@ class Parser {
         modifierCount++;
         externalModifier = modifier;
         if (modifierCount != allowedModifierCount) {
-          listener.reportError(modifier, ErrorKind.EXTRANEOUS_MODIFIER,
+          listener.reportError(modifier, ErrorKind.ExtraneousModifier,
               {'modifier': modifier});
         }
         allowedModifierCount++;
@@ -1499,23 +1499,23 @@ class Parser {
         modifierCount++;
         staticModifier = modifier;
         if (modifierCount != allowedModifierCount) {
-          listener.reportError(modifier, ErrorKind.EXTRANEOUS_MODIFIER,
+          listener.reportError(modifier, ErrorKind.ExtraneousModifier,
               {'modifier': modifier});
         }
       } else if (constModifier == null && optional('const', modifier)) {
         modifierCount++;
         constModifier = modifier;
         if (modifierCount != allowedModifierCount) {
-          listener.reportError(modifier, ErrorKind.EXTRANEOUS_MODIFIER,
+          listener.reportError(modifier, ErrorKind.ExtraneousModifier,
               {'modifier': modifier});
         }
       } else {
         listener.reportError(
-            modifier, ErrorKind.EXTRANEOUS_MODIFIER, {'modifier': modifier});
+            modifier, ErrorKind.ExtraneousModifier, {'modifier': modifier});
       }
     }
     if (getOrSet != null && constModifier != null) {
-      listener.reportError(constModifier, ErrorKind.EXTRANEOUS_MODIFIER,
+      listener.reportError(constModifier, ErrorKind.ExtraneousModifier,
           {'modifier': constModifier});
     }
     parseModifierList(modifiers);
@@ -1529,7 +1529,7 @@ class Parser {
     if (optional('operator', name)) {
       token = parseOperatorName(name);
       if (staticModifier != null) {
-        listener.reportError(staticModifier, ErrorKind.EXTRANEOUS_MODIFIER,
+        listener.reportError(staticModifier, ErrorKind.ExtraneousModifier,
             {'modifier': staticModifier});
       }
     } else {
@@ -1717,7 +1717,7 @@ class Parser {
     String value = token.stringValue;
     if (identical(value, ';')) {
       if (!allowAbstract) {
-        listener.reportError(token, ErrorKind.EXPECTED_BODY);
+        listener.reportError(token, ErrorKind.ExpectedBody);
       }
       listener.handleNoFunctionBody(token);
     } else {
@@ -1738,7 +1738,7 @@ class Parser {
   Token parseFunctionBody(Token token, bool isExpression, bool allowAbstract) {
     if (optional(';', token)) {
       if (!allowAbstract) {
-        listener.reportError(token, ErrorKind.EXPECTED_BODY);
+        listener.reportError(token, ErrorKind.ExpectedBody);
       }
       listener.endFunctionBody(0, null, token);
       return token;
@@ -1810,7 +1810,7 @@ class Parser {
         star = token;
         token = token.next;
       } else {
-        listener.reportError(async, ErrorKind.INVALID_SYNC_MODIFIER);
+        listener.reportError(async, ErrorKind.InvalidSyncModifier);
       }
     }
     listener.handleAsyncModifier(async, star);
@@ -2254,7 +2254,7 @@ class Parser {
       return parseAwaitExpression(token, allowCascades);
     } else if (identical(value, '+')) {
       // Dart no longer allows prefix-plus.
-      listener.reportError(token, ErrorKind.UNSUPPORTED_PREFIX_PLUS);
+      listener.reportError(token, ErrorKind.UnsupportedPrefixPlus);
       return parseUnaryExpression(token.next, allowCascades);
     } else if ((identical(value, '!')) ||
         (identical(value, '-')) ||
@@ -2849,7 +2849,7 @@ class Parser {
       return parseForInRest(awaitToken, forToken, token);
     } else {
       if (awaitToken != null) {
-        listener.reportError(awaitToken, ErrorKind.INVALID_AWAIT_FOR);
+        listener.reportError(awaitToken, ErrorKind.InvalidAwaitFor);
       }
       return parseForRest(forToken, token);
     }
