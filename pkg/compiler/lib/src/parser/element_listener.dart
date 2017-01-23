@@ -124,12 +124,14 @@ class ElementListener extends Listener {
         library.entryCompilationUnit == compilationUnitElement;
   }
 
+  @override
   void endLibraryName(Token libraryKeyword, Token semicolon) {
     Expression name = popNode();
     addLibraryTag(new LibraryName(
         libraryKeyword, name, popMetadata(compilationUnitElement)));
   }
 
+  @override
   void endImport(Token importKeyword, Token deferredKeyword, Token asKeyword,
       Token semicolon) {
     NodeList combinators = popNode();
@@ -145,11 +147,13 @@ class ElementListener extends Listener {
         isDeferred: isDeferred));
   }
 
+  @override
   void endDottedName(int count, Token token) {
     NodeList identifiers = makeNodeList(count, null, null, '.');
     pushNode(new DottedName(token, identifiers));
   }
 
+  @override
   void endConditionalUris(int count) {
     if (count == 0) {
       pushNode(null);
@@ -158,6 +162,7 @@ class ElementListener extends Listener {
     }
   }
 
+  @override
   void endConditionalUri(Token ifToken, Token equalSign) {
     StringNode uri = popNode();
     LiteralString conditionValue = (equalSign != null) ? popNode() : null;
@@ -165,6 +170,7 @@ class ElementListener extends Listener {
     pushNode(new ConditionalUri(ifToken, identifier, conditionValue, uri));
   }
 
+  @override
   void endEnum(Token enumKeyword, Token endBrace, int count) {
     NodeList names = makeNodeList(count, enumKeyword.next.next, endBrace, ",");
     Identifier name = popNode();
@@ -176,6 +182,7 @@ class ElementListener extends Listener {
     rejectBuiltInIdentifier(name);
   }
 
+  @override
   void endExport(Token exportKeyword, Token semicolon) {
     NodeList combinators = popNode();
     NodeList conditionalUris = popNode();
@@ -184,6 +191,7 @@ class ElementListener extends Listener {
         popMetadata(compilationUnitElement)));
   }
 
+  @override
   void endCombinators(int count) {
     if (0 == count) {
       pushNode(null);
@@ -192,8 +200,10 @@ class ElementListener extends Listener {
     }
   }
 
+  @override
   void endHide(Token hideKeyword) => pushCombinator(hideKeyword);
 
+  @override
   void endShow(Token showKeyword) => pushCombinator(showKeyword);
 
   void pushCombinator(Token keywordToken) {
@@ -201,20 +211,24 @@ class ElementListener extends Listener {
     pushNode(new Combinator(identifiers, keywordToken));
   }
 
+  @override
   void endIdentifierList(int count) {
     pushNode(makeNodeList(count, null, null, ","));
   }
 
+  @override
   void endTypeList(int count) {
     pushNode(makeNodeList(count, null, null, ","));
   }
 
+  @override
   void endPart(Token partKeyword, Token semicolon) {
     StringNode uri = popLiteralString();
     addLibraryTag(
         new Part(partKeyword, uri, popMetadata(compilationUnitElement)));
   }
 
+  @override
   void endPartOf(Token partKeyword, Token semicolon) {
     Expression name = popNode();
     addPartOfTag(
@@ -225,6 +239,7 @@ class ElementListener extends Listener {
     compilationUnitElement.setPartOf(tag, reporter);
   }
 
+  @override
   void endMetadata(Token beginToken, Token periodBeforeName, Token endToken) {
     if (periodBeforeName != null) {
       popNode(); // Discard name.
@@ -233,6 +248,7 @@ class ElementListener extends Listener {
     pushMetadata(new PartialMetadataAnnotation(beginToken, endToken));
   }
 
+  @override
   void endTopLevelDeclaration(Token token) {
     if (!metadata.isEmpty) {
       MetadataAnnotationX first = metadata.first;
@@ -242,6 +258,7 @@ class ElementListener extends Listener {
     }
   }
 
+  @override
   void endClassDeclaration(int interfacesCount, Token beginToken,
       Token extendsKeyword, Token implementsKeyword, Token endToken) {
     makeNodeList(interfacesCount, implementsKeyword, null, ","); // interfaces
@@ -264,6 +281,7 @@ class ElementListener extends Listener {
     }
   }
 
+  @override
   void endFunctionTypeAlias(Token typedefKeyword, Token endToken) {
     popNode(); // TODO(karlklose): do not throw away typeVariables.
     Identifier name = popNode();
@@ -273,6 +291,7 @@ class ElementListener extends Listener {
     rejectBuiltInIdentifier(name);
   }
 
+  @override
   void endNamedMixinApplication(
       Token classKeyword, Token implementsKeyword, Token endToken) {
     NodeList interfaces = (implementsKeyword != null) ? popNode() : null;
@@ -296,16 +315,19 @@ class ElementListener extends Listener {
     rejectBuiltInIdentifier(name);
   }
 
+  @override
   void endMixinApplication() {
     NodeList mixins = popNode();
     TypeAnnotation superclass = popNode();
     pushNode(new MixinApplication(superclass, mixins));
   }
 
+  @override
   void handleVoidKeyword(Token token) {
     pushNode(new TypeAnnotation(new Identifier(token), null));
   }
 
+  @override
   void endTopLevelMethod(Token beginToken, Token getOrSet, Token endToken) {
     bool hasParseError = currentMemberHasParseError;
     memberErrors = memberErrors.tail;
@@ -319,6 +341,7 @@ class ElementListener extends Listener {
     pushElement(element);
   }
 
+  @override
   void endTopLevelFields(int count, Token beginToken, Token endToken) {
     bool hasParseError = currentMemberHasParseError;
     memberErrors = memberErrors.tail;
@@ -355,20 +378,24 @@ class ElementListener extends Listener {
     }
   }
 
+  @override
   void handleIdentifier(Token token) {
     pushNode(new Identifier(token));
   }
 
+  @override
   void handleQualified(Token period) {
     Identifier last = popNode();
     Expression first = popNode();
     pushNode(new Send(first, last));
   }
 
+  @override
   void handleNoType(Token token) {
     pushNode(null);
   }
 
+  @override
   void endTypeVariable(Token token, Token extendsOrSuper) {
     TypeAnnotation bound = popNode();
     Identifier name = popNode();
@@ -376,37 +403,45 @@ class ElementListener extends Listener {
     rejectBuiltInIdentifier(name);
   }
 
+  @override
   void endTypeVariables(int count, Token beginToken, Token endToken) {
     pushNode(makeNodeList(count, beginToken, endToken, ','));
   }
 
+  @override
   void handleNoTypeVariables(Token token) {
     pushNode(null);
   }
 
+  @override
   void endTypeArguments(int count, Token beginToken, Token endToken) {
     pushNode(makeNodeList(count, beginToken, endToken, ','));
   }
 
+  @override
   void handleNoTypeArguments(Token token) {
     pushNode(null);
   }
 
+  @override
   void endType(Token beginToken, Token endToken) {
     NodeList typeArguments = popNode();
     Expression typeName = popNode();
     pushNode(new TypeAnnotation(typeName, typeArguments));
   }
 
+  @override
   void handleParenthesizedExpression(BeginGroupToken token) {
     Expression expression = popNode();
     pushNode(new ParenthesizedExpression(expression, token));
   }
 
+  @override
   void handleModifier(Token token) {
     pushNode(new Identifier(token));
   }
 
+  @override
   void handleModifiers(int count) {
     if (count == 0) {
       pushNode(Modifiers.EMPTY);
@@ -416,6 +451,7 @@ class ElementListener extends Listener {
     }
   }
 
+  @override
   Token expected(String string, Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -498,6 +534,7 @@ class ElementListener extends Listener {
     return null;
   }
 
+  @override
   Token expectedIdentifier(Token token) {
     if (token is KeywordToken) {
       reportError(token, MessageKind.EXPECTED_IDENTIFIER_NOT_RESERVED_WORD,
@@ -511,6 +548,7 @@ class ElementListener extends Listener {
     return token;
   }
 
+  @override
   Token expectedType(Token token) {
     pushNode(null);
     if (token is ErrorToken) {
@@ -522,6 +560,7 @@ class ElementListener extends Listener {
     }
   }
 
+  @override
   Token expectedExpression(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -535,6 +574,7 @@ class ElementListener extends Listener {
     }
   }
 
+  @override
   Token unexpected(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -548,6 +588,7 @@ class ElementListener extends Listener {
     return skipToEof(token);
   }
 
+  @override
   Token expectedBlockToSkip(Token token) {
     if (identical(token.stringValue, 'native')) {
       return native.handleNativeBlockToSkip(this, token);
@@ -556,6 +597,7 @@ class ElementListener extends Listener {
     }
   }
 
+  @override
   Token expectedFunctionBody(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -567,6 +609,7 @@ class ElementListener extends Listener {
     return skipToEof(token);
   }
 
+  @override
   Token expectedClassBody(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -577,10 +620,12 @@ class ElementListener extends Listener {
     return skipToEof(token);
   }
 
+  @override
   Token expectedClassBodyToSkip(Token token) {
     return unexpected(token);
   }
 
+  @override
   Token expectedDeclaration(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -591,6 +636,7 @@ class ElementListener extends Listener {
     return skipToEof(token);
   }
 
+  @override
   Token unmatched(Token token) {
     if (token is ErrorToken) {
       reportErrorToken(token);
@@ -668,6 +714,7 @@ class ElementListener extends Listener {
     return new NodeList(beginToken, poppedNodes, endToken, delimiter);
   }
 
+  @override
   void beginLiteralString(Token token) {
     String source = token.value;
     StringQuoting quoting = StringValidator.quotingFromString(source);
@@ -677,12 +724,14 @@ class ElementListener extends Listener {
     pushNode(new LiteralString(token, null));
   }
 
+  @override
   void handleStringPart(Token token) {
     // Just push an unvalidated token now, and replace it when we know the
     // end of the interpolation.
     pushNode(new LiteralString(token, null));
   }
 
+  @override
   void endLiteralString(int count) {
     StringQuoting quoting = popQuoting();
 
@@ -716,6 +765,7 @@ class ElementListener extends Listener {
     }
   }
 
+  @override
   void handleStringJuxtaposition(int stringCount) {
     assert(stringCount != 0);
     Expression accumulator = popNode();
@@ -728,14 +778,17 @@ class ElementListener extends Listener {
     pushNode(accumulator);
   }
 
+  @override
   void beginMember(Token token) {
     memberErrors = memberErrors.prepend(false);
   }
 
+  @override
   void beginTopLevelMember(Token token) {
     beginMember(token);
   }
 
+  @override
   void endMember() {
     memberErrors = memberErrors.tail;
   }

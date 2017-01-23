@@ -67,6 +67,7 @@ class MemberListener extends NodeListener {
     }
   }
 
+  @override
   void endMethod(Token getOrSet, Token beginToken, Token endToken) {
     super.endMethod(getOrSet, beginToken, endToken);
     FunctionExpression method = popNode();
@@ -88,6 +89,7 @@ class MemberListener extends NodeListener {
     addMember(memberElement);
   }
 
+  @override
   void endFactoryMethod(Token beginToken, Token endToken) {
     super.endFactoryMethod(beginToken, endToken);
     FunctionExpression method = popNode();
@@ -112,6 +114,7 @@ class MemberListener extends NodeListener {
     addMember(memberElement);
   }
 
+  @override
   void endFields(int count, Token beginToken, Token endToken) {
     bool hasParseError = memberErrors.head;
     super.endFields(count, beginToken, endToken);
@@ -127,12 +130,14 @@ class MemberListener extends NodeListener {
         enclosingClass, buildFieldElement, beginToken, endToken, hasParseError);
   }
 
+  @override
   void endInitializer(Token assignmentOperator) {
     pushNode(null); // Super expects an expression, but
     // ClassElementParser just skips expressions.
     super.endInitializer(assignmentOperator);
   }
 
+  @override
   void endInitializers(int count, Token beginToken, Token endToken) {
     pushNode(null);
   }
@@ -146,6 +151,7 @@ class MemberListener extends NodeListener {
     enclosingClass.addMember(memberElement, reporter);
   }
 
+  @override
   void endMetadata(Token beginToken, Token periodBeforeName, Token endToken) {
     super.endMetadata(beginToken, periodBeforeName, endToken);
     pushMetadata(new PartialMetadataAnnotation(beginToken, endToken));
