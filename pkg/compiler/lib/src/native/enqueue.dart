@@ -2,8 +2,6 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'dart:collection' show Queue;
-
 import '../common.dart';
 import '../common/backend_api.dart' show ForeignResolver;
 import '../common/resolution.dart' show Resolution;

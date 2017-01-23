@@ -1212,7 +1212,6 @@ class ElementGraphBuilder extends ast.Visitor<TypeInformation>
         (element != null && element.isInstanceMember);
   }
 
-  @override
   TypeInformation handleSendSet(ast.SendSet node) {
     Element element = elements[node];
     if (!Elements.isUnresolved(element) && element.impliesType) {
@@ -2277,7 +2276,6 @@ class ElementGraphBuilder extends ast.Visitor<TypeInformation>
     return inferrer.registerAwait(node, futureType);
   }
 
-  @override
   TypeInformation handleTypeLiteralInvoke(ast.NodeList arguments) {
     // This is reached when users forget to put a `new` in front of a type
     // literal. The emitter will generate an actual call (even though it is

@@ -635,7 +635,6 @@ abstract class AbstractScanner implements Scanner {
         return next;
       }
     }
-    return null;
   }
 
   int tokenizeHexOrNumber(int next) {
@@ -665,7 +664,6 @@ abstract class AbstractScanner implements Scanner {
         return next;
       }
     }
-    return null;
   }
 
   int tokenizeDotsOrNumber(int next) {
@@ -761,7 +759,6 @@ abstract class AbstractScanner implements Scanner {
         return next;
       }
     }
-    return null;
   }
 
   int tokenizeMultiLineComment(int next, int start) {

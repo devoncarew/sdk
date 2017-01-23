@@ -2833,7 +2833,7 @@ class ResolverVisitor extends MappingVisitor<ResolutionResult> {
         semantics = new StaticAccess.unresolved(member);
       } else if (member.isFunction) {
         // `a = b`, `a++` or `a += b` where `a` is a function.
-        ErroneousElement error = reportAndCreateErroneousElement(
+        reportAndCreateErroneousElement(
             node.selector, name.text, MessageKind.ASSIGNING_METHOD, const {});
         registry.registerFeature(Feature.THROW_NO_SUCH_METHOD);
         if (node.isComplex) {
@@ -2852,7 +2852,7 @@ class ResolverVisitor extends MappingVisitor<ResolutionResult> {
           registry.registerStaticUse(new StaticUse.staticGet(member));
         }
         if (member.isFinal || member.isConst) {
-          ErroneousElement error = reportAndCreateErroneousElement(
+          reportAndCreateErroneousElement(
               node.selector,
               name.text,
               MessageKind.UNDEFINED_STATIC_SETTER_BUT_GETTER,

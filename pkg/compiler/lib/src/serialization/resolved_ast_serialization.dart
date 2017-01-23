@@ -20,7 +20,6 @@ import '../resolution/tree_elements.dart';
 import '../tokens/token.dart';
 import '../tree/tree.dart';
 import '../universe/selector.dart';
-import '../util/util.dart';
 import 'keys.dart';
 import 'modelz.dart';
 import 'serialization.dart';
@@ -374,7 +373,6 @@ class ResolvedAstDeserializer {
       ParsingContext parsing,
       Token getBeginToken(Uri uri, int charOffset),
       DeserializerPlugin nativeDataDeserializer) {
-    CompilationUnitElement compilationUnit = element.compilationUnit;
     DiagnosticReporter reporter = parsing.reporter;
     Uri uri = objectDecoder.getUri(Key.URI);
 
@@ -395,7 +393,6 @@ class ResolvedAstDeserializer {
     Node doParse(parse(Parser parser)) {
       return parsing.measure(() {
         return reporter.withCurrentElement(element, () {
-          CompilationUnitElement unit = element.compilationUnit;
           NodeListener listener = new NodeListener(
               parsing.getScannerOptionsFor(element), reporter, null);
           listener.memberErrors = listener.memberErrors.prepend(false);
@@ -424,7 +421,6 @@ class ResolvedAstDeserializer {
         case AstKind.ENUM_VALUES_FIELD:
           EnumClassElement enumClass = element.enclosingClass;
           AstBuilder builder = new AstBuilder(element.sourcePosition.begin);
-          List<FieldElement> enumValues = <FieldElement>[];
           List<Node> valueReferences = <Node>[];
           for (EnumConstantElement enumConstant in enumClass.enumValues) {
             AstBuilder valueBuilder =
@@ -532,7 +528,6 @@ class ResolvedAstDeserializer {
     Node root = computeNode(kind);
     TreeElementMapping elements = new TreeElementMapping(element);
     AstIndexComputer indexComputer = new AstIndexComputer();
-    Map<Node, int> nodeIndices = indexComputer.nodeIndices;
     List<Node> nodeList = indexComputer.nodeList;
     root.accept(indexComputer);
     elements.containsTryStatement = objectDecoder.getBool(Key.CONTAINS_TRY);

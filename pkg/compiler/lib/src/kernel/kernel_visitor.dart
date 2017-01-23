@@ -1032,11 +1032,8 @@ class KernelVisitor extends Object
       }
       ir.SwitchCase irCase = casesIterator.current;
       List<ir.Statement> statements = <ir.Statement>[];
-      bool hasVariableDeclaration = false;
       for (Statement statement in caseNode.statements.nodes) {
-        if (buildStatement(statement, statements)) {
-          hasVariableDeclaration = true;
-        }
+        buildStatement(statement, statements);
       }
       if (statements.isEmpty || fallsThrough(statements.last)) {
         if (isLastCase) {
@@ -2109,7 +2106,6 @@ class KernelVisitor extends Object
       // [body] must be `null`.
     } else if (function.isConstructor) {
       // TODO(johnniwinther): Clean this up pending kernel issue #28.
-      ConstructorElement constructor = function;
       if (bodyNode == null || bodyNode.asEmptyStatement() != null) {
         body = new ir.EmptyStatement();
       } else {

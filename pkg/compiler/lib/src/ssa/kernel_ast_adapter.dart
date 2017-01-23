@@ -27,7 +27,6 @@ import '../universe/call_structure.dart';
 import '../universe/selector.dart';
 import '../universe/side_effects.dart';
 import '../world.dart';
-import 'jump_handler.dart' show SwitchCaseJumpHandler;
 import 'locals_handler.dart';
 import 'types.dart';
 
@@ -956,7 +955,7 @@ class Constantifier extends ir.ExpressionVisitor<ConstantExpression> {
   ConstantExpression visitStaticGet(ir.StaticGet node) {
     Element element = astAdapter.getMember(node.target);
     if (element.isField) {
-      return new VariableConstantExpression(element);
+      return new VariableConstantExpression(element as MemberElement);
     }
     astAdapter.reporter.internalError(
         CURRENT_ELEMENT_SPANNABLE, "Unexpected constant target: $element.");

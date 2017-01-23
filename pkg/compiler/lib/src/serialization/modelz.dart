@@ -1572,7 +1572,6 @@ abstract class MemberElementMixin
   @override
   bool get isInjected => _decoder.getBool(Key.IS_INJECTED);
 
-  @override
   void forgetElement() {
     nestedClosures.clear();
   }

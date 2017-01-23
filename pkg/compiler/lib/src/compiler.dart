@@ -67,7 +67,6 @@ import 'serialization/task.dart' show SerializationTask;
 import 'ssa/nodes.dart' show HInstruction;
 import 'tokens/token.dart' show StringToken, Token, TokenPair;
 import 'tokens/token_map.dart' show TokenMap;
-import 'tracer.dart' show Tracer;
 import 'tree/tree.dart' show Node, TypeAnnotation;
 import 'typechecker.dart' show TypeCheckerTask;
 import 'types/types.dart' show GlobalTypeInferenceTask;
@@ -79,7 +78,6 @@ import 'universe/world_impact.dart'
     show
         ImpactStrategy,
         WorldImpact,
-        WorldImpactBuilder,
         WorldImpactBuilderImpl;
 import 'util/util.dart' show Link, Setlet;
 import 'world.dart' show ClosedWorld, ClosedWorldRefiner, ClosedWorldImpl;
@@ -1280,7 +1278,7 @@ class _CompilerCommonElements implements CommonElements {
       mirrorsLibrary != null && mirrorsUsedClass == element.enclosingClass;
 
   ConstructorElement _mirrorsUsedConstructor;
-  @override
+
   ConstructorElement get mirrorsUsedConstructor {
     if (_mirrorsUsedConstructor == null) {
       ClassElement cls = mirrorsUsedClass;
@@ -1958,7 +1956,6 @@ class CompilerResolution implements Resolution {
   MirrorUsageAnalyzerTask get mirrorUsageAnalyzerTask =>
       _compiler.mirrorUsageAnalyzerTask;
 
-  @override
   LibraryElement get coreLibrary => _compiler._commonElements.coreLibrary;
 
   @override

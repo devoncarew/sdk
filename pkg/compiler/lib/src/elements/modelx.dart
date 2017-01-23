@@ -314,7 +314,6 @@ class ErroneousConstructorElementX extends ErroneousElementX
   @override
   bool isRedirectingGenerativeInternal;
 
-  @override
   void set isRedirectingGenerative(_) {
     throw new UnsupportedError("isRedirectingGenerative");
   }

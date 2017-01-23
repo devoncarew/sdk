@@ -898,7 +898,8 @@ class JavaScriptBackend extends Backend {
     if (elements.isEmpty) return false;
     return elements.any((element) {
       return selector.applies(element) &&
-          (mask == null || mask.canHit(element, selector, _closedWorld));
+          (mask == null ||
+              mask.canHit(element as MemberElement, selector, _closedWorld));
     });
   }
 

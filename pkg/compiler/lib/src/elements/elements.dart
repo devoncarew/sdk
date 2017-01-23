@@ -6,7 +6,6 @@ library elements;
 
 import '../common.dart';
 import '../common/resolution.dart' show Resolution;
-import '../compiler.dart' show Compiler;
 import '../constants/constructors.dart';
 import '../constants/expressions.dart';
 import '../core_types.dart' show CommonElements;

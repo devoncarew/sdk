@@ -12,7 +12,6 @@ import '../tokens/token.dart' show ErrorToken, StringToken, Token;
 import '../tree/tree.dart';
 import '../util/util.dart' show Link;
 import 'element_listener.dart' show ElementListener, ScannerOptions;
-import 'partial_elements.dart' show PartialFunctionElement;
 
 class NodeListener extends ElementListener {
   NodeListener(ScannerOptions scannerOptions, DiagnosticReporter reporter,
