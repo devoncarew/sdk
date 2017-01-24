@@ -11,6 +11,7 @@ import 'package:dart_scanner/src/precedence.dart' show
     ASSIGNMENT_PRECEDENCE,
     AS_INFO,
     CASCADE_PRECEDENCE,
+    EOF_INFO,
     EQUALITY_PRECEDENCE,
     GT_INFO,
     IS_INFO,
@@ -26,11 +27,14 @@ import 'package:dart_scanner/src/precedence.dart' show
     RELATIONAL_PRECEDENCE;
 
 import 'package:dart_scanner/src/token.dart' show
+    BadInputToken,
     BeginGroupToken,
     ErrorToken,
     KeywordToken,
     SymbolToken,
     Token,
+    UnmatchedToken,
+    UnterminatedToken,
     isUserDefinableOperator;
 
 import 'package:dart_scanner/src/token_constants.dart' show
@@ -420,10 +424,11 @@ class Parser {
     listener.beginOptionalFormalParameters(token);
     if (!optional('(', token)) {
       if (optional(';', token)) {
-        listener.reportError(token, ErrorKind.ExpectedOpenParens);
+        reportRecoverableError(token, ErrorKind.ExpectedOpenParens);
         return token;
       }
-      return listener.unexpected(token);
+      return reportUnrecoverableError(
+          token, ErrorKind.ExpectedButGot, {"expected": "("});
     }
     BeginGroupToken beginGroupToken = token;
     Token endToken = beginGroupToken.endGroup;
@@ -497,10 +502,10 @@ class Parser {
       token = parseExpression(token.next);
       listener.handleValuedFormalParameter(equal, token);
       if (type.isRequired) {
-        listener.reportError(
+        reportRecoverableError(
             equal, ErrorKind.RequiredParameterWithDefault);
       } else if (type.isPositional && identical(':', value)) {
-        listener.reportError(
+        reportRecoverableError(
             equal, ErrorKind.PositionalParameterWithEquals);
       }
     }
@@ -526,7 +531,7 @@ class Parser {
       ++parameterCount;
     } while (optional(',', token));
     if (parameterCount == 0) {
-      listener.reportError(
+      reportRecoverableError(
           token,
           isNamed
               ? ErrorKind.EmptyNamedParameterList
@@ -663,14 +668,16 @@ class Parser {
 
   Token skipBlock(Token token) {
     if (!optional('{', token)) {
-      return listener.expectedBlockToSkip(token);
+      return reportUnrecoverableError(token, ErrorKind.ExpectedBlockToSkip);
     }
     BeginGroupToken beginGroupToken = token;
     Token endGroup = beginGroupToken.endGroup;
     if (endGroup == null) {
-      return listener.unmatched(beginGroupToken);
+      return reportUnrecoverableError(
+          beginGroupToken, ErrorKind.UnmatchedToken);
     } else if (!identical(endGroup.kind, $CLOSE_CURLY_BRACKET)) {
-      return listener.unmatched(beginGroupToken);
+      return reportUnrecoverableError(
+          beginGroupToken, ErrorKind.UnmatchedToken);
     }
     return beginGroupToken.endGroup;
   }
@@ -775,13 +782,13 @@ class Parser {
       listener.handleStringPart(token);
       return token.next;
     } else {
-      return listener.expected('string', token);
+      return reportUnrecoverableError(token, ErrorKind.ExpectedString);
     }
   }
 
   Token parseIdentifier(Token token) {
     if (!token.isIdentifier()) {
-      token = listener.expectedIdentifier(token);
+      token = reportUnrecoverableError(token, ErrorKind.ExpectedIdentifier);
     }
     listener.handleIdentifier(token);
     return token.next;
@@ -789,7 +796,8 @@ class Parser {
 
   Token expect(String string, Token token) {
     if (!identical(string, token.stringValue)) {
-      return listener.expected(string, token);
+      return reportUnrecoverableError(
+          token, ErrorKind.ExpectedButGot, {"expected": string});
     }
     return token.next;
   }
@@ -843,7 +851,7 @@ class Parser {
       token = parseIdentifier(token);
       token = parseQualifiedRestOpt(token);
     } else {
-      token = listener.expectedType(token);
+      token = reportUnrecoverableError(token, ErrorKind.ExpectedType);
     }
     token = parseTypeArgumentsOpt(token);
     listener.endType(begin, token);
@@ -898,13 +906,13 @@ class Parser {
 
     Link<Token> identifiers = findMemberName(token);
     if (identifiers.isEmpty) {
-      return listener.expectedDeclaration(start);
+      return reportUnrecoverableError(start, ErrorKind.ExpectedDeclaration);
     }
     Token afterName = identifiers.head;
     identifiers = identifiers.tail;
 
     if (identifiers.isEmpty) {
-      return listener.expectedDeclaration(start);
+      return reportUnrecoverableError(start, ErrorKind.ExpectedDeclaration);
     }
     Token name = identifiers.head;
     identifiers = identifiers.tail;
@@ -949,7 +957,7 @@ class Parser {
         }
         break;
       } else {
-        token = listener.unexpected(token);
+        token = reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
         if (identical(token.kind, EOF_TOKEN)) return token;
       }
     }
@@ -1020,7 +1028,7 @@ class Parser {
         ? ErrorKind.ExtraneousModifier
         : ErrorKind.ExtraneousModifierReplace;
     for (Token modifier in modifierList) {
-      listener.reportError(modifier, kind, {'modifier': modifier});
+      reportRecoverableError(modifier, kind, {'modifier': modifier});
     }
     return null;
   }
@@ -1061,7 +1069,7 @@ class Parser {
       var kind = (hasModifier || hasType)
           ? ErrorKind.ExtraneousModifier
           : ErrorKind.ExtraneousModifierReplace;
-      listener.reportError(getOrSet, kind, {'modifier': getOrSet});
+      reportRecoverableError(getOrSet, kind, {'modifier': getOrSet});
     }
 
     if (!hasType) {
@@ -1071,11 +1079,11 @@ class Parser {
       // TODO(ahe): This error is reported twice, second time is from
       // [parseVariablesDeclarationMaybeSemicolon] via
       // [PartialFieldListElement.parseNode].
-      listener.reportError(type, ErrorKind.InvalidVoid);
+      reportRecoverableError(type, ErrorKind.InvalidVoid);
     } else {
       parseType(type);
       if (isVar) {
-        listener.reportError(modifiers.head, ErrorKind.ExtraneousModifier,
+        reportRecoverableError(modifiers.head, ErrorKind.ExtraneousModifier,
             {'modifier': modifiers.head});
       }
     }
@@ -1108,7 +1116,7 @@ class Parser {
       if (externalModifier == null && optional('external', modifier)) {
         externalModifier = modifier;
       } else {
-        listener.reportError(
+        reportRecoverableError(
             modifier, ErrorKind.ExtraneousModifier, {'modifier': modifier});
       }
     }
@@ -1139,7 +1147,7 @@ class Parser {
     Token endToken = token;
     token = token.next;
     if (token.kind == BAD_INPUT_TOKEN) {
-      token = listener.unexpected(token);
+      token = reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
     }
     listener.endTopLevelMethod(start, getOrSet, endToken);
     return token;
@@ -1216,7 +1224,7 @@ class Parser {
           if (token.next is BeginGroupToken) {
             BeginGroupToken beginGroup = token.next;
             if (beginGroup.endGroup == null) {
-              listener.unmatched(beginGroup);
+              reportUnrecoverableError(beginGroup, ErrorKind.UnmatchedToken);
             }
             token = beginGroup.endGroup;
           }
@@ -1279,7 +1287,7 @@ class Parser {
     if (identical(token.kind, STRING_TOKEN)) {
       return parseLiteralString(token);
     } else {
-      listener.reportError(token, ErrorKind.ExpectedString);
+      reportRecoverableError(token, ErrorKind.ExpectedString);
       return parseExpression(token);
     }
   }
@@ -1311,7 +1319,7 @@ class Parser {
       if (isModifier(token)) {
         parseModifier(token);
       } else {
-        listener.unexpected(token);
+        reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
         // Skip the remaining modifiers.
         break;
       }
@@ -1372,14 +1380,16 @@ class Parser {
 
   Token skipClassBody(Token token) {
     if (!optional('{', token)) {
-      return listener.expectedClassBodyToSkip(token);
+      return reportUnrecoverableError(token, ErrorKind.ExpectedClassBodyToSkip);
     }
     BeginGroupToken beginGroupToken = token;
     Token endGroup = beginGroupToken.endGroup;
     if (endGroup == null) {
-      return listener.unmatched(beginGroupToken);
+      return reportUnrecoverableError(
+          beginGroupToken, ErrorKind.UnmatchedToken);
     } else if (!identical(endGroup.kind, $CLOSE_CURLY_BRACKET)) {
-      return listener.unmatched(beginGroupToken);
+      return reportUnrecoverableError(
+          beginGroupToken, ErrorKind.UnmatchedToken);
     }
     return endGroup;
   }
@@ -1388,7 +1398,7 @@ class Parser {
     Token begin = token;
     listener.beginClassBody(token);
     if (!optional('{', token)) {
-      token = listener.expectedClassBody(token);
+      token = reportUnrecoverableError(token, ErrorKind.ExpectedClassBody);
     }
     token = token.next;
     int count = 0;
@@ -1425,13 +1435,13 @@ class Parser {
 
     Link<Token> identifiers = findMemberName(token);
     if (identifiers.isEmpty) {
-      return listener.expectedDeclaration(start);
+      return reportUnrecoverableError(start, ErrorKind.ExpectedDeclaration);
     }
     Token afterName = identifiers.head;
     identifiers = identifiers.tail;
 
     if (identifiers.isEmpty) {
-      return listener.expectedDeclaration(start);
+      return reportUnrecoverableError(start, ErrorKind.ExpectedDeclaration);
     }
     Token name = identifiers.head;
     identifiers = identifiers.tail;
@@ -1483,7 +1493,7 @@ class Parser {
         isField = true;
         break;
       } else {
-        token = listener.unexpected(token);
+        token = reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
         if (identical(token.kind, EOF_TOKEN)) {
           // TODO(ahe): This is a hack, see parseTopLevelMember.
           listener.endFields(1, start, token);
@@ -1515,7 +1525,7 @@ class Parser {
         modifierCount++;
         externalModifier = modifier;
         if (modifierCount != allowedModifierCount) {
-          listener.reportError(modifier, ErrorKind.ExtraneousModifier,
+          reportRecoverableError(modifier, ErrorKind.ExtraneousModifier,
               {'modifier': modifier});
         }
         allowedModifierCount++;
@@ -1523,23 +1533,23 @@ class Parser {
         modifierCount++;
         staticModifier = modifier;
         if (modifierCount != allowedModifierCount) {
-          listener.reportError(modifier, ErrorKind.ExtraneousModifier,
+          reportRecoverableError(modifier, ErrorKind.ExtraneousModifier,
               {'modifier': modifier});
         }
       } else if (constModifier == null && optional('const', modifier)) {
         modifierCount++;
         constModifier = modifier;
         if (modifierCount != allowedModifierCount) {
-          listener.reportError(modifier, ErrorKind.ExtraneousModifier,
+          reportRecoverableError(modifier, ErrorKind.ExtraneousModifier,
               {'modifier': modifier});
         }
       } else {
-        listener.reportError(
+        reportRecoverableError(
             modifier, ErrorKind.ExtraneousModifier, {'modifier': modifier});
       }
     }
     if (getOrSet != null && constModifier != null) {
-      listener.reportError(constModifier, ErrorKind.ExtraneousModifier,
+      reportRecoverableError(constModifier, ErrorKind.ExtraneousModifier,
           {'modifier': constModifier});
     }
     parseModifierList(modifiers);
@@ -1553,7 +1563,7 @@ class Parser {
     if (optional('operator', name)) {
       token = parseOperatorName(name);
       if (staticModifier != null) {
-        listener.reportError(staticModifier, ErrorKind.ExtraneousModifier,
+        reportRecoverableError(staticModifier, ErrorKind.ExtraneousModifier,
             {'modifier': staticModifier});
       }
     } else {
@@ -1741,7 +1751,7 @@ class Parser {
     String value = token.stringValue;
     if (identical(value, ';')) {
       if (!allowAbstract) {
-        listener.reportError(token, ErrorKind.ExpectedBody);
+        reportRecoverableError(token, ErrorKind.ExpectedBody);
       }
       listener.handleNoFunctionBody(token);
     } else {
@@ -1762,7 +1772,7 @@ class Parser {
   Token parseFunctionBody(Token token, bool isExpression, bool allowAbstract) {
     if (optional(';', token)) {
       if (!allowAbstract) {
-        listener.reportError(token, ErrorKind.ExpectedBody);
+        reportRecoverableError(token, ErrorKind.ExpectedBody);
       }
       listener.endFunctionBody(0, null, token);
       return token;
@@ -1780,7 +1790,7 @@ class Parser {
     Token begin = token;
     int statementCount = 0;
     if (!optional('{', token)) {
-      return listener.expectedFunctionBody(token);
+      return reportUnrecoverableError(token, ErrorKind.ExpectedFunctionBody);
     }
 
     listener.beginFunctionBody(begin);
@@ -1834,7 +1844,7 @@ class Parser {
         star = token;
         token = token.next;
       } else {
-        listener.reportError(async, ErrorKind.InvalidSyncModifier);
+        reportRecoverableError(async, ErrorKind.InvalidSyncModifier);
       }
     }
     listener.handleAsyncModifier(async, star);
@@ -2139,7 +2149,7 @@ class Parser {
         BeginGroupToken begin = token;
         token = (begin.endGroup != null) ? begin.endGroup : token;
       } else if (token is ErrorToken) {
-        listener.reportErrorToken(token);
+        reportErrorToken(token, false);
       }
       token = token.next;
     }
@@ -2209,7 +2219,7 @@ class Parser {
             listener.handleUnaryPostfixAssignmentExpression(token);
             token = token.next;
           } else {
-            token = listener.unexpected(token);
+            token = reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
           }
         } else if (identical(info, IS_INFO)) {
           token = parseIsOperatorRest(token);
@@ -2249,7 +2259,7 @@ class Parser {
       token = parseSend(token);
       listener.handleBinaryExpression(cascadeOperator);
     } else {
-      return listener.unexpected(token);
+      return reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
     }
     Token mark;
     do {
@@ -2278,7 +2288,7 @@ class Parser {
       return parseAwaitExpression(token, allowCascades);
     } else if (identical(value, '+')) {
       // Dart no longer allows prefix-plus.
-      listener.reportError(token, ErrorKind.UnsupportedPrefixPlus);
+      reportRecoverableError(token, ErrorKind.UnsupportedPrefixPlus);
       return parseUnaryExpression(token.next, allowCascades);
     } else if ((identical(value, '!')) ||
         (identical(value, '-')) ||
@@ -2354,11 +2364,11 @@ class Parser {
         return parseFunctionExpression(token);
       } else if (asyncAwaitKeywordsEnabled &&
           (value == 'yield' || value == 'async')) {
-        return listener.expectedExpression(token);
+        return reportUnrecoverableError(token, ErrorKind.ExpectedExpression);
       } else if (token.isIdentifier()) {
         return parseSendOrFunctionLiteral(token);
       } else {
-        return listener.expectedExpression(token);
+        return reportUnrecoverableError(token, ErrorKind.ExpectedExpression);
       }
     } else if (kind == OPEN_PAREN_TOKEN) {
       return parseParenthesizedExpressionOrFunctionLiteral(token);
@@ -2371,7 +2381,7 @@ class Parser {
     } else if (kind == LT_TOKEN) {
       return parseLiteralListOrMapOrFunction(token, null);
     } else {
-      return listener.expectedExpression(token);
+      return reportUnrecoverableError(token, ErrorKind.ExpectedExpression);
     }
   }
 
@@ -2404,7 +2414,7 @@ class Parser {
     // [begin] is now known to have type [BeginGroupToken].
     token = parseExpression(token);
     if (!identical(begin.endGroup, token)) {
-      listener.unexpected(token);
+      reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
       token = begin.endGroup;
     }
     listener.handleParenthesizedExpression(begin);
@@ -2506,7 +2516,7 @@ class Parser {
       }
       // Fall through.
     }
-    listener.unexpected(token);
+    reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
     return null;
   }
 
@@ -2534,7 +2544,7 @@ class Parser {
       } else if ((optional('[', token)) || (optional('[]', token))) {
         return parseLiteralListSuffix(token, constKeyword);
       }
-      listener.unexpected(token);
+      reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
       return null;
     }
   }
@@ -2589,7 +2599,7 @@ class Parser {
       token = parseArguments(token);
     } else {
       listener.handleNoArguments(token);
-      token = listener.unexpected(token);
+      token = reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
     }
     return token;
   }
@@ -2787,7 +2797,7 @@ class Parser {
     if (identical(value, 'is') || identical(value, 'as')) {
       // The is- and as-operators cannot be chained, but they can take part of
       // expressions like: foo is Foo || foo is Bar.
-      listener.unexpected(token);
+      reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
     }
     return token;
   }
@@ -2800,7 +2810,7 @@ class Parser {
     String value = token.stringValue;
     if (identical(value, 'is') || identical(value, 'as')) {
       // The is- and as-operators cannot be chained.
-      listener.unexpected(token);
+      reportUnrecoverableError(token, ErrorKind.UnexpectedToken);
     }
     return token;
   }
@@ -2873,7 +2883,7 @@ class Parser {
       return parseForInRest(awaitToken, forToken, token);
     } else {
       if (awaitToken != null) {
-        listener.reportError(awaitToken, ErrorKind.InvalidAwaitFor);
+        reportRecoverableError(awaitToken, ErrorKind.InvalidAwaitFor);
       }
       return parseForRest(forToken, token);
     }
@@ -3125,7 +3135,9 @@ class Parser {
         peek = peekPastLabels(token);
       } else {
         if (expressionCount == 0) {
-          listener.expected("case", token);
+          // TODO(ahe): This is probably easy to recover from.
+          reportUnrecoverableError(
+              token, ErrorKind.ExpectedButGot, {"expected": "case"});
         }
         break;
       }
@@ -3200,4 +3212,101 @@ class Parser {
     listener.handleEmptyStatement(token);
     return expectSemicolon(token);
   }
+
+  /// Don't call this method. Should only be used as a last resort when there
+  /// is no feasible way to recover from a parser error.
+  Token reportUnrecoverableError(Token token, ErrorKind kind, [Map arguments]) {
+    Token next;
+    if (token is ErrorToken) {
+      next = reportErrorToken(token, false);
+    } else {
+      arguments ??= {};
+      arguments.putIfAbsent("actual", () => token.value);
+      next = listener.handleUnrecoverableError(token, kind, arguments);
+    }
+    return next ?? skipToEof(token);
+  }
+
+  void reportRecoverableError(Token token, ErrorKind kind, [Map arguments]) {
+    if (token is ErrorToken) {
+      reportErrorToken(token, true);
+    } else {
+      arguments ??= {};
+      listener.handleRecoverableError(token, kind, arguments);
+    }
+  }
+
+  Token reportErrorToken(ErrorToken token, bool isRecoverable) {
+    ErrorKind kind;
+    Map arguments = const {};
+    if (token is BadInputToken) {
+      String hex = token.character.toRadixString(16);
+      if (hex.length < 4) {
+        String padding = "0000".substring(hex.length);
+        hex = "$padding$hex";
+      }
+      kind = ErrorKind.InvalidInputCharacter;
+      arguments = {'characterHex': hex};
+    } else if (token is UnterminatedToken) {
+      switch (token.start) {
+        case '1e':
+          kind = ErrorKind.MissingExponent;
+          break;
+        case '"':
+        case "'":
+        case '"""':
+        case "'''":
+        case 'r"':
+        case "r'":
+        case 'r"""':
+        case "r'''":
+          kind = ErrorKind.UnterminatedString;
+          arguments = {'quote': token.start};
+          break;
+        case '0x':
+          kind = ErrorKind.ExpectedHexDigit;
+          break;
+        case r'$':
+          kind = ErrorKind.MalformedStringLiteral;
+          break;
+        case '/*':
+          kind = ErrorKind.UnterminatedComment;
+          break;
+        default:
+          kind = ErrorKind.UnterminatedToken;
+          break;
+      }
+    } else if (token is UnmatchedToken) {
+      String begin = token.begin.value;
+      String end = closeBraceFor(begin);
+      kind = ErrorKind.UnmatchedToken;
+      arguments = {'begin': begin, 'end': end};
+    } else {
+      return listener.handleUnrecoverableError(
+          token, ErrorKind.Unspecified, {"text": token.assertionMessage});
+    }
+    if (isRecoverable) {
+      listener.handleRecoverableError(token, kind, arguments);
+      return null;
+    } else {
+      return listener.handleUnrecoverableError(token, kind, arguments);
+    }
+  }
+}
+
+String closeBraceFor(String openBrace) {
+  return const {
+    '(': ')',
+    '[': ']',
+    '{': '}',
+    '<': '>',
+    r'${': '}',
+  }[openBrace];
+}
+
+Token skipToEof(Token token) {
+  while (!identical(token.info, EOF_INFO)) {
+    token = token.next;
+  }
+  return token;
 }

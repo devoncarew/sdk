@@ -23,14 +23,14 @@ import '../id_generator.dart';
 import '../native/native.dart' as native;
 import '../string_validator.dart' show StringValidator;
 import 'package:dart_scanner/dart_scanner.dart'
-    show Keyword, BeginGroupToken, ErrorToken, KeywordToken, Token;
+    show Keyword, BeginGroupToken, ErrorToken, KeywordToken, StringToken, Token;
 import 'package:dart_scanner/dart_scanner.dart' as Tokens show EOF_TOKEN;
 import 'package:dart_scanner/src/precedence.dart' as Precedence show
-    BAD_INPUT_INFO;
+    BAD_INPUT_INFO, IDENTIFIER_INFO;
 import '../tree/tree.dart';
 import '../util/util.dart' show Link, LinkBuilder;
 import 'package:dart_parser/dart_parser.dart'
-    show ErrorKind, Listener, ParserError, closeBraceFor;
+    show ErrorKind, Listener, ParserError, closeBraceFor, optional;
 import 'partial_elements.dart'
     show
         PartialClassElement,
@@ -452,29 +452,225 @@ class ElementListener extends Listener {
   }
 
   @override
-  Token expected(String string, Token token) {
-    if (token is ErrorToken) {
-      reportErrorToken(token);
-    } else if (identical(';', string)) {
-      // When a semicolon is missing, it often leads to an error on the
-      // following line. So we try to find the token preceding the semicolon
-      // and report that something is missing *after* it.
-      Token preceding = findPrecedingToken(token);
-      if (preceding == token) {
-        reportErrorMessageToken(
-            token, MessageKind.MISSING_TOKEN_BEFORE_THIS, {'token': string});
-      } else {
-        reportErrorMessageToken(
-            preceding, MessageKind.MISSING_TOKEN_AFTER_THIS, {'token': string});
-      }
-      return token;
+  Token handleUnrecoverableError(Token token, ErrorKind kind, Map arguments) {
+    Token next = handleError(token, kind, arguments);
+    if (next == null) {
+      throw new ParserError.fromTokens(token, token, kind, arguments);
     } else {
-      reportFatalError(
-          reporter.spanFromToken(token),
-          MessageTemplate.TEMPLATES[MessageKind.MISSING_TOKEN_BEFORE_THIS]
-              .message({'token': string}, true).toString());
+      return next;
     }
-    return skipToEof(token);
+  }
+
+  @override
+  void handleRecoverableError(Token token, ErrorKind kind, Map arguments) {
+    handleError(token, kind, arguments);
+  }
+
+  Token handleError(Token token, ErrorKind kind, Map arguments) {
+    MessageKind errorCode;
+
+    switch (kind) {
+      case ErrorKind.ExpectedButGot:
+        String expected = arguments["expected"];
+        if (identical(";", expected)) {
+          // When a semicolon is missing, it often leads to an error on the
+          // following line. So we try to find the token preceding the semicolon
+          // and report that something is missing *after* it.
+          Token preceding = findPrecedingToken(token);
+          if (preceding == token) {
+            reportErrorFromToken(
+                token, MessageKind.MISSING_TOKEN_BEFORE_THIS,
+                {'token': expected});
+          } else {
+            reportErrorFromToken(
+                preceding, MessageKind.MISSING_TOKEN_AFTER_THIS,
+                {'token': expected});
+          }
+          return token;
+        } else {
+          return reportFatalError(
+              reporter.spanFromToken(token),
+              MessageTemplate.TEMPLATES[MessageKind.MISSING_TOKEN_BEFORE_THIS]
+                  .message({'token': expected}, true).toString());
+        }
+        break;
+
+      case ErrorKind.ExpectedIdentifier:
+        if (token is KeywordToken) {
+          reportErrorFromToken(token,
+              MessageKind.EXPECTED_IDENTIFIER_NOT_RESERVED_WORD,
+              {'keyword': token.value});
+        } else if (token is ErrorToken) {
+          // TODO(ahe): This is dead code.
+          return synthesizeIdentifier(token);
+        } else {
+          reportFatalError(reporter.spanFromToken(token),
+              "Expected identifier, but got '${token.value}'.");
+        }
+        return token;
+
+      case ErrorKind.ExpectedType:
+        pushNode(null);
+        if (token is ErrorToken) {
+          // TODO(ahe): This is dead code.
+          return synthesizeIdentifier(token);
+        } else {
+          reportFatalError(reporter.spanFromToken(token),
+              "Expected a type, but got '${token.value}'.");
+        }
+        return null;
+
+      case ErrorKind.ExpectedExpression:
+        if (token is ErrorToken) {
+          // TODO(ahe): This dead code.
+          pushNode(new ErrorExpression(token));
+          return token.next;
+        } else {
+          pushNode(null);
+          reportFatalError(
+              reporter.spanFromToken(token),
+              "Expected an expression, but got '${token.value}'.");
+        }
+        return null;
+
+      case ErrorKind.UnexpectedToken:
+        String message = "Unexpected token '${token.value}'.";
+        if (token.info == Precedence.BAD_INPUT_INFO) {
+          message = token.value;
+        }
+        return reportFatalError(reporter.spanFromToken(token), message);
+
+      case ErrorKind.ExpectedBlockToSkip:
+        if (optional("native", token)) {
+          return native.handleNativeBlockToSkip(this, token);
+        } else {
+          errorCode = MessageKind.BODY_EXPECTED;
+        }
+        break;
+
+      case ErrorKind.ExpectedFunctionBody:
+        if (optional("native", token)) {
+          return native.handleNativeFunctionBody(this, token);
+        } else {
+          reportFatalError(
+              reporter.spanFromToken(token),
+              "Expected a function body, but got '${token.value}'.");
+        }
+        return null;
+
+      case ErrorKind.ExpectedClassBodyToSkip:
+      case ErrorKind.ExpectedClassBody:
+        return reportFatalError(
+            reporter.spanFromToken(token),
+            "Expected a class body, but got '${token.value}'.");
+
+      case ErrorKind.ExpectedDeclaration:
+        return reportFatalError(
+            reporter.spanFromToken(token),
+            "Expected a declaration, but got '${token.value}'.");
+
+      case ErrorKind.UnmatchedToken:
+        String begin = token.value;
+        String end = closeBraceFor(begin);
+        reportErrorFromToken(
+            token, MessageKind.UNMATCHED_TOKEN, {'begin': begin, 'end': end});
+        Token next = token.next;
+        while (next is ErrorToken) {
+          next = next.next;
+        }
+        return next;
+
+      case ErrorKind.EmptyNamedParameterList:
+        errorCode = MessageKind.EMPTY_NAMED_PARAMETER_LIST;
+        break;
+
+      case ErrorKind.EmptyOptionalParameterList:
+        errorCode = MessageKind.EMPTY_OPTIONAL_PARAMETER_LIST;
+        break;
+
+      case ErrorKind.ExpectedBody:
+        errorCode = MessageKind.BODY_EXPECTED;
+        break;
+
+      case ErrorKind.ExpectedHexDigit:
+        errorCode = MessageKind.HEX_DIGIT_EXPECTED;
+        break;
+
+      case ErrorKind.ExpectedOpenParens:
+        errorCode = MessageKind.GENERIC;
+        arguments = {"text": "Expected '('."};
+        break;
+
+      case ErrorKind.ExpectedString:
+        errorCode = MessageKind.STRING_EXPECTED;
+        break;
+
+      case ErrorKind.ExtraneousModifier:
+        errorCode = MessageKind.EXTRANEOUS_MODIFIER;
+        break;
+
+      case ErrorKind.ExtraneousModifierReplace:
+        errorCode = MessageKind.EXTRANEOUS_MODIFIER_REPLACE;
+        break;
+
+      case ErrorKind.InvalidAwaitFor:
+        errorCode = MessageKind.INVALID_AWAIT_FOR;
+        break;
+
+      case ErrorKind.InvalidInputCharacter:
+        errorCode = MessageKind.BAD_INPUT_CHARACTER;
+        break;
+
+      case ErrorKind.InvalidSyncModifier:
+        errorCode = MessageKind.INVALID_SYNC_MODIFIER;
+        break;
+
+      case ErrorKind.InvalidVoid:
+        errorCode = MessageKind.VOID_NOT_ALLOWED;
+        break;
+
+      case ErrorKind.MalformedStringLiteral:
+        errorCode = MessageKind.MALFORMED_STRING_LITERAL;
+        break;
+
+      case ErrorKind.MissingExponent:
+        errorCode = MessageKind.EXPONENT_MISSING;
+        break;
+
+      case ErrorKind.PositionalParameterWithEquals:
+        errorCode = MessageKind.POSITIONAL_PARAMETER_WITH_EQUALS;
+        break;
+
+      case ErrorKind.RequiredParameterWithDefault:
+        errorCode = MessageKind.REQUIRED_PARAMETER_WITH_DEFAULT;
+        break;
+
+      case ErrorKind.UnmatchedToken:
+        errorCode = MessageKind.UNMATCHED_TOKEN;
+        break;
+
+      case ErrorKind.UnsupportedPrefixPlus:
+        errorCode = MessageKind.UNSUPPORTED_PREFIX_PLUS;
+        break;
+
+      case ErrorKind.UnterminatedComment:
+        errorCode = MessageKind.UNTERMINATED_COMMENT;
+        break;
+
+      case ErrorKind.UnterminatedString:
+        errorCode = MessageKind.UNTERMINATED_STRING;
+        break;
+
+      case ErrorKind.UnterminatedToken:
+        errorCode = MessageKind.UNTERMINATED_TOKEN;
+        break;
+
+      case ErrorKind.Unspecified:
+        errorCode = MessageKind.GENERIC;
+        break;
+    }
+    SourceSpan span = reporter.spanFromToken(token);
+    reportError(span, errorCode, arguments);
   }
 
   /// Finds the preceding token via the begin token of the last AST node pushed
@@ -534,130 +730,13 @@ class ElementListener extends Listener {
     return null;
   }
 
-  @override
-  Token expectedIdentifier(Token token) {
-    if (token is KeywordToken) {
-      reportErrorMessageToken(token,
-          MessageKind.EXPECTED_IDENTIFIER_NOT_RESERVED_WORD,
-          {'keyword': token.value});
-    } else if (token is ErrorToken) {
-      reportErrorToken(token);
-      return synthesizeIdentifier(token);
-    } else {
-      reportFatalError(reporter.spanFromToken(token),
-          "Expected identifier, but got '${token.value}'.");
-    }
-    return token;
-  }
-
-  @override
-  Token expectedType(Token token) {
-    pushNode(null);
-    if (token is ErrorToken) {
-      reportErrorToken(token);
-      return synthesizeIdentifier(token);
-    } else {
-      reportFatalError(reporter.spanFromToken(token),
-          "Expected a type, but got '${token.value}'.");
-      return skipToEof(token);
-    }
-  }
-
-  @override
-  Token expectedExpression(Token token) {
-    if (token is ErrorToken) {
-      reportErrorToken(token);
-      pushNode(new ErrorExpression(token));
-      return token.next;
-    } else {
-      reportFatalError(
-          reporter.spanFromToken(token),
-          "Expected an expression, but got '${token.value}'.");
-      pushNode(null);
-      return skipToEof(token);
-    }
-  }
-
-  @override
-  Token unexpected(Token token) {
-    if (token is ErrorToken) {
-      reportErrorToken(token);
-    } else {
-      String message = "Unexpected token '${token.value}'.";
-      if (token.info == Precedence.BAD_INPUT_INFO) {
-        message = token.value;
-      }
-      reportFatalError(reporter.spanFromToken(token), message);
-    }
-    return skipToEof(token);
-  }
-
-  @override
-  Token expectedBlockToSkip(Token token) {
-    if (identical(token.stringValue, 'native')) {
-      return native.handleNativeBlockToSkip(this, token);
-    } else {
-      return unexpected(token);
-    }
-  }
-
-  @override
-  Token expectedFunctionBody(Token token) {
-    if (token is ErrorToken) {
-      reportErrorToken(token);
-    } else {
-      String printString = token.value;
-      reportFatalError(
-          reporter.spanFromToken(token),
-          "Expected a function body, but got '$printString'.");
-    }
-    return skipToEof(token);
-  }
-
-  @override
-  Token expectedClassBody(Token token) {
-    if (token is ErrorToken) {
-      reportErrorToken(token);
-    } else {
-      reportFatalError(
-          reporter.spanFromToken(token),
-          "Expected a class body, but got '${token.value}'.");
-    }
-    return skipToEof(token);
-  }
-
-  @override
-  Token expectedClassBodyToSkip(Token token) {
-    return unexpected(token);
-  }
-
-  @override
-  Token expectedDeclaration(Token token) {
-    if (token is ErrorToken) {
-      reportErrorToken(token);
-    } else {
-      reportFatalError(
-          reporter.spanFromToken(token),
-          "Expected a declaration, but got '${token.value}'.");
-    }
-    return skipToEof(token);
-  }
-
-  @override
-  Token unmatched(Token token) {
-    if (token is ErrorToken) {
-      reportErrorToken(token);
-    } else {
-      String begin = token.value;
-      String end = closeBraceFor(begin);
-      reportErrorMessageToken(
-          token, MessageKind.UNMATCHED_TOKEN, {'begin': begin, 'end': end});
-    }
-    Token next = token.next;
-    while (next is ErrorToken) {
-      next = next.next;
-    }
-    return next;
+  /// Finds the preceding token via the begin token of the last AST node pushed
+  /// on the [nodes] stack.
+  Token synthesizeIdentifier(Token token) {
+    Token synthesizedToken = new StringToken.fromString(
+        Precedence.IDENTIFIER_INFO, '?', token.charOffset);
+    synthesizedToken.next = token.next;
+    return synthesizedToken;
   }
 
   void recoverableError(Spannable node, String message) {
@@ -801,14 +880,14 @@ class ElementListener extends Listener {
 
   /// Don't call this method. Should only be used as a last resort when there
   /// is no feasible way to recover from a parser error.
-  void reportFatalError(SourceSpan span, String message) {
-    reportErrorMessageHelper(span, MessageKind.GENERIC, {'text': message});
+  Token reportFatalError(SourceSpan span, String message) {
+    reportError(span, MessageKind.GENERIC, {'text': message});
     // Some parse errors are infeasible to recover from, so we throw an error.
     throw new ParserError(
         span.begin, span.end, ErrorKind.Unspecified, {'text': message});
   }
 
-  void reportErrorMessageHelper(Spannable spannable, MessageKind errorCode,
+  void reportError(Spannable spannable, MessageKind errorCode,
       [Map arguments = const {}]) {
     if (currentMemberHasParseError) return; // Error already reported.
     if (suppressParseErrors) return;
@@ -818,109 +897,8 @@ class ElementListener extends Listener {
     reporter.reportErrorMessage(spannable, errorCode, arguments);
   }
 
-  void reportErrorMessageToken(Token token, MessageKind errorCode,
+  void reportErrorFromToken(Token token, MessageKind errorCode,
       [Map arguments = const {}]) {
-    if (token is ErrorToken) {
-      reportErrorToken(token);
-    } else {
-      reportErrorMessageHelper(
-          reporter.spanFromToken(token), errorCode, arguments);
-    }
-  }
-
-  void reportErrorHelper(Token token, ErrorKind kind, Map arguments) {
-    SourceSpan span = reporter.spanFromToken(token);
-    MessageKind errorCode;
-    switch (kind) {
-      case ErrorKind.EmptyNamedParameterList:
-        errorCode = MessageKind.EMPTY_NAMED_PARAMETER_LIST;
-        break;
-
-      case ErrorKind.EmptyOptionalParameterList:
-        errorCode = MessageKind.EMPTY_OPTIONAL_PARAMETER_LIST;
-        break;
-
-      case ErrorKind.ExpectedBody:
-        errorCode = MessageKind.BODY_EXPECTED;
-        break;
-
-      case ErrorKind.ExpectedHexDigit:
-        errorCode = MessageKind.HEX_DIGIT_EXPECTED;
-        break;
-
-      case ErrorKind.ExpectedOpenParens:
-        errorCode = MessageKind.GENERIC;
-        arguments = {"text": "Expected '('."};
-        break;
-
-      case ErrorKind.ExpectedString:
-        errorCode = MessageKind.STRING_EXPECTED;
-        break;
-
-      case ErrorKind.ExtraneousModifier:
-        errorCode = MessageKind.EXTRANEOUS_MODIFIER;
-        break;
-
-      case ErrorKind.ExtraneousModifierReplace:
-        errorCode = MessageKind.EXTRANEOUS_MODIFIER_REPLACE;
-        break;
-
-      case ErrorKind.InvalidAwaitFor:
-        errorCode = MessageKind.INVALID_AWAIT_FOR;
-        break;
-
-      case ErrorKind.InvalidInputCharacter:
-        errorCode = MessageKind.BAD_INPUT_CHARACTER;
-        break;
-
-      case ErrorKind.InvalidSyncModifier:
-        errorCode = MessageKind.INVALID_SYNC_MODIFIER;
-        break;
-
-      case ErrorKind.InvalidVoid:
-        errorCode = MessageKind.VOID_NOT_ALLOWED;
-        break;
-
-      case ErrorKind.MalformedStringLiteral:
-        errorCode = MessageKind.MALFORMED_STRING_LITERAL;
-        break;
-
-      case ErrorKind.MissingExponent:
-        errorCode = MessageKind.EXPONENT_MISSING;
-        break;
-
-      case ErrorKind.PositionalParameterWithEquals:
-        errorCode = MessageKind.POSITIONAL_PARAMETER_WITH_EQUALS;
-        break;
-
-      case ErrorKind.RequiredParameterWithDefault:
-        errorCode = MessageKind.REQUIRED_PARAMETER_WITH_DEFAULT;
-        break;
-
-      case ErrorKind.UnmatchedToken:
-        errorCode = MessageKind.UNMATCHED_TOKEN;
-        break;
-
-      case ErrorKind.UnsupportedPrefixPlus:
-        errorCode = MessageKind.UNSUPPORTED_PREFIX_PLUS;
-        break;
-
-      case ErrorKind.UnterminatedComment:
-        errorCode = MessageKind.UNTERMINATED_COMMENT;
-        break;
-
-      case ErrorKind.UnterminatedString:
-        errorCode = MessageKind.UNTERMINATED_STRING;
-        break;
-
-      case ErrorKind.UnterminatedToken:
-        errorCode = MessageKind.UNTERMINATED_TOKEN;
-        break;
-
-      case ErrorKind.Unspecified:
-        errorCode = MessageKind.GENERIC;
-        break;
-    }
-    reportErrorMessageHelper(span, errorCode, arguments);
+    reportError(reporter.spanFromToken(token), errorCode, arguments);
   }
 }

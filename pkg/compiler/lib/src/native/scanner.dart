@@ -10,7 +10,7 @@ import 'package:dart_scanner/src/token_constants.dart' as Tokens show
 
 void checkAllowedLibrary(ElementListener listener, Token token) {
   if (listener.scannerOptions.canUseNative) return;
-  listener.reportErrorMessageToken(token, MessageKind.NATIVE_NOT_SUPPORTED);
+  listener.reportErrorFromToken(token, MessageKind.NATIVE_NOT_SUPPORTED);
 }
 
 Token handleNativeBlockToSkip(ElementListener listener, Token token) {

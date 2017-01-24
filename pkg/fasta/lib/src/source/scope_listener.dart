@@ -7,9 +7,6 @@ library fasta.scope_listener;
 import 'package:dart_scanner/src/token.dart' show
     Token;
 
-import 'package:dart_parser/src/error_kind.dart' show
-    ErrorKind;
-
 import 'unhandled_listener.dart' show
     NullValue,
     UnhandledListener;
@@ -205,11 +202,5 @@ abstract class ScopeListener<J> extends UnhandledListener {
     var body = pop();
     exitLocalScope();
     push(body);
-  }
-
-  @override
-  void reportErrorHelper(Token token, ErrorKind kind, Map arguments) {
-    super.reportErrorHelper(token, kind, arguments);
-    debugEvent("error: ${recoverableErrors.last}");
   }
 }

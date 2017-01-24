@@ -17,12 +17,13 @@ import 'src/listener.dart' show
     ParserError;
 
 export 'src/parser.dart' show
-    Parser;
+    Parser,
+    closeBraceFor,
+    optional;
 
 export 'src/listener.dart' show
     Listener,
-    ParserError,
-    closeBraceFor;
+    ParserError;
 
 export 'src/error_kind.dart' show
     ErrorKind;

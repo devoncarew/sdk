@@ -6,11 +6,10 @@ library dart2js.parser.node_listener;
 
 import '../common.dart';
 import '../elements/elements.dart' show CompilationUnitElement;
-import '../native/native.dart' as native;
 import 'package:dart_scanner/src/precedence.dart' as Precedence show
     INDEX_INFO;
 import 'package:dart_scanner/dart_scanner.dart' show
-    ErrorToken, StringToken, Token;
+    StringToken, Token;
 import '../tree/tree.dart';
 import '../util/util.dart' show Link;
 import 'element_listener.dart' show ElementListener, ScannerOptions;
@@ -277,34 +276,6 @@ class NodeListener extends ElementListener {
   void handleOnError(Token token, var errorInformation) {
     reporter.internalError(reporter.spanFromToken(token),
         "'${token.value}': ${errorInformation}");
-  }
-
-  @override
-  Token expectedFunctionBody(Token token) {
-    if (identical(token.stringValue, 'native')) {
-      return native.handleNativeFunctionBody(this, token);
-    } else if (token is ErrorToken) {
-      pushNode(null);
-      reportErrorToken(token);
-    } else {
-      reportFatalError(
-          reporter.spanFromToken(token),
-          "Expected a function body, but got '${token.value}'.");
-    }
-    return skipToEof(token);
-  }
-
-  @override
-  Token expectedClassBody(Token token) {
-    if (token is ErrorToken) {
-      reportErrorToken(token);
-      return skipToEof(token);
-    } else {
-      reportFatalError(
-          reporter.spanFromToken(token),
-          "Expected a class body, but got '${token.value}'.");
-      return skipToEof(token);
-    }
   }
 
   @override

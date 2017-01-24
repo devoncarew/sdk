@@ -8,6 +8,7 @@ import 'dart:collection' show
     Queue;
 
 import 'package:dart_parser/dart_parser.dart' show
+    ErrorKind,
     Listener;
 
 import 'package:dart_scanner/dart_scanner.dart' show
@@ -226,7 +227,8 @@ abstract class StackListener extends Listener {
   }
 
   @override
-  void error(String message, Token token) {
-    inputError(uri, token.charOffset, message);
+  void handleRecoverableError(Token token, ErrorKind kind, Map arguments) {
+    super.handleRecoverableError(token, kind, arguments);
+    debugEvent("Error: ${recoverableErrors.last}");
   }
 }
