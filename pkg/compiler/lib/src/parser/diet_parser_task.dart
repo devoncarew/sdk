@@ -11,7 +11,15 @@ import '../elements/elements.dart' show CompilationUnitElement;
 import '../id_generator.dart';
 import 'package:dart_scanner/dart_scanner.dart' show Token;
 import 'element_listener.dart' show ElementListener, ScannerOptions;
-import 'package:dart_parser/dart_parser.dart' show ParserError, TopLevelParser;
+import 'package:dart_parser/dart_parser.dart'
+    show Listener, ParserError, TopLevelParser;
+
+class DietParser extends TopLevelParser {
+  DietParser(Listener listener)
+      : super(listener);
+
+  Token parseFormalParameters(Token token) => skipFormalParameters(token);
+}
 
 class DietParserTask extends CompilerTask {
   final IdGenerator _idGenerator;
@@ -30,7 +38,7 @@ class DietParserTask extends CompilerTask {
           canUseNative: _backend.canLibraryUseNative(compilationUnit.library));
       ElementListener listener = new ElementListener(
           scannerOptions, _reporter, compilationUnit, _idGenerator);
-      TopLevelParser parser = new TopLevelParser(listener);
+      DietParser parser = new DietParser(listener);
       try {
         parser.parseUnit(tokens);
       } on ParserError catch (_) {

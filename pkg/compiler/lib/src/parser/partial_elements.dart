@@ -35,9 +35,16 @@ import 'package:dart_scanner/dart_scanner.dart' show Token;
 import 'package:dart_scanner/dart_scanner.dart' as Tokens show EOF_TOKEN;
 import '../tree/tree.dart';
 import 'package:dart_parser/dart_parser.dart'
-    show ClassMemberParser, Parser, ParserError;
+    show ClassMemberParser, Listener, Parser, ParserError;
 import 'member_listener.dart' show MemberListener;
 import 'node_listener.dart' show NodeListener;
+
+class PartialParser extends ClassMemberParser {
+  PartialParser(Listener listener)
+      : super(listener);
+
+  Token parseFormalParameters(Token token) => skipFormalParameters(token);
+}
 
 abstract class PartialElement implements DeclarationSite {
   Token beginToken;
@@ -373,7 +380,7 @@ class PartialClassElement extends ClassElementX with PartialElement {
       parsing.measure(() {
         MemberListener listener = new MemberListener(
             parsing.getScannerOptionsFor(this), reporter, this);
-        Parser parser = new ClassMemberParser(listener);
+        Parser parser = new PartialParser(listener);
         try {
           Token token = parser.parseTopLevelDeclaration(beginToken);
           assert(identical(token, endToken.next));

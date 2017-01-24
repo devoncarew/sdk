@@ -2,7 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library dart_parser;
+library dart_parser.parser;
 
 import 'package:dart_scanner/src/keyword.dart' show
     Keyword;
@@ -413,6 +413,22 @@ class Parser {
       listener.handleNoFormalParameters(token);
       return token;
     }
+  }
+
+  Token skipFormalParameters(Token token) {
+    // TODO(ahe): Shouldn't this be `beginFormalParameters`?
+    listener.beginOptionalFormalParameters(token);
+    if (!optional('(', token)) {
+      if (optional(';', token)) {
+        listener.reportError(token, ErrorKind.ExpectedOpenParens);
+        return token;
+      }
+      return listener.unexpected(token);
+    }
+    BeginGroupToken beginGroupToken = token;
+    Token endToken = beginGroupToken.endGroup;
+    listener.endFormalParameters(0, token, endToken);
+    return endToken.next;
   }
 
   Token parseFormalParameters(Token token) {
