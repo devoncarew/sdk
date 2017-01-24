@@ -1241,6 +1241,8 @@ class Parser {
       listener.beginFieldInitializer(token);
       token = parseExpression(token.next);
       listener.endFieldInitializer(assignment);
+    } else {
+      listener.handleNoFieldInitializer(token);
     }
     return token;
   }

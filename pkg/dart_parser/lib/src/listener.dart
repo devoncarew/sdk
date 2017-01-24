@@ -316,6 +316,10 @@ class Listener {
     logEvent("FieldInitializer");
   }
 
+  void handleNoFieldInitializer(Token token) {
+    logEvent("NoFieldInitializer");
+  }
+
   void beginVariableInitializer(Token token) {}
 
   void endVariableInitializer(Token assignmentOperator) {
