@@ -483,12 +483,12 @@ class Parser {
       listener.beginFunctionTypedFormalParameter(token);
       listener.handleNoTypeVariables(token);
       token = parseFormalParameters(token);
-      listener.handleFunctionTypedFormalParameter(token);
+      listener.endFunctionTypedFormalParameter(token);
     } else if (optional('<', token)) {
       listener.beginFunctionTypedFormalParameter(token);
       token = parseTypeVariablesOpt(token);
       token = parseFormalParameters(token);
-      listener.handleFunctionTypedFormalParameter(token);
+      listener.endFunctionTypedFormalParameter(token);
     }
     String value = token.stringValue;
     if ((identical('=', value)) || (identical(':', value))) {
@@ -1083,10 +1083,10 @@ class Parser {
     Token token = parseIdentifier(name);
 
     int fieldCount = 1;
-    token = parseVariableInitializerOpt(token);
+    token = parseFieldInitializerOpt(token);
     while (optional(',', token)) {
       token = parseIdentifier(token.next);
-      token = parseVariableInitializerOpt(token);
+      token = parseFieldInitializerOpt(token);
       ++fieldCount;
     }
     Token semicolon = token;
@@ -1227,14 +1227,22 @@ class Parser {
     return const Link<Token>();
   }
 
+  Token parseFieldInitializerOpt(Token token) {
+    if (optional('=', token)) {
+      Token assignment = token;
+      listener.beginFieldInitializer(token);
+      token = parseExpression(token.next);
+      listener.endFieldInitializer(assignment);
+    }
+    return token;
+  }
+
   Token parseVariableInitializerOpt(Token token) {
     if (optional('=', token)) {
       Token assignment = token;
-      // TODO(ahe): Rename this to beginVariableInitializer.
-      listener.beginInitializer(token);
+      listener.beginVariableInitializer(token);
       token = parseExpression(token.next);
-      // TODO(ahe): Rename this to endVariableInitializer.
-      listener.endInitializer(assignment);
+      listener.endVariableInitializer(assignment);
     }
     return token;
   }
@@ -1257,9 +1265,9 @@ class Parser {
     mayParseFunctionExpressions = false;
     do {
       token = token.next;
-      listener.beginConstructorInitializer(token);
+      listener.beginInitializer(token);
       token = parseExpression(token);
-      listener.endConstructorInitializer(token);
+      listener.endInitializer(token);
       ++count;
     } while (optional(',', token));
     mayParseFunctionExpressions = old;
@@ -1746,7 +1754,7 @@ class Parser {
       } else {
         token = skipBlock(token);
       }
-      listener.skippedFunctionBody(token);
+      listener.handleFunctionBodySkipped(token);
     }
     return token;
   }

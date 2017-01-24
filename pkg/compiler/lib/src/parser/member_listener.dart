@@ -131,10 +131,10 @@ class MemberListener extends NodeListener {
   }
 
   @override
-  void endInitializer(Token assignmentOperator) {
+  void endFieldInitializer(Token assignmentOperator) {
     pushNode(null); // Super expects an expression, but
     // ClassElementParser just skips expressions.
-    super.endInitializer(assignmentOperator);
+    super.endFieldInitializer(assignmentOperator);
   }
 
   @override

@@ -24,6 +24,13 @@ import 'error_kind.dart' show
 /// on parser errors.
 ///
 /// Events are methods that begin with one of: `begin`, `end`, or `handle`.
+///
+/// Events starting with `begin` and `end` come in pairs. Normally, a
+/// `beginFoo` event is followed by an `endFoo` event. There's a few exceptions
+/// documented below.
+///
+/// Events starting with `handle` are used when isn't possible to have a begin
+/// event.
 class Listener {
   final List<ParserError> recoverableErrors = <ParserError>[];
 
@@ -155,6 +162,7 @@ class Listener {
     logEvent("FormalParameters");
   }
 
+  /// Doesn't have a corresponding begin event, use [beginMember] instead.
   void endFields(int count, Token beginToken, Token endToken) {
     logEvent("Fields");
   }
@@ -214,8 +222,7 @@ class Listener {
     logEvent("NoFunctionBody");
   }
 
-  // TODO(ahe): Rename to `handleFunctionBodySkipped`.
-  void skippedFunctionBody(Token token) {}
+  void handleFunctionBodySkipped(Token token) {}
 
   void beginFunctionName(Token token) {}
 
@@ -311,19 +318,22 @@ class Listener {
     logEvent("InitializedIdentifier");
   }
 
-  // TODO(ahe): Rename this to beginVariableInitializer.
-  void beginInitializer(Token token) {}
-
-  // TODO(ahe): Rename this to endVariableInitializer.
-  void endInitializer(Token assignmentOperator) {
-    logEvent("Initializer");
+  void beginFieldInitializer(Token token) {
   }
 
-  // TODO(ahe): Rename this to beginInitializer.
-  void beginConstructorInitializer(Token token) {}
+  void endFieldInitializer(Token assignment) {
+    logEvent("FieldInitializer");
+  }
 
-  // TODO(ahe): Rename this to endInitializer.
-  void endConstructorInitializer(Token token) {
+  void beginVariableInitializer(Token token) {}
+
+  void endVariableInitializer(Token assignmentOperator) {
+    logEvent("VariableInitializer");
+  }
+
+  void beginInitializer(Token token) {}
+
+  void endInitializer(Token token) {
     logEvent("ConstructorInitializer");
   }
 
@@ -371,10 +381,13 @@ class Listener {
 
   void beginMember(Token token) {}
 
+  /// This event is added for convenience. Normally, one should override
+  /// [endMethod] or [endFields] instead.
   void endMember() {
     logEvent("Member");
   }
 
+  /// Doesn't have a corresponding begin event, use [beginMember] instead.
   void endMethod(Token getOrSet, Token beginToken, Token endToken) {
     logEvent("Method");
   }
@@ -465,16 +478,24 @@ class Listener {
     logEvent("RethrowStatement");
   }
 
+  /// This event is added for convenience. Normally, one should use
+  /// [endClassDeclaration], [endNamedMixinApplication], [endEnum],
+  /// [endFunctionTypeAlias], [endLibraryName], [endImport], [endExport],
+  /// [endPart], [endPartOf], [endTopLevelFields], or [endTopLevelMethod].
   void endTopLevelDeclaration(Token token) {
     logEvent("TopLevelDeclaration");
   }
 
   void beginTopLevelMember(Token token) {}
 
+  /// Doesn't have a corresponding begin event, use [beginTopLevelMember]
+  /// instead.
   void endTopLevelFields(int count, Token beginToken, Token endToken) {
     logEvent("TopLevelFields");
   }
 
+  /// Doesn't have a corresponding begin event, use [beginTopLevelMember]
+  /// instead.
   void endTopLevelMethod(Token beginToken, Token getOrSet, Token endToken) {
     logEvent("TopLevelMethod");
   }
@@ -572,8 +593,7 @@ class Listener {
   void beginFunctionTypedFormalParameter(Token token) {
   }
 
-  // TODO(ahe): Rename to `endFunctionTypedFormalParameter`.
-  void handleFunctionTypedFormalParameter(Token token) {
+  void endFunctionTypedFormalParameter(Token token) {
     logEvent("FunctionTypedFormalParameter");
   }
 

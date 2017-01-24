@@ -451,7 +451,7 @@ class NodeListener extends ElementListener {
   }
 
   @override
-  void skippedFunctionBody(Token token) {
+  void handleFunctionBodySkipped(Token token) {
     pushNode(new Block(new NodeList.empty()));
   }
 
@@ -491,13 +491,18 @@ class NodeListener extends ElementListener {
   }
 
   @override
-  void endInitializer(Token assignmentOperator) {
+  void endVariableInitializer(Token assignmentOperator) {
     Expression initializer = popNode();
     NodeList arguments =
         initializer == null ? null : new NodeList.singleton(initializer);
     Expression name = popNode();
     Operator op = new Operator(assignmentOperator);
     pushNode(new SendSet(null, name, op, arguments));
+  }
+
+  @override
+  void endFieldInitializer(Token assignmentOperator) {
+    endVariableInitializer(assignmentOperator);
   }
 
   @override
@@ -727,7 +732,7 @@ class NodeListener extends ElementListener {
   }
 
   @override
-  void handleFunctionTypedFormalParameter(Token endToken) {
+  void endFunctionTypedFormalParameter(Token endToken) {
     NodeList formals = popNode();
     NodeList typeVariables = popNode();
     Identifier name = popNode();
