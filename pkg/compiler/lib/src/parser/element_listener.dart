@@ -612,8 +612,10 @@ class ElementListener extends Listener {
         break;
 
       case ErrorKind.ExpectedString:
-        errorCode = MessageKind.STRING_EXPECTED;
-        break;
+        reportFatalError(
+            reporter.spanFromToken(token),
+            "Expected a String, but got '${token.value}'.");
+        return null;
 
       case ErrorKind.ExtraneousModifier:
         errorCode = MessageKind.EXTRANEOUS_MODIFIER;

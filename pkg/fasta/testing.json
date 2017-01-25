@@ -112,6 +112,7 @@
       "lib/src/kernel",
       "lib/src/source",
       "test/outline_test.dart",
+      "test/dart2js_test.dart",
       "../dart_scanner/bin",
       "../dart_scanner/lib",
       "../dart_scanner/lib/src",
