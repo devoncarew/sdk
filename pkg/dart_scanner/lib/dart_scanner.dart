@@ -10,6 +10,9 @@ import 'src/token.dart' show
 import 'src/utf8_bytes_scanner.dart' show
     Utf8BytesScanner;
 
+import 'src/recover.dart' show
+    defaultRecoveryStrategy;
+
 export 'src/token.dart' show
     BeginGroupToken,
     ErrorToken,
@@ -35,8 +38,14 @@ export 'src/string_scanner.dart' show
 export 'src/keyword.dart' show
     Keyword;
 
+typedef Token Recover(List<int> bytes, Token tokens, List<int> lineStarts);
+
 abstract class Scanner {
+  /// Returns true if an error occured during [tokenize].
+  bool get hasErrors;
+
   List<int> get lineStarts;
+
   Token tokenize();
 }
 
@@ -47,11 +56,17 @@ class ScannerResult {
   ScannerResult(this.tokens, this.lineStarts);
 }
 
-ScannerResult scan(List<int> bytes, {bool includeComments: false}) {
+ScannerResult scan(List<int> bytes,
+    {bool includeComments: false, Recover recover}) {
   if (bytes.last != 0) {
     throw new ArgumentError("[bytes]: the last byte must be null.");
   }
   Scanner scanner =
       new Utf8BytesScanner(bytes, includeComments: includeComments);
-  return new ScannerResult(scanner.tokenize(), scanner.lineStarts);
+  Token tokens = scanner.tokenize();
+  if (scanner.hasErrors) {
+    recover ??= defaultRecoveryStrategy;
+    tokens = recover(bytes, tokens, scanner.lineStarts);
+  }
+  return new ScannerResult(tokens, scanner.lineStarts);
 }

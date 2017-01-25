@@ -35,6 +35,8 @@ import 'package:compiler_util/link.dart' show
     Link;
 
 abstract class ArrayBasedScanner extends AbstractScanner {
+  bool hasErrors = false;
+
   ArrayBasedScanner(bool includeComments)
       : super(includeComments);
 
@@ -224,6 +226,7 @@ abstract class ArrayBasedScanner extends AbstractScanner {
   }
 
   void appendErrorToken(ErrorToken token) {
+    hasErrors = true;
     tail.next = token;
     tail = token;
   }

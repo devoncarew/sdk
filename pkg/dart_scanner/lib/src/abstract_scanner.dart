@@ -28,8 +28,6 @@ import 'token_constants.dart';
 import 'characters.dart';
 
 abstract class AbstractScanner implements Scanner {
-  // TODO(ahe): Move this class to implementation.
-
   final bool includeComments;
 
   /**
