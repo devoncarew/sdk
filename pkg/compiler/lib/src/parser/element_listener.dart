@@ -509,10 +509,11 @@ class ElementListener extends Listener {
           }
           return token;
         } else {
-          return reportFatalError(
+          reportFatalError(
               reporter.spanFromToken(token),
               MessageTemplate.TEMPLATES[MessageKind.MISSING_TOKEN_BEFORE_THIS]
                   .message({'token': expected}, true).toString());
+          return null;
         }
         break;
 
@@ -546,7 +547,8 @@ class ElementListener extends Listener {
         if (token.info == Precedence.BAD_INPUT_INFO) {
           message = token.value;
         }
-        return reportFatalError(reporter.spanFromToken(token), message);
+        reportFatalError(reporter.spanFromToken(token), message);
+        return null;
 
       case ErrorKind.ExpectedBlockToSkip:
         if (optional("native", token)) {
@@ -569,14 +571,16 @@ class ElementListener extends Listener {
 
       case ErrorKind.ExpectedClassBodyToSkip:
       case ErrorKind.ExpectedClassBody:
-        return reportFatalError(
+        reportFatalError(
             reporter.spanFromToken(token),
             "Expected a class body, but got '${token.value}'.");
+        return null;
 
       case ErrorKind.ExpectedDeclaration:
-        return reportFatalError(
+        reportFatalError(
             reporter.spanFromToken(token),
             "Expected a declaration, but got '${token.value}'.");
+        return null;
 
       case ErrorKind.UnmatchedToken:
         reportErrorFromToken(token, MessageKind.UNMATCHED_TOKEN, arguments);
@@ -886,9 +890,10 @@ class ElementListener extends Listener {
 
   /// Don't call this method. Should only be used as a last resort when there
   /// is no feasible way to recover from a parser error.
-  Token reportFatalError(SourceSpan span, String message) {
-    reportError(span, MessageKind.GENERIC, {'text': message});
+  void reportFatalError(Spannable spannable, String message) {
+    reportError(spannable, MessageKind.GENERIC, {'text': message});
     // Some parse errors are infeasible to recover from, so we throw an error.
+    SourceSpan span = reporter.spanFromSpannable(spannable);
     throw new ParserError(
         span.begin, span.end, ErrorKind.Unspecified, {'text': message});
   }
