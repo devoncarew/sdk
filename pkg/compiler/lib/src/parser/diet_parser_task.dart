@@ -14,8 +14,8 @@ import 'element_listener.dart' show ElementListener, ScannerOptions;
 import 'package:dart_parser/dart_parser.dart'
     show Listener, ParserError, TopLevelParser;
 
-class DietParser extends TopLevelParser {
-  DietParser(Listener listener)
+class PartialParser extends TopLevelParser {
+  PartialParser(Listener listener)
       : super(listener);
 
   Token parseFormalParameters(Token token) => skipFormalParameters(token);
@@ -38,7 +38,7 @@ class DietParserTask extends CompilerTask {
           canUseNative: _backend.canLibraryUseNative(compilationUnit.library));
       ElementListener listener = new ElementListener(
           scannerOptions, _reporter, compilationUnit, _idGenerator);
-      DietParser parser = new DietParser(listener);
+      PartialParser parser = new PartialParser(listener);
       try {
         parser.parseUnit(tokens);
       } on ParserError catch (_) {

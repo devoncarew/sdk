@@ -137,10 +137,11 @@ import 'parser/element_listener.dart' show ElementListener;
 import 'package:dart_parser/dart_parser.dart'
     show Listener, Parser, ParserError;
 import 'parser/member_listener.dart' show MemberListener;
-import 'parser/partial_elements.dart' show PartialClassElement, PartialParser;
+import 'parser/partial_elements.dart'
+    show ClassElementParser, PartialClassElement;
 import 'script.dart';
 import 'package:dart_scanner/dart_scanner.dart' show StringToken, Token;
-import 'parser/diet_parser_task.dart' show DietParser;
+import 'parser/diet_parser_task.dart' show PartialParser;
 
 class PatchParserTask extends CompilerTask {
   final String name = "Patching Parser";
@@ -181,7 +182,7 @@ class PatchParserTask extends CompilerTask {
       Listener patchListener = new PatchElementListener(
           compiler, compilationUnit, compiler.idGenerator);
       try {
-        new DietParser(patchListener).parseUnit(tokens);
+        new PartialParser(patchListener).parseUnit(tokens);
       } on ParserError catch (e) {
         // No need to recover from a parser error in platform libraries, user
         // will never see this if the libraries are tested correctly.
@@ -198,7 +199,7 @@ class PatchParserTask extends CompilerTask {
 
     measure(() => reporter.withCurrentElement(cls, () {
           MemberListener listener = new PatchMemberListener(compiler, cls);
-          Parser parser = new PartialParser(listener);
+          Parser parser = new ClassElementParser(listener);
           try {
             Token token = parser.parseTopLevelDeclaration(cls.beginToken);
             assert(identical(token, cls.endToken.next));

@@ -11,7 +11,7 @@ import 'package:compiler/src/id_generator.dart';
 import 'package:compiler/src/tree/tree.dart';
 import 'package:compiler/src/parser/element_listener.dart';
 import 'package:compiler/src/parser/node_listener.dart';
-import 'package:compiler/src/parser/partial_elements.dart';
+import 'package:compiler/src/parser/diet_parser_task.dart';
 import 'package:dart_parser/dart_parser.dart' hide parse;
 import 'package:dart_scanner/dart_scanner.dart' hide scan;
 import 'package:compiler/src/io/source_file.dart';
@@ -34,7 +34,7 @@ export 'package:dart_parser/dart_parser.dart' hide parse;
 export 'package:dart_scanner/dart_scanner.dart' hide scan;
 export 'package:compiler/src/diagnostics/diagnostic_listener.dart';
 export 'package:compiler/src/parser/node_listener.dart';
-export 'package:compiler/src/parser/partial_elements.dart';
+export 'package:compiler/src/parser/diet_parser_task.dart';
 export 'package:dart_scanner/src/token_constants.dart';
 
 class LoggerCanceler extends DiagnosticReporter {

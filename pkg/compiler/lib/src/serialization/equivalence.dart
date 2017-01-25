@@ -1367,7 +1367,10 @@ class NodeEquivalenceVisitor implements Visitor1<bool, Node> {
         (Token t1, Token t2) {
       if (t1 == t2) return true;
       if (t1 == null || t2 == null) return false;
-      return strategy.test(t1, t2, 'hashCode', t1.hashCode, t2.hashCode);
+      return
+          strategy.test(t1, t2, 'charOffset', t1.charOffset, t2.charOffset) &&
+          strategy.test(t1, t2, 'info', t1.info, t2.info) &&
+          strategy.test(t1, t2, 'value', t1.value, t2.value);
     });
   }
 

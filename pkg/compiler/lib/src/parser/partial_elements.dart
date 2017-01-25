@@ -39,8 +39,8 @@ import 'package:dart_parser/dart_parser.dart'
 import 'member_listener.dart' show MemberListener;
 import 'node_listener.dart' show NodeListener;
 
-class PartialParser extends ClassMemberParser {
-  PartialParser(Listener listener)
+class ClassElementParser extends ClassMemberParser {
+  ClassElementParser(Listener listener)
       : super(listener);
 
   Token parseFormalParameters(Token token) => skipFormalParameters(token);
@@ -380,7 +380,7 @@ class PartialClassElement extends ClassElementX with PartialElement {
       parsing.measure(() {
         MemberListener listener = new MemberListener(
             parsing.getScannerOptionsFor(this), reporter, this);
-        Parser parser = new PartialParser(listener);
+        Parser parser = new ClassElementParser(listener);
         try {
           Token token = parser.parseTopLevelDeclaration(beginToken);
           assert(identical(token, endToken.next));
