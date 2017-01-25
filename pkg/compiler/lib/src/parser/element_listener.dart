@@ -30,7 +30,7 @@ import 'package:dart_scanner/src/precedence.dart' as Precedence show
 import '../tree/tree.dart';
 import '../util/util.dart' show Link, LinkBuilder;
 import 'package:dart_parser/dart_parser.dart'
-    show ErrorKind, Listener, ParserError, closeBraceFor, optional;
+    show ErrorKind, Listener, ParserError, optional;
 import 'partial_elements.dart'
     show
         PartialClassElement,
@@ -84,6 +84,10 @@ class ElementListener extends Listener {
   Link<bool> memberErrors = const Link<bool>();
 
   bool suppressParseErrors = false;
+
+  /// Set to true each time we parse a native function body. It is reset in
+  /// [handleInvalidFunctionBody] which is called immediately after.
+  bool lastErrorWasNativeFunctionBody = false;
 
   ElementListener(this.scannerOptions, DiagnosticReporter reporter,
       this.compilationUnitElement, this.idGenerator)
@@ -454,7 +458,9 @@ class ElementListener extends Listener {
   @override
   Token handleUnrecoverableError(Token token, ErrorKind kind, Map arguments) {
     Token next = handleError(token, kind, arguments);
-    if (next == null) {
+    if (next == null &&
+        kind != ErrorKind.UnterminatedComment &&
+        kind != ErrorKind.UnterminatedString) {
       throw new ParserError.fromTokens(token, token, kind, arguments);
     } else {
       return next;
@@ -464,6 +470,21 @@ class ElementListener extends Listener {
   @override
   void handleRecoverableError(Token token, ErrorKind kind, Map arguments) {
     handleError(token, kind, arguments);
+  }
+
+  @override
+  void handleInvalidExpression(Token token) {
+    pushNode(new ErrorExpression(token));
+  }
+
+  @override
+  void handleInvalidFunctionBody(Token token) {
+    lastErrorWasNativeFunctionBody = false;
+  }
+
+  @override
+  void handleInvalidTypeReference(Token token) {
+    pushNode(null);
   }
 
   Token handleError(Token token, ErrorKind kind, Map arguments) {
@@ -510,27 +531,14 @@ class ElementListener extends Listener {
         return token;
 
       case ErrorKind.ExpectedType:
-        pushNode(null);
-        if (token is ErrorToken) {
-          // TODO(ahe): This is dead code.
-          return synthesizeIdentifier(token);
-        } else {
-          reportFatalError(reporter.spanFromToken(token),
-              "Expected a type, but got '${token.value}'.");
-        }
+        reportFatalError(reporter.spanFromToken(token),
+            "Expected a type, but got '${token.value}'.");
         return null;
 
       case ErrorKind.ExpectedExpression:
-        if (token is ErrorToken) {
-          // TODO(ahe): This dead code.
-          pushNode(new ErrorExpression(token));
-          return token.next;
-        } else {
-          pushNode(null);
-          reportFatalError(
-              reporter.spanFromToken(token),
-              "Expected an expression, but got '${token.value}'.");
-        }
+        reportFatalError(
+            reporter.spanFromToken(token),
+            "Expected an expression, but got '${token.value}'.");
         return null;
 
       case ErrorKind.UnexpectedToken:
@@ -550,6 +558,7 @@ class ElementListener extends Listener {
 
       case ErrorKind.ExpectedFunctionBody:
         if (optional("native", token)) {
+          lastErrorWasNativeFunctionBody = true;
           return native.handleNativeFunctionBody(this, token);
         } else {
           reportFatalError(
@@ -570,10 +579,7 @@ class ElementListener extends Listener {
             "Expected a declaration, but got '${token.value}'.");
 
       case ErrorKind.UnmatchedToken:
-        String begin = token.value;
-        String end = closeBraceFor(begin);
-        reportErrorFromToken(
-            token, MessageKind.UNMATCHED_TOKEN, {'begin': begin, 'end': end});
+        reportErrorFromToken(token, MessageKind.UNMATCHED_TOKEN, arguments);
         Token next = token.next;
         while (next is ErrorToken) {
           next = next.next;

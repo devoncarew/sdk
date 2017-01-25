@@ -3090,7 +3090,9 @@ main() => r\"\"\"
           examples: const [
             "main(",
             "main(){",
-            "main(){]}",
+            "main(){[}",
+            // TODO(ahe): https://github.com/dart-lang/sdk/issues/28495
+            // "main(){]}",
           ]),
 
       MessageKind.UNTERMINATED_TOKEN: const MessageTemplate(

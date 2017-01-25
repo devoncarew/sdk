@@ -946,6 +946,14 @@ class NodeListener extends ElementListener {
     reporter.log(message);
   }
 
+  @override
+  void handleInvalidFunctionBody(Token token) {
+    if (!lastErrorWasNativeFunctionBody) {
+      pushNode(null);
+    }
+    lastErrorWasNativeFunctionBody = false;
+  }
+
   void internalError({Token token, Node node}) {
     // TODO(ahe): This should call reporter.internalError.
     Spannable spannable = (token == null) ? node : token;

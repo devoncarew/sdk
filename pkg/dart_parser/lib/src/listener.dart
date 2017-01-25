@@ -342,6 +342,27 @@ class Listener {
     logEvent("NoInitializers");
   }
 
+  /// Called after the listener has recovered from an invalid expression. The
+  /// parser will resume parsing from [token]. Exactly where the parser will
+  /// resume parsing is unspecified.
+  void handleInvalidExpression(Token token) {
+    logEvent("InvalidExpression");
+  }
+
+  /// Called after the listener has recovered from an invalid function
+  /// body. The parser expected an open curly brace `{` and will resume parsing
+  /// from [token] as if a function body had preceeded it.
+  void handleInvalidFunctionBody(Token token) {
+    logEvent("InvalidFunctionBody");
+  }
+
+  /// Called after the listener has recovered from an invalid type. The parser
+  /// expected an identifier, and will resume parsing type arguments from
+  /// [token].
+  void handleInvalidTypeReference(Token token) {
+    logEvent("InvalidTypeReference");
+  }
+
   void handleLabel(Token token) {
     logEvent("Label");
   }

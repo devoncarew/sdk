@@ -4,8 +4,8 @@
 
 library link_helper;
 
-import 'package:compiler/src/util/util.dart';
-import 'package:compiler/src/util/util_implementation.dart';
+import 'package:compiler_util/link.dart';
+import 'package:compiler_util/src/link_implementation.dart';
 
 Link LinkFromList(List list) {
   switch (list.length) {

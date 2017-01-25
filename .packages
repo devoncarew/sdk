@@ -28,7 +28,6 @@ compiler_util:pkg/compiler_util/lib
 convert:third_party/pkg/convert/lib
 crypto:third_party/pkg/crypto/lib
 csslib:third_party/pkg/csslib/lib
-dart2js_incremental:pkg/dart2js_incremental/lib
 dart2js_info:third_party/pkg/dart2js_info/lib
 dart_messages:pkg/dart_messages/lib
 dart_parser:pkg/dart_parser/lib

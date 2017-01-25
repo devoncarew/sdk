@@ -19,7 +19,7 @@ import '../native/native.dart' show NativeBehavior;
 import '../resolution/access_semantics.dart';
 import '../resolution/send_structure.dart';
 import '../resolution/tree_elements.dart';
-import '../tokens/token.dart';
+import 'package:dart_scanner/dart_scanner.dart';
 import '../tree/nodes.dart';
 import '../universe/selector.dart';
 import '../universe/feature.dart';

@@ -852,6 +852,7 @@ class Parser {
       token = parseQualifiedRestOpt(token);
     } else {
       token = reportUnrecoverableError(token, ErrorKind.ExpectedType);
+      listener.handleInvalidTypeReference(token);
     }
     token = parseTypeArgumentsOpt(token);
     listener.endType(begin, token);
@@ -1792,7 +1793,9 @@ class Parser {
     Token begin = token;
     int statementCount = 0;
     if (!optional('{', token)) {
-      return reportUnrecoverableError(token, ErrorKind.ExpectedFunctionBody);
+      token = reportUnrecoverableError(token, ErrorKind.ExpectedFunctionBody);
+      listener.handleInvalidFunctionBody(token);
+      return token;
     }
 
     listener.beginFunctionBody(begin);
@@ -2366,11 +2369,11 @@ class Parser {
         return parseFunctionExpression(token);
       } else if (asyncAwaitKeywordsEnabled &&
           (value == 'yield' || value == 'async')) {
-        return reportUnrecoverableError(token, ErrorKind.ExpectedExpression);
+        return expressionExpected(token);
       } else if (token.isIdentifier()) {
         return parseSendOrFunctionLiteral(token);
       } else {
-        return reportUnrecoverableError(token, ErrorKind.ExpectedExpression);
+        return expressionExpected(token);
       }
     } else if (kind == OPEN_PAREN_TOKEN) {
       return parseParenthesizedExpressionOrFunctionLiteral(token);
@@ -2383,8 +2386,14 @@ class Parser {
     } else if (kind == LT_TOKEN) {
       return parseLiteralListOrMapOrFunction(token, null);
     } else {
-      return reportUnrecoverableError(token, ErrorKind.ExpectedExpression);
+      return expressionExpected(token);
     }
+  }
+
+  Token expressionExpected(Token token) {
+    token = reportUnrecoverableError(token, ErrorKind.ExpectedExpression);
+    listener.handleInvalidExpression(token);
+    return token;
   }
 
   Token parseParenthesizedExpressionOrFunctionLiteral(Token token) {
