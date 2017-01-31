@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/apps/update_homebrew/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/update_homebrew/bin/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/update_homebrew/build" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/update_homebrew/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/dart2js/sourceMapViewer/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/dart2js/sourceMapViewer/bin/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/dart2js/sourceMapViewer/build" />
+      <excludeFolder url="file://$MODULE_DIR$/dart2js/sourceMapViewer/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/dart2js/sourceMapViewer/web/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/sdks" />
+      <excludeFolder url="file://$MODULE_DIR$/testing/dart/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/testing/dart/build" />
+      <excludeFolder url="file://$MODULE_DIR$/testing/dart/packages" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
