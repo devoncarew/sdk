@@ -909,8 +909,13 @@ class AnalysisDriver {
         // errors were written.
         throw new StateError('No ErrorCode for $errorName in $file');
       }
-      return new AnalysisError.forValues(file.source, error.offset,
-          error.length, errorCode, error.message, error.correction);
+      return new AnalysisError.forValues(
+          file.source,
+          error.offset,
+          error.length,
+          errorCode,
+          error.message,
+          error.correction.isEmpty ? null : error.correction);
     }).toList();
   }
 
