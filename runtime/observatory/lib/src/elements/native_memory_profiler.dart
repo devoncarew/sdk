@@ -7,6 +7,7 @@ library native_memory_profile;
 import 'dart:async';
 import 'dart:html';
 import 'package:observatory/models.dart' as M;
+import 'package:observatory/service.dart' as S;
 import 'package:observatory/src/elements/cpu_profile/virtual_tree.dart';
 import 'package:observatory/src/elements/helpers/nav_bar.dart';
 import 'package:observatory/src/elements/helpers/nav_menu.dart';
@@ -143,8 +144,9 @@ class NativeMemoryProfileElement extends HtmlElement implements Renderable {
   }
 
   Future _request({bool forceFetch: false}) async {
-    for (Isolate isolate in vm.isolates) {
-      await isolate.invokeRpc("_collectAllGarbage", {});
+    // TODO: Is this casting correct?
+    for (M.Isolate isolate in (vm as M.VM).isolates) {
+      await (isolate as S.Isolate).invokeRpc("_collectAllGarbage", {});
     }
     _progress = null;
     _progressStream = _profiles.get(_vm, _tag, forceFetch: forceFetch);

@@ -4,9 +4,7 @@
 // VMOptions=--error_on_bad_type --error_on_bad_override  --verbose_debug --async_debugger
 
 import 'dart:developer';
-import 'package:observatory/models.dart' as M;
-import 'package:observatory/service_io.dart';
-import 'package:unittest/unittest.dart';
+
 import 'service_test_common.dart';
 import 'test_helper.dart';
 
@@ -24,7 +22,7 @@ foobar() async* {
 
 helper() async {
   print('helper'); // LINE_C.
-  await for (var i in foobar()) {
+  await for (var _ in foobar()) {
     debugger();
     print('loop'); // LINE_D.
   }

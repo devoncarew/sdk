@@ -27,7 +27,7 @@ Future<Null> testeeBefore() async {
   var url = Uri.parse('http://localhost:$port');
   var httpClient = new io.HttpClient();
   try {
-    var request = await httpClient.getUrl(url);
+    await httpClient.getUrl(url);
     expect(true, false);
   } catch (e) {
     expect(true, true);
@@ -35,7 +35,7 @@ Future<Null> testeeBefore() async {
 
   // Try connecting to the server with the auth token, it should succeed.
   try {
-    var request = await httpClient.getUrl(info.serverUri);
+    await httpClient.getUrl(info.serverUri);
     expect(true, true);
   } catch (e) {
     expect(true, false);

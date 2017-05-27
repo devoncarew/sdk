@@ -32,8 +32,8 @@ testeeMain() async {
     // uncaught.
     try {
       await asyncThrower(); // LINE_A.
-    } on double catch (e) {}
-  } on Foo catch (e) {}
+    } on double catch (_) {}
+  } on Foo catch (_) {}
 }
 
 var tests = [

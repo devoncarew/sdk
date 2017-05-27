@@ -8,6 +8,7 @@ import 'dart:isolate';
 test() => 'apple';
 
 main() {
+  // ignore: unused_local_variable
   RawReceivePort keepAlive = new RawReceivePort();
   print('slave isolate running');
 }

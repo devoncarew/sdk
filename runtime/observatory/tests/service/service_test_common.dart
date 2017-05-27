@@ -215,8 +215,7 @@ Future<Isolate> markDartColonLibrariesDebuggable(Isolate isolate) async {
         'libraryId': lib.id,
         'isDebuggable': true,
       };
-      Map<String, dynamic> result = await isolate.invokeRpcNoUpgrade(
-          'setLibraryDebuggable', setDebugParams);
+      await isolate.invokeRpcNoUpgrade('setLibraryDebuggable', setDebugParams);
     }
   }
   return isolate;
