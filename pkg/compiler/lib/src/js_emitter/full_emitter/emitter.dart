@@ -24,7 +24,6 @@ import '../../elements/elements.dart'
         Element,
         Elements,
         FieldElement,
-        FunctionElement,
         FunctionSignature,
         LibraryElement,
         MethodElement,
@@ -53,7 +52,7 @@ import '../../world.dart' show ClosedWorld;
 import '../constant_ordering.dart' show deepCompareConstants;
 import '../headers.dart';
 import '../js_emitter.dart' hide Emitter, EmitterFactory;
-import '../js_emitter.dart' as js_emitter show Emitter, EmitterFactory;
+import '../js_emitter.dart' as js_emitter show EmitterBase, EmitterFactory;
 import '../model.dart';
 import '../program_builder/program_builder.dart';
 import '../sorter.dart';
@@ -91,7 +90,7 @@ class EmitterFactory implements js_emitter.EmitterFactory {
   }
 }
 
-class Emitter implements js_emitter.Emitter {
+class Emitter extends js_emitter.EmitterBase {
   final Compiler compiler;
   final CodeEmitterTask task;
   final ClosedWorld _closedWorld;
@@ -168,8 +167,11 @@ class Emitter implements js_emitter.Emitter {
    */
   // TODO(ahe): Generate statics with their class, and store only libraries in
   // this map.
-  final Map<Fragment, Map<Element, ClassBuilder>> elementDescriptors =
-      new Map<Fragment, Map<Element, ClassBuilder>>();
+  final Map<Fragment, Map<LibraryEntity, ClassBuilder>> libraryDescriptors =
+      new Map<Fragment, Map<LibraryEntity, ClassBuilder>>();
+
+  final Map<Fragment, Map<ClassEntity, ClassBuilder>> classDescriptors =
+      new Map<Fragment, Map<ClassEntity, ClassBuilder>>();
 
   final bool generateSourceMap;
 
@@ -299,54 +301,26 @@ class Emitter implements js_emitter.Emitter {
     return '$initName.$global';
   }
 
-  jsAst.PropertyAccess globalPropertyAccess(Element element) {
-    jsAst.Name name = namer.globalPropertyName(element);
-    jsAst.PropertyAccess pa = new jsAst.PropertyAccess(
-        new jsAst.VariableUse(namer.globalObjectFor(element)), name);
-    return pa;
-  }
-
   @override
   jsAst.Expression isolateLazyInitializerAccess(FieldElement element) {
-    return jsAst.js('#.#',
-        [namer.globalObjectFor(element), namer.lazyInitializerName(element)]);
+    return jsAst.js('#.#', [
+      namer.globalObjectForMember(element),
+      namer.lazyInitializerName(element)
+    ]);
   }
 
   @override
   jsAst.Expression isolateStaticClosureAccess(MethodElement element) {
-    return jsAst.js('#.#()',
-        [namer.globalObjectFor(element), namer.staticClosureName(element)]);
-  }
-
-  @override
-  jsAst.PropertyAccess staticFieldAccess(FieldElement element) {
-    return globalPropertyAccess(element);
-  }
-
-  @override
-  jsAst.PropertyAccess staticFunctionAccess(MethodElement element) {
-    return globalPropertyAccess(element);
-  }
-
-  @override
-  jsAst.PropertyAccess constructorAccess(ClassElement element) {
-    return globalPropertyAccess(element);
+    return jsAst.js('#.#()', [
+      namer.globalObjectForMember(element),
+      namer.staticClosureName(element)
+    ]);
   }
 
   @override
   jsAst.PropertyAccess prototypeAccess(
       ClassElement element, bool hasBeenInstantiated) {
     return jsAst.js('#.prototype', constructorAccess(element));
-  }
-
-  @override
-  jsAst.PropertyAccess interceptorClassAccess(ClassElement element) {
-    return globalPropertyAccess(element);
-  }
-
-  @override
-  jsAst.PropertyAccess typeAccess(Entity element) {
-    return globalPropertyAccess(element);
   }
 
   @override
@@ -504,7 +478,7 @@ class Emitter implements js_emitter.Emitter {
         positionalParameterCount = callStructure.positionalArgumentCount;
         namedArguments = namedParametersAsReflectionNames(callStructure);
       } else {
-        FunctionElement function = elementOrSelector;
+        MethodElement function = elementOrSelector;
         if (function.isConstructor) {
           isConstructor = true;
           name = Elements.reconstructConstructorName(function);
@@ -592,7 +566,7 @@ class Emitter implements js_emitter.Emitter {
     if (staticFunctions == null) return;
 
     for (Method method in staticFunctions) {
-      MethodElement element = method.element;
+      FunctionEntity element = method.element;
       // We need to filter out null-elements for the interceptors.
       // TODO(floitsch): use the precomputed interceptors here.
       if (element == null) continue;
@@ -609,7 +583,7 @@ class Emitter implements js_emitter.Emitter {
     jsAst.Statement buildInitialization(
         FieldElement element, jsAst.Expression initialValue) {
       return js.statement('${namer.staticStateHolder}.# = #',
-          [namer.globalPropertyName(element), initialValue]);
+          [namer.globalPropertyNameForMember(element), initialValue]);
     }
 
     bool inMainUnit = (outputUnit == compiler.deferredLoadTask.mainOutputUnit);
@@ -1038,7 +1012,7 @@ class Emitter implements js_emitter.Emitter {
   }
 
   jsAst.Expression generateLibraryDescriptor(
-      LibraryElement library, Fragment fragment) {
+      LibraryEntity library, Fragment fragment) {
     var uri = "";
     if (!compiler.options.enableMinification ||
         backend.mirrorsData.mustPreserveUris) {
@@ -1051,13 +1025,14 @@ class Emitter implements js_emitter.Emitter {
 
     String libraryName = (!compiler.options.enableMinification ||
             backend.mirrorsData.mustRetainLibraryNames)
-        ? library.libraryName
+        // TODO(johnniwinther): Support library names for entities.
+        ? library is LibraryElement ? library.libraryName : ''
         : "";
 
     jsAst.Fun metadata =
         task.metadataCollector.buildLibraryMetadataFunction(library);
 
-    ClassBuilder descriptor = elementDescriptors[fragment][library];
+    ClassBuilder descriptor = libraryDescriptors[fragment][library];
 
     jsAst.ObjectInitializer initializer;
     if (descriptor == null) {
@@ -1078,7 +1053,7 @@ class Emitter implements js_emitter.Emitter {
       ..add(js.string(libraryName))
       ..add(js.string(uri.toString()))
       ..add(metadata == null ? new jsAst.ArrayHole() : metadata)
-      ..add(js('#', namer.globalObjectFor(library)))
+      ..add(js('#', namer.globalObjectForLibrary(library)))
       ..add(initializer);
     if (library == compiler.mainApp) {
       parts.add(js.number(1));
@@ -1157,7 +1132,7 @@ class Emitter implements js_emitter.Emitter {
       assert(commonElements.objectClass != null);
       builder.superName = namer.className(commonElements.objectClass);
       jsAst.Node declaration = builder.toObjectInitializer();
-      jsAst.Name mangledName = namer.globalPropertyName(typedef);
+      jsAst.Name mangledName = namer.globalPropertyNameForType(typedef);
       String reflectionName = getReflectionName(typedef, mangledName);
       getLibraryDescriptor(library, mainFragment)
         ..addProperty(mangledName, declaration)
@@ -1291,21 +1266,23 @@ class Emitter implements js_emitter.Emitter {
     return new jsAst.Block(parts);
   }
 
-  void checkEverythingEmitted(Iterable<Element> elements) {
-    List<Element> pendingStatics =
-        Elements.sortedByPosition(elements.where((e) => !e.isLibrary));
+  void checkEverythingEmitted(
+      Map<ClassEntity, ClassBuilder> pendingClassBuilders) {
+    if (pendingClassBuilders == null) return;
+    List<ClassEntity> pendingClasses =
+        _sorter.sortClasses(pendingClassBuilders.keys);
 
-    pendingStatics.forEach((element) => reporter.reportInfo(
+    pendingClasses.forEach((ClassEntity element) => reporter.reportInfo(
         element, MessageKind.GENERIC, {'text': 'Pending statics.'}));
 
-    if (pendingStatics != null && !pendingStatics.isEmpty) {
+    if (pendingClasses != null && !pendingClasses.isEmpty) {
       reporter.internalError(
-          pendingStatics.first, 'Pending statics (see above).');
+          pendingClasses.first, 'Pending statics (see above).');
     }
   }
 
   void assembleLibrary(Library library, Fragment fragment) {
-    LibraryElement libraryElement = library.element;
+    LibraryEntity libraryElement = library.element;
 
     assembleStaticFunctions(library.statics, fragment);
 
@@ -1353,13 +1330,13 @@ class Emitter implements js_emitter.Emitter {
     }
 
     // Collect the AST for the descriptors.
-    Map<Element, ClassBuilder> descriptors = elementDescriptors[mainFragment];
-    if (descriptors == null) descriptors = const {};
+    Map<LibraryEntity, ClassBuilder> descriptors =
+        libraryDescriptors[mainFragment] ?? const {};
 
-    checkEverythingEmitted(descriptors.keys);
+    checkEverythingEmitted(classDescriptors[mainFragment]);
 
     Iterable<LibraryEntity> libraries = outputLibraryLists[mainOutputUnit];
-    if (libraries == null) libraries = <LibraryElement>[];
+    if (libraries == null) libraries = <LibraryEntity>[];
 
     List<jsAst.Expression> parts = <jsAst.Expression>[];
     for (LibraryEntity library in _sorter.sortLibraries(libraries)) {
@@ -1368,18 +1345,14 @@ class Emitter implements js_emitter.Emitter {
     }
 
     if (descriptors.isNotEmpty) {
-      List<Element> remainingLibraries =
-          descriptors.keys.where((Element e) => e is LibraryElement).toList();
+      List<LibraryEntity> remainingLibraries = descriptors.keys.toList();
 
       // The remaining descriptors are only accessible through reflection.
       // The program builder does not collect libraries that only
       // contain typedefs that are used for reflection.
-      for (LibraryElement element in remainingLibraries) {
-        assert(element is LibraryElement);
-        if (element is LibraryElement) {
-          parts.add(generateLibraryDescriptor(element, mainFragment));
-          descriptors.remove(element);
-        }
+      for (LibraryEntity element in remainingLibraries) {
+        parts.add(generateLibraryDescriptor(element, mainFragment));
+        descriptors.remove(element);
       }
     }
     jsAst.ArrayInitializer descriptorsAst = new jsAst.ArrayInitializer(parts);
@@ -1576,11 +1549,12 @@ class Emitter implements js_emitter.Emitter {
     for (Fragment fragment in program.deferredFragments) {
       OutputUnit outputUnit = fragment.outputUnit;
 
-      Map<Element, ClassBuilder> descriptors = elementDescriptors[fragment];
+      Map<LibraryEntity, ClassBuilder> descriptors =
+          libraryDescriptors[fragment];
 
       if (descriptors != null && descriptors.isNotEmpty) {
         Iterable<LibraryEntity> libraries = outputLibraryLists[outputUnit];
-        if (libraries == null) libraries = [];
+        if (libraries == null) libraries = <LibraryEntity>[];
 
         // TODO(johnniwinther): Avoid creating [CodeBuffer]s.
         List<jsAst.Expression> parts = <jsAst.Expression>[];
@@ -1657,37 +1631,40 @@ class Emitter implements js_emitter.Emitter {
   }
 
   ClassBuilder getStaticMethodDescriptor(
-      MethodElement element, Fragment fragment) {
-    Element owner = element.library;
+      FunctionEntity element, Fragment fragment) {
     if (!_nativeData.isNativeMember(element)) {
       // For static (not top level) elements, record their code in a buffer
       // specific to the class. For now, not supported for native classes and
       // native elements.
-      ClassElement cls = element.enclosingClass;
+      ClassEntity cls = element.enclosingClass;
       if (compiler.codegenWorldBuilder.directlyInstantiatedClasses
               .contains(cls) &&
           !_nativeData.isNativeClass(cls) &&
-          compiler.deferredLoadTask.outputUnitForElement(element) ==
-              compiler.deferredLoadTask.outputUnitForElement(cls)) {
-        owner = cls;
+          compiler.deferredLoadTask.outputUnitForMember(element) ==
+              compiler.deferredLoadTask.outputUnitForClass(cls)) {
+        return classDescriptors
+            .putIfAbsent(fragment, () => new Map<ClassEntity, ClassBuilder>())
+            .putIfAbsent(cls, () {
+          return new ClassBuilder.forClass(cls, namer);
+        });
       }
     }
-    return _getElementDescriptor(element, owner, fragment);
+    return _getLibraryDescriptor(element, element.library, fragment);
   }
 
-  ClassBuilder getLibraryDescriptor(LibraryElement element, Fragment fragment) {
-    return _getElementDescriptor(element, element, fragment);
+  ClassBuilder getLibraryDescriptor(LibraryEntity element, Fragment fragment) {
+    return _getLibraryDescriptor(element, element, fragment);
   }
 
-  ClassBuilder _getElementDescriptor(
-      Element element, Element owner, Fragment fragment) {
+  ClassBuilder _getLibraryDescriptor(
+      Entity element, LibraryEntity owner, Fragment fragment) {
     if (owner == null) {
       reporter.internalError(element, 'Owner is null.');
     }
-    return elementDescriptors
-        .putIfAbsent(fragment, () => new Map<Element, ClassBuilder>())
+    return libraryDescriptors
+        .putIfAbsent(fragment, () => new Map<LibraryEntity, ClassBuilder>())
         .putIfAbsent(owner, () {
-      return new ClassBuilder(owner, namer, owner.isClass);
+      return new ClassBuilder.forLibrary(owner, namer);
     });
   }
 
@@ -1928,7 +1905,12 @@ class Emitter implements js_emitter.Emitter {
 
   jsAst.Comment buildGeneratedBy() {
     List<String> options = [];
-    if (compiler.commonElements.mirrorsLibrary != null) options.add('mirrors');
+    if (compiler.commonElements.mirrorsLibrary != null &&
+        !compiler.options.loadFromDill) {
+      // TODO(johnniwinther): Add `isMirrorsUsed` to [BackendData] instead
+      // of checking `mirrorsLibrary`.
+      options.add('mirrors');
+    }
     if (compiler.options.useContentSecurityPolicy) options.add("CSP");
     return new jsAst.Comment(generatedBy(compiler, flavor: options.join(", ")));
   }

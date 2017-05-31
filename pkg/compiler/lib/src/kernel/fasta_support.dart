@@ -18,10 +18,12 @@ library compiler.src.kernel.fasta_support;
 import 'dart:async' show Future;
 import 'dart:io' show exitCode;
 
+import 'package:front_end/file_system.dart';
 import 'package:front_end/physical_file_system.dart';
 import 'package:front_end/src/fasta/kernel/utils.dart';
-import 'package:kernel/ast.dart' show Source;
+import 'package:kernel/ast.dart' show Source, Library;
 
+import 'package:front_end/src/fasta/builder/builder.dart' show LibraryBuilder;
 import 'package:front_end/src/fasta/compiler_context.dart' show CompilerContext;
 import 'package:front_end/src/fasta/dill/dill_target.dart' show DillTarget;
 import 'package:front_end/src/fasta/fasta.dart' show CompileTask;
@@ -29,9 +31,13 @@ import 'package:front_end/src/fasta/kernel/kernel_target.dart'
     show KernelTarget;
 import 'package:front_end/src/fasta/loader.dart' show Loader;
 import 'package:front_end/src/fasta/parser/parser.dart' show optional;
+import 'package:front_end/src/fasta/source/source_loader.dart'
+    show SourceLoader;
 import 'package:front_end/src/scanner/token.dart' show Token;
 import 'package:front_end/src/fasta/ticker.dart' show Ticker;
 import 'package:front_end/src/fasta/translate_uri.dart' show TranslateUri;
+
+import 'package:compiler/src/native/native.dart' show maybeEnableNative;
 
 /// Generates a platform.dill file containing the compiled Kernel IR of the
 /// dart2js SDK.
@@ -85,18 +91,49 @@ class KernelTargetForDart2js extends KernelTarget {
       [Map<String, Source> uriToSource])
       : super(PhysicalFileSystem.instance, target, uriTranslator, strongMode,
             uriToSource);
+  @override
+  SourceLoader<Library> createLoader() =>
+      new SourceLoaderForDart2js<Library>(fileSystem, this);
+
+  @override
+  bool enableNative(LibraryBuilder library) => maybeEnableNative(library.uri);
 
   @override
   Token skipNativeClause(Token token) => _skipNative(token);
 
   @override
-  String extractNativeMethodName(Token token) => null;
+  String extractNativeMethodName(Token token) => "";
 
   @override
   void loadExtraRequiredLibraries(Loader loader) => _loadExtras(loader);
 
   @override
   void runBuildTransformations() {}
+}
+
+/// Specializes [SourceLoader] to build kernel for dart2js: dart2js extends
+/// bool, int, num, double, and String in a different platform library than
+/// `dart:core`.
+class SourceLoaderForDart2js<L> extends SourceLoader<L> {
+  LibraryBuilder interceptorsLibrary;
+
+  @override
+  LibraryBuilder read(Uri uri, int charOffset,
+      {Uri fileUri, LibraryBuilder accessor, bool isPatch: false}) {
+    var library = super.read(uri, charOffset,
+        fileUri: fileUri, accessor: accessor, isPatch: isPatch);
+    if (uri.scheme == 'dart' && uri.path == '_interceptors') {
+      interceptorsLibrary = library;
+    }
+    return library;
+  }
+
+  @override
+  bool canImplementRestrictedTypes(LibraryBuilder library) =>
+      library == coreLibrary || library == interceptorsLibrary;
+
+  SourceLoaderForDart2js(FileSystem fs, KernelTarget target)
+      : super(fs, target);
 }
 
 /// Specializes [DillTarget] to build kernel for dart2js: JS-specific libraries
@@ -109,7 +146,7 @@ class DillTargetForDart2js extends DillTarget {
   Token skipNativeClause(Token token) => _skipNative(token);
 
   @override
-  String extractNativeMethodName(Token token) => null;
+  String extractNativeMethodName(Token token) => "";
 
   @override
   void loadExtraRequiredLibraries(Loader loader) => _loadExtras(loader);

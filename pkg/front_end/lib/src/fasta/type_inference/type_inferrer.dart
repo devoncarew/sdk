@@ -26,6 +26,7 @@ import 'package:kernel/ast.dart'
         Member,
         Name,
         Procedure,
+        ProcedureKind,
         Statement,
         TypeParameterType,
         VariableDeclaration,
@@ -147,9 +148,6 @@ abstract class TypeInferrer {
   /// performed--this is used for testing.
   String get uri;
 
-  /// Gets the [FieldNode] corresponding to the given [readTarget], if any.
-  FieldNode getFieldNodeForReadTarget(Member readTarget);
-
   /// Performs full type inference on the given field initializer.
   void inferFieldInitializer(DartType declaredType, Expression initializer);
 
@@ -176,7 +174,7 @@ abstract class TypeInferrerImpl extends TypeInferrer {
   /// Indicates whether the construct we are currently performing inference for
   /// is outside of a method body, and hence top level type inference rules
   /// should apply.
-  final bool isTopLevel = false;
+  final bool isTopLevel;
 
   final CoreTypes coreTypes;
 
@@ -200,54 +198,67 @@ abstract class TypeInferrerImpl extends TypeInferrer {
         strongMode = engine.strongMode,
         classHierarchy = engine.classHierarchy,
         instrumentation = topLevel ? null : engine.instrumentation,
-        typeSchemaEnvironment = engine.typeSchemaEnvironment;
+        typeSchemaEnvironment = engine.typeSchemaEnvironment,
+        isTopLevel = topLevel;
 
   /// Gets the type promoter that should be used to promote types during
   /// inference.
   TypePromoter<Expression, VariableDeclaration> get typePromoter;
 
-  FunctionType getCalleeFunctionType(Member interfaceMember,
-      DartType receiverType, Name methodName, int offset) {
-    if (receiverType is InterfaceType) {
-      if (interfaceMember == null) return _functionReturningDynamic;
-      var memberClass = interfaceMember.enclosingClass;
-      if (interfaceMember is Procedure) {
-        instrumentation?.record(Uri.parse(uri), offset, 'target',
-            new InstrumentationValueForProcedure(interfaceMember));
-        var memberFunctionType = interfaceMember.function.functionType;
-        if (memberClass.typeParameters.isNotEmpty) {
-          var castedType = classHierarchy.getClassAsInstanceOf(
-              receiverType.classNode, memberClass);
-          memberFunctionType = Substitution
-              .fromInterfaceType(Substitution
-                  .fromInterfaceType(receiverType)
-                  .substituteType(castedType.asInterfaceType))
-              .substituteType(memberFunctionType);
-        }
-        return memberFunctionType;
-      } else if (interfaceMember is Field) {
-        // TODO(paulberry): handle this case
-        return _functionReturningDynamic;
-      } else {
-        return _functionReturningDynamic;
-      }
-    } else if (receiverType is DynamicType) {
+  FunctionType getCalleeFunctionType(
+      Member interfaceMember, DartType receiverType, Name methodName) {
+    var type = getCalleeType(interfaceMember, receiverType, methodName);
+    if (type is FunctionType) {
+      return type;
+    } else {
       return _functionReturningDynamic;
+    }
+  }
+
+  DartType getCalleeType(
+      Member interfaceMember, DartType receiverType, Name methodName) {
+    if (receiverType is InterfaceType) {
+      if (interfaceMember == null) return const DynamicType();
+      var memberClass = interfaceMember.enclosingClass;
+      DartType calleeType;
+      if (interfaceMember is Procedure) {
+        if (interfaceMember.kind == ProcedureKind.Getter) {
+          calleeType = interfaceMember.function.returnType;
+        } else {
+          calleeType = interfaceMember.function.functionType;
+        }
+      } else if (interfaceMember is Field) {
+        calleeType = interfaceMember.type;
+      } else {
+        calleeType = const DynamicType();
+      }
+      if (memberClass.typeParameters.isNotEmpty) {
+        var castedType = classHierarchy.getClassAsInstanceOf(
+            receiverType.classNode, memberClass);
+        calleeType = Substitution
+            .fromInterfaceType(Substitution
+                .fromInterfaceType(receiverType)
+                .substituteType(castedType.asInterfaceType))
+            .substituteType(calleeType);
+      }
+      return calleeType;
+    } else if (receiverType is DynamicType) {
+      return const DynamicType();
     } else if (receiverType is FunctionType) {
       if (methodName.name == 'call') {
         return receiverType;
       } else {
         // TODO(paulberry): handle the case of invoking .toString() on a
         // function type.
-        return _functionReturningDynamic;
+        return const DynamicType();
       }
     } else if (receiverType is TypeParameterType) {
       // TODO(paulberry): use the bound
-      return _functionReturningDynamic;
+      return const DynamicType();
     } else {
       // TODO(paulberry): handle the case of invoking .toString() on a type
       // that's none of the above (e.g. `dynamic` or `bottom`)
-      return _functionReturningDynamic;
+      return const DynamicType();
     }
   }
 
@@ -370,25 +381,29 @@ abstract class TypeInferrerImpl extends TypeInferrer {
           new List<DartType>.filled(
               calleeTypeParameters.length, const DynamicType()));
     }
-    int i = 0;
-    _forEachArgument(arguments, (name, expression) {
-      DartType formalType = name != null
-          ? getNamedParameterType(calleeType, name)
-          : getPositionalParameterType(calleeType, i++);
-      DartType inferredFormalType = substitution != null
-          ? substitution.substituteType(formalType)
-          : formalType;
-      var expressionType = inferExpression(expression, inferredFormalType,
-          inferenceNeeded || isOverloadedArithmeticOperator);
-      if (inferenceNeeded) {
-        formalTypes.add(formalType);
-        actualTypes.add(expressionType);
-      }
-      if (isOverloadedArithmeticOperator) {
-        returnType = typeSchemaEnvironment.getTypeOfOverloadedArithmetic(
-            receiverType, expressionType);
-      }
-    });
+    // TODO(paulberry): if we are doing top level inference and type arguments
+    // were omitted, report an error.
+    if (!isTopLevel) {
+      int i = 0;
+      _forEachArgument(arguments, (name, expression) {
+        DartType formalType = name != null
+            ? getNamedParameterType(calleeType, name)
+            : getPositionalParameterType(calleeType, i++);
+        DartType inferredFormalType = substitution != null
+            ? substitution.substituteType(formalType)
+            : formalType;
+        var expressionType = inferExpression(expression, inferredFormalType,
+            inferenceNeeded || isOverloadedArithmeticOperator);
+        if (inferenceNeeded) {
+          formalTypes.add(formalType);
+          actualTypes.add(expressionType);
+        }
+        if (isOverloadedArithmeticOperator) {
+          returnType = typeSchemaEnvironment.getTypeOfOverloadedArithmetic(
+              receiverType, expressionType);
+        }
+      });
+    }
     if (inferenceNeeded) {
       typeSchemaEnvironment.inferGenericFunctionOrType(
           returnType,
@@ -435,6 +450,16 @@ abstract class TypeInferrerImpl extends TypeInferrer {
   /// Derived classes should override this method with logic that dispatches on
   /// the statement type and calls the appropriate specialized "infer" method.
   void inferStatement(Statement statement);
+
+  DartType wrapFutureOrType(DartType type) {
+    if (type is InterfaceType &&
+        identical(type.classNode, coreTypes.futureOrClass)) {
+      return type;
+    }
+    // TODO(paulberry): If [type] is a subtype of `Future`, should we just
+    // return it unmodified?
+    return new InterfaceType(coreTypes.futureOrClass, <DartType>[type]);
+  }
 
   DartType wrapFutureType(DartType type) {
     var typeWithoutFutureOr = type ?? const DynamicType();

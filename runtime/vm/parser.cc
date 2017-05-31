@@ -457,6 +457,7 @@ Parser::Parser(const Script& script,
                TokenPosition token_pos)
     : thread_(Thread::Current()),
       isolate_(thread()->isolate()),
+      allocation_space_(thread_->IsMutatorThread() ? Heap::kNew : Heap::kOld),
       script_(Script::Handle(zone(), script.raw())),
       tokens_iterator_(zone(),
                        TokenStream::Handle(zone(), script.tokens()),
@@ -489,6 +490,7 @@ Parser::Parser(const Script& script,
                TokenPosition token_pos)
     : thread_(Thread::Current()),
       isolate_(thread()->isolate()),
+      allocation_space_(thread_->IsMutatorThread() ? Heap::kNew : Heap::kOld),
       script_(Script::Handle(zone(), script.raw())),
       tokens_iterator_(zone(),
                        TokenStream::Handle(zone(), script.tokens()),
@@ -1988,7 +1990,7 @@ void Parser::SkipToMatching() {
   if (!is_match) {
     const Error& error = Error::Handle(LanguageError::NewFormatted(
         Error::Handle(), script_, opening_pos, Report::AtLocation,
-        Report::kWarning, Heap::kNew, "unbalanced '%s' opens here",
+        Report::kWarning, allocation_space_, "unbalanced '%s' opens here",
         Token::Str(opening_token)));
     ReportErrors(error, script_, token_pos, "unbalanced '%s'",
                  Token::Str(token));
@@ -5540,6 +5542,15 @@ void Parser::SkipTypeArguments() {
 }
 
 
+void Parser::SkipTypeParameters() {
+  // Function already parsed, no need to check FLAG_generic_method_syntax.
+  if (IsTypeParameters()) {
+    const bool skipped = TryParseTypeParameters();
+    ASSERT(skipped);
+  }
+}
+
+
 void Parser::SkipType(bool allow_void) {
   if (CurrentToken() == Token::kVOID) {
     if (!allow_void) {
@@ -5615,7 +5626,8 @@ void Parser::ParseTypeParameters(bool parameterizing_class) {
         // i.e. to the class or function currently being parsed.
         // Postpone resolution in order to avoid resolving the owner and its
         // type parameters, as they are not fully parsed yet.
-        type_parameter_bound = ParseType(ClassFinalizer::kDoNotResolve);
+        type_parameter_bound =
+            ParseTypeOrFunctionType(false, ClassFinalizer::kDoNotResolve);
         if (is_lower_bound) {
           // TODO(regis): Handle 'super' differently than 'extends' if lower
           // bounds make it in the final specification and if run time support
@@ -5705,7 +5717,7 @@ void Parser::ParseInterfaceList(const Class& cls) {
   Array& cls_interfaces = Array::Handle(Z, cls.interfaces());
   for (intptr_t i = 0; i < cls_interfaces.Length(); i++) {
     interface ^= cls_interfaces.At(i);
-    all_interfaces.Add(interface);
+    all_interfaces.Add(interface, Heap::kOld);
   }
   // Now parse and add the new interfaces.
   do {
@@ -5717,7 +5729,7 @@ void Parser::ParseInterfaceList(const Class& cls) {
                   "type parameter '%s' may not be used in interface list",
                   String::Handle(Z, interface.UserVisibleName()).ToCString());
     }
-    all_interfaces.Add(interface);
+    all_interfaces.Add(interface, Heap::kOld);
   } while (CurrentToken() == Token::kCOMMA);
   cls_interfaces = Array::MakeArray(all_interfaces);
   cls.set_interfaces(cls_interfaces);
@@ -5743,7 +5755,7 @@ RawAbstractType* Parser::ParseMixins(const AbstractType& super_type) {
                   "mixin type '%s' may not be a type parameter",
                   String::Handle(Z, mixin_type.UserVisibleName()).ToCString());
     }
-    mixin_types.Add(mixin_type);
+    mixin_types.Add(mixin_type, Heap::kOld);
   } while (CurrentToken() == Token::kCOMMA);
   return MixinAppType::New(super_type,
                            Array::Handle(Z, Array::MakeArray(mixin_types)));
@@ -6221,7 +6233,7 @@ void Parser::ParseIdentList(GrowableObjectArray* names) {
     ReportError("identifier expected");
   }
   while (IsIdentifier()) {
-    names->Add(*CurrentLiteral());
+    names->Add(*CurrentLiteral(), allocation_space_);
     ConsumeToken();  // Identifier.
     if (CurrentToken() != Token::kCOMMA) {
       return;
@@ -6248,13 +6260,13 @@ void Parser::ParseLibraryImportExport(const Object& tl_owner,
       ConsumeToken();
       ExpectToken(Token::kLPAREN);
       // Parse dotted name.
-      const GrowableObjectArray& pieces =
-          GrowableObjectArray::Handle(Z, GrowableObjectArray::New());
-      pieces.Add(*ExpectIdentifier("identifier expected"));
+      const GrowableObjectArray& pieces = GrowableObjectArray::Handle(
+          Z, GrowableObjectArray::New(allocation_space_));
+      pieces.Add(*ExpectIdentifier("identifier expected"), allocation_space_);
       while (CurrentToken() == Token::kPERIOD) {
-        pieces.Add(Symbols::Dot());
+        pieces.Add(Symbols::Dot(), allocation_space_);
         ConsumeToken();
-        pieces.Add(*ExpectIdentifier("identifier expected"));
+        pieces.Add(*ExpectIdentifier("identifier expected"), allocation_space_);
       }
       AstNode* valueNode = NULL;
       if (CurrentToken() == Token::kEQ) {
@@ -6274,8 +6286,8 @@ void Parser::ParseLibraryImportExport(const Object& tl_owner,
         continue;
       }
       // Check if this conditional line overrides the default import.
-      const String& key = String::Handle(
-          String::ConcatAll(Array::Handle(Array::MakeArray(pieces))));
+      const String& key = String::Handle(String::ConcatAll(
+          Array::Handle(Array::MakeArray(pieces)), allocation_space_));
       const String& value =
           (valueNode == NULL)
               ? Symbols::True()
@@ -6313,10 +6325,10 @@ void Parser::ParseLibraryImportExport(const Object& tl_owner,
   Array& hide_names = Array::Handle(Z);
   if (is_deferred_import || IsSymbol(Symbols::Show()) ||
       IsSymbol(Symbols::Hide())) {
-    GrowableObjectArray& show_list =
-        GrowableObjectArray::Handle(Z, GrowableObjectArray::New());
-    GrowableObjectArray& hide_list =
-        GrowableObjectArray::Handle(Z, GrowableObjectArray::New());
+    GrowableObjectArray& show_list = GrowableObjectArray::Handle(
+        Z, GrowableObjectArray::New(allocation_space_));
+    GrowableObjectArray& hide_list = GrowableObjectArray::Handle(
+        Z, GrowableObjectArray::New(allocation_space_));
     // Libraries imported through deferred import automatically hide
     // the name 'loadLibrary'.
     if (is_deferred_import) {
@@ -6785,14 +6797,12 @@ SequenceNode* Parser::CloseAsyncGeneratorTryBlock(SequenceNode* body) {
     try_stack_->exit_finally();
   }
 
-  const GrowableObjectArray& handler_types =
-      GrowableObjectArray::Handle(Z, GrowableObjectArray::New(Heap::kOld));
   // Catch block handles all exceptions.
-  handler_types.Add(Object::dynamic_type());
+  const Array& handler_types = Array::ZoneHandle(Z, Array::New(1, Heap::kOld));
+  handler_types.SetAt(0, Object::dynamic_type());
 
   CatchClauseNode* catch_clause = new (Z) CatchClauseNode(
-      TokenPosition::kNoSource, catch_handler_list,
-      Array::ZoneHandle(Z, Array::MakeArray(handler_types)), context_var,
+      TokenPosition::kNoSource, catch_handler_list, handler_types, context_var,
       exception_var, stack_trace_var, saved_exception_var,
       saved_stack_trace_var, AllocateTryIndex(), true);
 
@@ -6887,17 +6897,14 @@ SequenceNode* Parser::CloseAsyncTryBlock(SequenceNode* try_block,
   current_block_->statements->Add(catch_block);
   SequenceNode* catch_handler_list = CloseBlock();
 
-  const GrowableObjectArray& handler_types =
-      GrowableObjectArray::Handle(Z, GrowableObjectArray::New(Heap::kOld));
-  handler_types.SetLength(0);
-  handler_types.Add(*exception_param.type);
+  const Array& handler_types = Array::ZoneHandle(Z, Array::New(1, Heap::kOld));
+  handler_types.SetAt(0, *exception_param.type);
 
   TryStack* try_statement = PopTry();
   const intptr_t try_index = try_statement->try_index();
 
   CatchClauseNode* catch_clause = new (Z) CatchClauseNode(
-      TokenPosition::kNoSource, catch_handler_list,
-      Array::ZoneHandle(Z, Array::MakeArray(handler_types)), context_var,
+      TokenPosition::kNoSource, catch_handler_list, handler_types, context_var,
       exception_var, stack_trace_var, saved_exception_var,
       saved_stack_trace_var, CatchClauseNode::kInvalidTryIndex, true);
   AstNode* try_catch_node = new (Z) TryCatchNode(
@@ -10076,7 +10083,7 @@ SequenceNode* Parser::ParseCatchClauses(
       // This catch clause will handle all exceptions. We can safely forget
       // all previous catch clause types.
       handler_types.SetLength(0);
-      handler_types.Add(*exception_param.type);
+      handler_types.Add(*exception_param.type, Heap::kOld);
     } else {
       // Has a type specification that is not malformed or malbounded.  Now
       // form an 'if type check' to guard the catch handler code.
@@ -10103,7 +10110,7 @@ SequenceNode* Parser::ParseCatchClauses(
       // will report the exception as uncaught when in fact it might be
       // caught and handled when we unwind the stack.
       if (!generic_catch_seen && exception_param.type->IsInstantiated()) {
-        handler_types.Add(*exception_param.type);
+        handler_types.Add(*exception_param.type, Heap::kOld);
       }
     }
 
@@ -12674,7 +12681,7 @@ void Parser::InsertCachedConstantValue(const Script& script,
   ASSERT(!script.InVMHeap());
   if (script.compile_time_constants() == Array::null()) {
     const Array& array = Array::Handle(
-        HashTables::New<ConstantsMap>(kInitialConstMapSize, Heap::kNew));
+        HashTables::New<ConstantsMap>(kInitialConstMapSize, Heap::kOld));
     script.set_compile_time_constants(array);
   }
   ConstantsMap constants(script.compile_time_constants());
@@ -12822,10 +12829,10 @@ RawObject* Parser::EvaluateConstConstructorCall(
   const int kNumExtraArgs = 1;
   const int num_arguments = arguments->length() + kNumExtraArgs;
   const Array& arg_values =
-      Array::Handle(Z, Array::New(num_arguments, Heap::kOld));
+      Array::Handle(Z, Array::New(num_arguments, allocation_space_));
   Instance& instance = Instance::Handle(Z);
   if (!constructor.IsFactory()) {
-    instance = Instance::New(type_class, Heap::kOld);
+    instance = Instance::New(type_class, allocation_space_);
     if (!type_arguments.IsNull()) {
       if (!type_arguments.IsInstantiated()) {
         ReportError("type must be constant in const constructor");
@@ -13361,8 +13368,10 @@ RawAbstractType* Parser::ParseType(
       ConsumeToken();  // Period token.
       ASSERT(IsIdentifier());
       String& qualified_name = String::Handle(Z, type_name.raw());
-      qualified_name = String::Concat(qualified_name, Symbols::Dot());
-      qualified_name = String::Concat(qualified_name, *CurrentLiteral());
+      qualified_name =
+          String::Concat(qualified_name, Symbols::Dot(), allocation_space_);
+      qualified_name =
+          String::Concat(qualified_name, *CurrentLiteral(), allocation_space_);
       ConsumeToken();
       // The type is malformed. Skip over its type arguments.
       ParseTypeArguments(ClassFinalizer::kIgnore);
@@ -14858,17 +14867,23 @@ void Parser::SkipFunctionLiteral() {
 // previously parsed the function.
 void Parser::SkipFunctionPreamble() {
   while (true) {
-    const Token::Kind token = CurrentToken();
     if (IsFunctionTypeSymbol()) {
       ConsumeToken();
-      SkipTypeArguments();
+      SkipTypeParameters();
       SkipToMatchingParenthesis();
       continue;
     }
+    const Token::Kind token = CurrentToken();
     if (token == Token::kLPAREN) {
       return;
     }
     if (token == Token::kGET) {
+      if (LookaheadToken(1) == Token::kLT) {
+        // Case: Generic Function/method named get.
+        ConsumeToken();  // Parse away 'get' (the function's name).
+        SkipTypeParameters();
+        continue;
+      }
       if (LookaheadToken(1) == Token::kLPAREN) {
         // Case: Function/method named get.
         ConsumeToken();  // Parse away 'get' (the function's name).
@@ -14879,7 +14894,7 @@ void Parser::SkipFunctionPreamble() {
       ConsumeToken();  // Parse away the getter name.
       return;
     }
-    ConsumeToken();
+    ConsumeToken();  // Can be static, factory, operator, void, ident, etc...
   }
 }
 

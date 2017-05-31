@@ -393,7 +393,8 @@ class MirrorsDataImpl implements MirrorsData, MirrorsDataBuilder {
     } else if (element.isTypedef) {
       return isTypedefAccessibleByReflection(element);
     } else {
-      return isMemberAccessibleByReflection(element);
+      MemberElement member = element;
+      return isMemberAccessibleByReflection(member);
     }
   }
 
@@ -417,7 +418,7 @@ class MirrorsDataImpl implements MirrorsData, MirrorsDataBuilder {
     }
   }
 
-  bool isMemberAccessibleByReflection(MemberElement element) {
+  bool isMemberAccessibleByReflection(MemberEntity element) {
     return _membersNeededForReflection.contains(element);
   }
 
@@ -513,6 +514,14 @@ class MirrorsDataImpl implements MirrorsData, MirrorsDataBuilder {
     return false;
   }
 
+  void createImmutableSets() {
+    _classesNeededForReflection = const ImmutableEmptySet<ClassElement>();
+    _typedefsNeededForReflection = const ImmutableEmptySet<TypedefElement>();
+    _membersNeededForReflection = const ImmutableEmptySet<MemberElement>();
+    _closuresNeededForReflection =
+        const ImmutableEmptySet<LocalFunctionElement>();
+  }
+
   /**
    * Visits all classes and computes whether its members are needed for
    * reflection.
@@ -529,11 +538,7 @@ class MirrorsDataImpl implements MirrorsData, MirrorsDataBuilder {
       ResolutionWorldBuilder worldBuilder, ClosedWorld closedWorld) {
     if (_membersNeededForReflection != null) return;
     if (closedWorld.commonElements.mirrorsLibrary == null) {
-      _classesNeededForReflection = const ImmutableEmptySet<ClassElement>();
-      _typedefsNeededForReflection = const ImmutableEmptySet<TypedefElement>();
-      _membersNeededForReflection = const ImmutableEmptySet<MemberElement>();
-      _closuresNeededForReflection =
-          const ImmutableEmptySet<LocalFunctionElement>();
+      createImmutableSets();
       return;
     }
     _classesNeededForReflection = new Set<ClassElement>();
@@ -555,7 +560,7 @@ class MirrorsDataImpl implements MirrorsData, MirrorsDataBuilder {
       if (isClassReferencedFromMirrorSystem(cls)) {
         Set<Name> memberNames = new Set<Name>();
         // 1) the class (should be resolved)
-        assert(invariant(cls, cls.isResolved));
+        assert(cls.isResolved, failedAt(cls));
         _classesNeededForReflection.add(cls);
         // 2) its constructors (if resolved)
         cls.constructors.forEach((ConstructorElement constructor) {
@@ -582,8 +587,8 @@ class MirrorsDataImpl implements MirrorsData, MirrorsDataBuilder {
             subcls.forEachClassMember((Member member) {
               if (memberNames.contains(member.name)) {
                 // TODO(20993): find out why this assertion fails.
-                // assert(invariant(member.element,
-                //    worldBuilder.isMemberUsed(member.element)));
+                // assert(worldBuilder.isMemberUsed(member.element),
+                //     failedAt(member.element));
                 if (worldBuilder.isMemberUsed(member.element)) {
                   _membersNeededForReflection.add(member.element);
                 }

@@ -23,7 +23,12 @@ import 'tree/tree.dart';
 import 'util/util.dart';
 import 'world.dart' show ClosedWorldRefiner;
 
-class ClosureTask extends CompilerTask {
+abstract class ClosureClassMaps {
+  ClosureClassMap getMemberMap(MemberEntity member);
+  ClosureClassMap getLocalFunctionMap(Local localFunction);
+}
+
+class ClosureTask extends CompilerTask implements ClosureClassMaps {
   Map<Element, ClosureClassMap> _closureMappingCache =
       <Element, ClosureClassMap>{};
   Compiler compiler;
@@ -35,6 +40,14 @@ class ClosureTask extends CompilerTask {
 
   DiagnosticReporter get reporter => compiler.reporter;
 
+  ClosureClassMap getMemberMap(MemberElement member) {
+    return getClosureToClassMapping(member.resolvedAst);
+  }
+
+  ClosureClassMap getLocalFunctionMap(LocalFunctionElement localFunction) {
+    return getClosureToClassMapping(localFunction.resolvedAst);
+  }
+
   /// Returns the [ClosureClassMap] computed for [resolvedAst].
   ClosureClassMap getClosureToClassMapping(ResolvedAst resolvedAst) {
     return measure(() {
@@ -44,8 +57,10 @@ class ClosureTask extends CompilerTask {
         element = constructorBody.constructor;
       }
       ClosureClassMap closureClassMap = _closureMappingCache[element];
-      assert(invariant(resolvedAst.element, closureClassMap != null,
-          message: "No ClosureClassMap computed for ${element}."));
+      assert(
+          closureClassMap != null,
+          failedAt(resolvedAst.element,
+              "No ClosureClassMap computed for ${element}."));
       return closureClassMap;
     });
   }
@@ -93,22 +108,25 @@ class ClosureTask extends CompilerTask {
           _closureMappingCache[element] =
               new ClosureClassMap(null, null, null, new ThisLocal(element));
         } else {
-          assert(invariant(element, element.isField,
-              message: "Expected $element to be a field."));
+          assert(element.isField,
+              failedAt(element, "Expected $element to be a field."));
           Node initializer = resolvedAst.body;
           if (initializer != null) {
             // The lazy initializer of a static.
             translator.translateLazyInitializer(element, node, initializer);
           } else {
-            assert(invariant(element, element.isInstanceMember,
-                message: "Expected $element (${element
-                    .runtimeType}) to be an instance field."));
+            assert(
+                element.isInstanceMember,
+                failedAt(
+                    element,
+                    "Expected $element (${element.runtimeType}) "
+                    "to be an instance field."));
             _closureMappingCache[element] =
                 new ClosureClassMap(null, null, null, new ThisLocal(element));
           }
         }
-        assert(invariant(element, _closureMappingCache[element] != null,
-            message: "No ClosureClassMap computed for ${element}."));
+        assert(_closureMappingCache[element] != null,
+            failedAt(element, "No ClosureClassMap computed for ${element}."));
         return _closureMappingCache[element];
       });
     });
@@ -1051,8 +1069,8 @@ class ClosureTranslator extends Visitor {
       if (enclosingElement.isGenerativeConstructor ||
           enclosingElement.isGenerativeConstructorBody ||
           enclosingElement.isFactoryConstructor) {
-        parts = parts
-            .prepend(Elements.reconstructConstructorName(enclosingElement));
+        ConstructorElement constructor = enclosingElement;
+        parts = parts.prepend(Elements.reconstructConstructorName(constructor));
       } else {
         String surroundingName =
             Elements.operatorNameToIdentifier(enclosingElement.name);

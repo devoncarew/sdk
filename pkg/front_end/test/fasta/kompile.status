@@ -2,6 +2,8 @@
 # for details. All rights reserved. Use of this source code is governed by a
 # BSD-style license that can be found in the LICENSE.md file.
 
+rasta/unsupported_platform_library: RuntimeError # OK, this must report an error at runtime.
+
 # Status file for the kompile_test.dart (notice k, not c) test suite. This is
 # testing generating Analyzer ASTs, that is, code in
 # pkg/fasta/lib/src/analyzer/. Currently, this is behind direct-to-kernel, so
@@ -82,6 +84,7 @@ inference/bottom_in_closure: Crash
 inference/circular_reference_via_closures: Crash
 inference/circular_reference_via_closures_initializer_types: Crash
 inference/conditional_lub: Crash
+inference/conditional_upwards_inference: Crash
 inference/conflicts_can_happen2: Crash
 inference/conflicts_can_happen: Crash
 inference/constructors_downwards_with_constraint: Fail
@@ -107,9 +110,10 @@ inference/downward_inference_fixes_no_upwards_errors: Crash
 inference/downward_inference_miscellaneous: Crash
 inference/downwards_inference_annotations: Crash
 inference/downwards_inference_async_await: Crash
-inference/downwards_inference_for_each: Fail
+inference/downwards_inference_for_each: Crash
 inference/downwards_inference_initializing_formal_default_formal: Crash
 inference/downwards_inference_inside_top_level: Crash
+inference/downwards_inference_inside_top_level_2: Crash
 inference/downwards_inference_on_constructor_arguments_infer_downwards: Crash
 inference/downwards_inference_on_function_arguments_infer_downwards: Crash
 inference/downwards_inference_on_function_expressions: Crash
@@ -306,6 +310,7 @@ inference/top_level_return_and_yield: Crash
 inference/toplevel_inference_toplevel_var: Crash
 inference/type_cast: Crash
 inference/type_promotion_ignores_local_functions: Crash
+inference/type_promotion_not_and_not: Crash
 inference/unsafe_block_closure_inference_closure_call: Crash
 inference/unsafe_block_closure_inference_constructor_call_explicit_dynamic_param: Crash
 inference/unsafe_block_closure_inference_constructor_call_explicit_type_param: Crash
@@ -411,4 +416,3 @@ rasta/unresolved: Fail
 rasta/unresolved_constructor: Crash
 rasta/unresolved_for_in: Crash
 rasta/unresolved_recovery: Fail
-rasta/unsupported_platform_library: Fail

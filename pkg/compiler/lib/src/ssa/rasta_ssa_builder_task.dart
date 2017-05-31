@@ -32,15 +32,21 @@ class RastaSsaBuilderTask extends SsaAstBuilderBase {
       Kernel kernel = backend.kernelTask.kernel;
       KernelAstAdapter astAdapter = new KernelAstAdapter(kernel, backend,
           work.resolvedAst, kernel.nodeToAst, kernel.nodeToElement);
+      KernelAstTypeInferenceMap typeInferenceMap =
+          new KernelAstTypeInferenceMap(astAdapter);
       KernelSsaBuilder builder = new KernelSsaBuilder(
           element,
           element.contextClass,
+          astAdapter.getInitialKernelNode(element),
           backend.compiler,
           astAdapter,
+          typeInferenceMap,
           closedWorld,
           work.registry,
-          sourceInformationFactory.createBuilderForContext(resolvedAst),
-          resolvedAst.kind == ResolvedAstKind.PARSED ? resolvedAst.node : null);
+          backend.compiler.closureToClassMapper,
+          sourceInformationFactory.createBuilderForContext(work.element),
+          resolvedAst.kind == ResolvedAstKind.PARSED ? resolvedAst.node : null,
+          targetIsConstructorBody: element is ConstructorBodyElement);
       HGraph graph = builder.build();
 
       if (backend.tracer.isEnabled) {

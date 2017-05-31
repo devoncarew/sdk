@@ -304,11 +304,30 @@ class KernelToElementMapImpl extends KernelToElementMapMixin {
       bool isExternal = node.isExternal;
       bool isAbstract = node.isAbstract;
       KFunction function;
+      AsyncMarker asyncMarker;
+      switch (node.function.asyncMarker) {
+        case ir.AsyncMarker.Async:
+          asyncMarker = AsyncMarker.ASYNC;
+          break;
+        case ir.AsyncMarker.AsyncStar:
+          asyncMarker = AsyncMarker.ASYNC_STAR;
+          break;
+        case ir.AsyncMarker.Sync:
+          asyncMarker = AsyncMarker.SYNC;
+          break;
+        case ir.AsyncMarker.SyncStar:
+          asyncMarker = AsyncMarker.SYNC_STAR;
+          break;
+        case ir.AsyncMarker.SyncYielding:
+          throw new UnsupportedError(
+              "Async marker ${node.function.asyncMarker} is not supported.");
+      }
       switch (node.kind) {
         case ir.ProcedureKind.Factory:
           throw new UnsupportedError("Cannot create method from factory.");
         case ir.ProcedureKind.Getter:
-          function = new KGetter(memberIndex, library, enclosingClass, name,
+          function = new KGetter(
+              memberIndex, library, enclosingClass, name, asyncMarker,
               isStatic: isStatic,
               isExternal: isExternal,
               isAbstract: isAbstract);
@@ -316,12 +335,13 @@ class KernelToElementMapImpl extends KernelToElementMapMixin {
         case ir.ProcedureKind.Method:
         case ir.ProcedureKind.Operator:
           function = new KMethod(memberIndex, library, enclosingClass, name,
-              _getParameterStructure(node.function),
+              _getParameterStructure(node.function), asyncMarker,
               isStatic: isStatic,
               isExternal: isExternal,
               isAbstract: isAbstract);
           break;
         case ir.ProcedureKind.Setter:
+          assert(asyncMarker == AsyncMarker.SYNC);
           function = new KSetter(
               memberIndex, library, enclosingClass, getName(node.name).setter,
               isStatic: isStatic,
@@ -684,6 +704,16 @@ class KernelToElementMapImpl extends KernelToElementMapMixin {
 
   ResolutionImpact computeWorldImpact(KMember member) {
     return _memberList[member.memberIndex].getWorldImpact(this);
+  }
+
+  @override
+  Spannable getSpannable(MemberEntity member, ir.Node node) {
+    return member;
+  }
+
+  /// Returns the kernel IR node that defines the [member].
+  ir.Member getMemberNode(KMember member) {
+    return _memberList[member.memberIndex].node;
   }
 }
 
@@ -1080,6 +1110,11 @@ class KernelElementEnvironment implements ElementEnvironment {
   }
 
   @override
+  bool isUnnamedMixinApplication(KClass cls) {
+    return elementMap._isUnnamedMixinApplication(cls);
+  }
+
+  @override
   DartType getTypeVariableBound(TypeVariableEntity typeVariable) {
     throw new UnimplementedError(
         'KernelElementEnvironment.getTypeVariableBound');
@@ -1287,11 +1322,8 @@ class DartTypeConverter extends ir.DartTypeVisitor<DartType> {
 
   @override
   DartType visitInvalidType(ir.InvalidType node) {
-    if (topLevel) {
-      throw new UnimplementedError(
-          "Outermost invalid types not currently supported");
-    }
-    // Nested invalid types are treated as `dynamic`.
+    // Root uses such a `o is Unresolved` and `o as Unresolved` must be special
+    // cased in the builder, nested invalid types are treated as `dynamic`.
     return const DynamicType();
   }
 }
@@ -1400,6 +1432,7 @@ class KernelResolutionWorldBuilder extends KernelResolutionWorldBuilderBase {
       : super(
             elementMap.elementEnvironment,
             elementMap.commonElements,
+            elementMap._constantEnvironment.constantSystem,
             nativeBasicData,
             nativeDataBuilder,
             interceptorDataBuilder,
@@ -1504,6 +1537,7 @@ class KernelNativeMemberResolver extends NativeMemberResolverBase {
 
   @override
   bool isNativeMethod(KFunction function) {
+    if (!native.maybeEnableNative(function.library.canonicalUri)) return false;
     ir.Member node = elementMap._memberList[function.memberIndex].node;
     return node.isExternal &&
         !elementMap.isForeignLibrary(node.enclosingLibrary);

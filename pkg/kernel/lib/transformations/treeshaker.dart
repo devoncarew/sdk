@@ -10,8 +10,10 @@ import '../core_types.dart';
 import '../type_environment.dart';
 import '../library_index.dart';
 
-Program transformProgram(Program program, {List<ProgramRoot> programRoots}) {
-  new TreeShaker(program, programRoots: programRoots).transform(program);
+Program transformProgram(CoreTypes coreTypes, Program program,
+    {List<ProgramRoot> programRoots}) {
+  new TreeShaker(coreTypes, program, programRoots: programRoots)
+      .transform(program);
   return program;
 }
 
@@ -89,7 +91,7 @@ class ProgramRoot {
 // TODO(asgerf): Tree shake unused instance fields.
 class TreeShaker {
   final Program program;
-  final ClassHierarchy hierarchy;
+  final ClosedWorldClassHierarchy hierarchy;
   final CoreTypes coreTypes;
   final bool strongMode;
   final List<ProgramRoot> programRoots;
@@ -167,13 +169,12 @@ class TreeShaker {
   /// the mirrors library.
   bool get forceShaking => programRoots != null && programRoots.isNotEmpty;
 
-  TreeShaker(Program program,
+  TreeShaker(CoreTypes coreTypes, Program program,
       {ClassHierarchy hierarchy,
-      CoreTypes coreTypes,
       bool strongMode: false,
       List<ProgramRoot> programRoots})
       : this._internal(program, hierarchy ?? new ClassHierarchy(program),
-            coreTypes ?? new CoreTypes(program), strongMode, programRoots);
+            coreTypes, strongMode, programRoots);
 
   bool isMemberBodyUsed(Member member) {
     return _usedMembers.containsKey(member);
@@ -208,8 +209,8 @@ class TreeShaker {
     new _TreeShakingTransformer(this).transform(program);
   }
 
-  TreeShaker._internal(this.program, ClassHierarchy hierarchy, this.coreTypes,
-      this.strongMode, this.programRoots)
+  TreeShaker._internal(this.program, ClosedWorldClassHierarchy hierarchy,
+      this.coreTypes, this.strongMode, this.programRoots)
       : this.hierarchy = hierarchy,
         this._dispatchedNames = new List<Set<Name>>(hierarchy.classes.length),
         this._usedMembersWithHost =

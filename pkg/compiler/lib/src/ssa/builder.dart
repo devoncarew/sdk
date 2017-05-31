@@ -271,7 +271,7 @@ class SsaBuilder extends ast.Visitor
     graph.element = target;
     sourceElementStack.add(target);
     sourceInformationBuilder =
-        sourceInformationFactory.createBuilderForContext(resolvedAst);
+        sourceInformationFactory.createBuilderForContext(target);
     graph.sourceInformation =
         sourceInformationBuilder.buildVariableDeclaration();
     localsHandler = new LocalsHandler(
@@ -665,8 +665,7 @@ class SsaBuilder extends ast.Visitor
       // The [sourceElementStack] contains declaration elements.
       SourceInformationBuilder oldSourceInformationBuilder =
           sourceInformationBuilder;
-      sourceInformationBuilder =
-          sourceInformationBuilder.forContext(resolvedAst);
+      sourceInformationBuilder = sourceInformationBuilder.forContext(element);
       sourceElementStack.add(element.declaration);
       var result = f();
       sourceInformationBuilder = oldSourceInformationBuilder;
@@ -856,14 +855,13 @@ class SsaBuilder extends ast.Visitor
    * stores it in the [returnLocal] field.
    */
   void setupStateForInlining(
-      FunctionElement function, List<HInstruction> compiledArguments,
+      MethodElement function, List<HInstruction> compiledArguments,
       {ResolutionInterfaceType instanceType}) {
     ResolvedAst resolvedAst = function.resolvedAst;
     assert(resolvedAst != null);
     localsHandler = new LocalsHandler(this, function, function.memberContext,
         function.contextClass, instanceType, nativeData, interceptorData);
-    localsHandler.closureData =
-        closureToClassMapper.getClosureToClassMapping(resolvedAst);
+    localsHandler.closureData = closureToClassMapper.getMemberMap(function);
     returnLocal =
         new SyntheticLocal("result", function, function.memberContext);
     localsHandler.updateLocal(returnLocal, graph.addConstantNull(closedWorld));
@@ -1031,10 +1029,11 @@ class SsaBuilder extends ast.Visitor
       elementInferenceResults = globalInferenceResults.resultOfMember(callee);
       ClosureClassMap oldClosureData = localsHandler.closureData;
       ClosureClassMap newClosureData =
-          closureToClassMapper.getClosureToClassMapping(resolvedAst);
+          closureToClassMapper.getMemberMap(callee);
       localsHandler.closureData = newClosureData;
       if (resolvedAst.kind == ResolvedAstKind.PARSED) {
-        localsHandler.enterScope(resolvedAst.node, callee);
+        localsHandler.enterScope(resolvedAst.node,
+            forGenerativeConstructorBody: callee.isGenerativeConstructorBody);
       }
       buildInitializers(callee, constructorResolvedAsts, fieldValues);
       localsHandler.closureData = oldClosureData;
@@ -1205,9 +1204,6 @@ class SsaBuilder extends ast.Visitor
           final oldElementInferenceResults = elementInferenceResults;
           elementInferenceResults =
               globalInferenceResults.resultOfMember(member);
-          // In case the field initializer uses closures, run the
-          // closure to class mapper.
-          closureToClassMapper.getClosureToClassMapping(resolvedAst);
           inlinedFrom(fieldResolvedAst, () => right.accept(this));
           resolvedAst = savedResolvedAst;
           elementInferenceResults = oldElementInferenceResults;
@@ -1355,6 +1351,8 @@ class SsaBuilder extends ast.Visitor
     HInstruction interceptor = null;
     for (int index = constructorResolvedAsts.length - 1; index >= 0; index--) {
       ResolvedAst constructorResolvedAst = constructorResolvedAsts[index];
+      ConstructorElement constructor =
+          constructorResolvedAst.element.implementation;
       ConstructorBodyElement body =
           ConstructorBodyElementX.createFromResolvedAst(constructorResolvedAst);
       if (body == null) continue;
@@ -1370,7 +1368,7 @@ class SsaBuilder extends ast.Visitor
       bodyCallInputs.add(newObject);
       ast.Node node = constructorResolvedAst.node;
       ClosureClassMap parameterClosureData =
-          closureToClassMapper.getClosureToClassMapping(constructorResolvedAst);
+          closureToClassMapper.getMemberMap(constructor);
 
       FunctionSignature functionSignature = body.functionSignature;
       // Provide the parameters to the generative constructor body.
@@ -1391,8 +1389,6 @@ class SsaBuilder extends ast.Visitor
       }
 
       // Type variables arguments must come after the box (if there is one).
-      ConstructorElement constructor =
-          constructorResolvedAst.element.implementation;
       ClassElement currentClass = constructor.enclosingClass;
       if (rtiNeed.classNeedsRti(currentClass)) {
         // If [currentClass] needs RTI, we add the type variables as
@@ -1436,7 +1432,8 @@ class SsaBuilder extends ast.Visitor
     HBasicBlock block = graph.addNewBlock();
     open(graph.entry);
 
-    localsHandler.startFunction(element, node);
+    localsHandler.startFunction(element, node,
+        isGenerativeConstructorBody: element.isGenerativeConstructorBody);
     close(new HGoto()).addSuccessor(block);
 
     open(block);
@@ -1864,8 +1861,8 @@ class SsaBuilder extends ast.Visitor
 
   visitFunctionExpression(ast.FunctionExpression node) {
     LocalFunctionElement methodElement = elements[node];
-    ClosureClassMap nestedClosureData = closureToClassMapper
-        .getClosureToClassMapping(methodElement.resolvedAst);
+    ClosureClassMap nestedClosureData =
+        closureToClassMapper.getLocalFunctionMap(methodElement);
     assert(nestedClosureData != null);
     assert(nestedClosureData.closureClassElement != null);
     ClosureClassElement closureClassElement =
@@ -3414,7 +3411,8 @@ class SsaBuilder extends ast.Visitor
         constructorDeclaration.computeEffectiveTargetType(type);
     expectedType = localsHandler.substInContext(expectedType);
 
-    if (compiler.elementHasCompileTimeError(constructor)) {
+    if (compiler.elementHasCompileTimeError(constructor) ||
+        compiler.elementHasCompileTimeError(constructor.enclosingClass)) {
       // TODO(ahe): Do something like [generateWrongArgumentCountError].
       stack.add(graph.addConstantNull(closedWorld));
       return;

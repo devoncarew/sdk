@@ -21,11 +21,11 @@ import 'package:front_end/src/scanner/token.dart' show Token;
 import 'package:front_end/src/fasta/kernel/fasta_accessors.dart'
     show BuilderHelper;
 
-import 'package:kernel/ast.dart' hide MethodInvocation;
+import 'package:kernel/ast.dart' hide MethodInvocation, InvalidExpression;
 
-final Name indexGetName = new Name("[]");
+import '../names.dart' show equalsName, indexGetName, indexSetName;
 
-final Name indexSetName = new Name("[]=");
+import '../errors.dart' show internalError;
 
 /// An [Accessor] represents a subexpression for which we can't yet build a
 /// kernel [Expression] because we don't yet know the context in which it is
@@ -42,13 +42,6 @@ final Name indexSetName = new Name("[]=");
 abstract class Accessor {
   final BuilderHelper helper;
   final Token token;
-
-  // [builtBinary] and [builtGetter] capture the inner nodes. Used by
-  // dart2js+rasta for determining how subexpressions map to legacy dart2js Ast
-  // nodes. This will be removed once dart2js type analysis (aka inference) is
-  // reimplemented on kernel.
-  Expression builtBinary;
-  Expression builtGetter;
 
   Accessor(this.helper, this.token);
 
@@ -93,8 +86,7 @@ abstract class Accessor {
       bool voidContext: false,
       Procedure interfaceTarget}) {
     return _finish(_makeWrite(
-        builtBinary = makeBinary(
-            _makeRead(), binaryOperator, interfaceTarget, value,
+        makeBinary(_makeRead(), binaryOperator, interfaceTarget, value,
             offset: offset),
         voidContext));
   }
@@ -124,7 +116,7 @@ abstract class Accessor {
     var value = new VariableDeclaration.forValue(_makeRead());
     valueAccess() => new VariableGet(value);
     var dummy = new VariableDeclaration.forValue(_makeWrite(
-        builtBinary = makeBinary(
+        makeBinary(
             valueAccess(), binaryOperator, interfaceTarget, new IntLiteral(1),
             offset: offset),
         true));
@@ -146,13 +138,19 @@ abstract class Accessor {
   /// Returns an [Expression] representing a compile-time error.
   ///
   /// At runtime, an exception will be thrown.
-  makeInvalidRead() => new InvalidExpression();
+  makeInvalidRead() {
+    return internalError(
+        "Unhandled compile-time error.", null, offsetForToken(token));
+  }
 
   /// Returns an [Expression] representing a compile-time error wrapping
   /// [value].
   ///
   /// At runtime, [value] will be evaluated before throwing an exception.
-  makeInvalidWrite(Expression value) => wrapInvalid(value);
+  makeInvalidWrite(Expression value) {
+    return internalError(
+        "Unhandled compile-time error.", null, offsetForToken(token));
+  }
 }
 
 abstract class VariableAccessor extends Accessor {
@@ -216,7 +214,7 @@ class PropertyAccessor extends Accessor {
   }
 
   Expression _makeRead() =>
-      builtGetter = new KernelPropertyGet(receiverAccess(), name, getter)
+      new KernelPropertyGet(receiverAccess(), name, getter)
         ..fileOffset = offsetForToken(token);
 
   Expression _makeWrite(Expression value, bool voidContext) {
@@ -238,7 +236,7 @@ class ThisPropertyAccessor extends Accessor {
       : super(helper, token);
 
   Expression _makeRead() =>
-      builtGetter = new KernelPropertyGet(new ThisExpression(), name, getter)
+      new KernelPropertyGet(new ThisExpression(), name, getter)
         ..fileOffset = offsetForToken(token);
 
   Expression _makeWrite(Expression value, bool voidContext) {
@@ -261,7 +259,7 @@ class NullAwarePropertyAccessor extends Accessor {
   receiverAccess() => new VariableGet(receiver);
 
   Expression _makeRead() =>
-      builtGetter = new KernelPropertyGet(receiverAccess(), name, getter);
+      new KernelPropertyGet(receiverAccess(), name, getter);
 
   Expression _makeWrite(Expression value, bool voidContext) {
     return new KernelPropertySet(receiverAccess(), name, value, setter);
@@ -284,7 +282,7 @@ class SuperPropertyAccessor extends Accessor {
   Expression _makeRead() {
     if (getter == null) return makeInvalidRead();
     // TODO(ahe): Use [DirectPropertyGet] when possible.
-    return builtGetter = new SuperPropertyGet(name, getter)
+    return new SuperPropertyGet(name, getter)
       ..fileOffset = offsetForToken(token);
   }
 
@@ -343,8 +341,8 @@ class IndexAccessor extends Accessor {
   }
 
   Expression _makeRead() {
-    return builtGetter = new KernelMethodInvocation(receiverAccess(),
-        indexGetName, new KernelArguments(<Expression>[indexAccess()]), getter)
+    return new KernelMethodInvocation(receiverAccess(), indexGetName,
+        new KernelArguments(<Expression>[indexAccess()]), getter)
       ..fileOffset = offsetForToken(token);
   }
 
@@ -404,11 +402,8 @@ class ThisIndexAccessor extends Accessor {
     return new VariableGet(indexVariable);
   }
 
-  Expression _makeRead() => builtGetter = new KernelMethodInvocation(
-      new ThisExpression(),
-      indexGetName,
-      new KernelArguments(<Expression>[indexAccess()]),
-      getter);
+  Expression _makeRead() => new KernelMethodInvocation(new ThisExpression(),
+      indexGetName, new KernelArguments(<Expression>[indexAccess()]), getter);
 
   Expression _makeWrite(Expression value, bool voidContext) {
     if (!voidContext) return _makeWriteAndReturn(value);
@@ -455,7 +450,7 @@ class SuperIndexAccessor extends Accessor {
   }
 
   Expression _makeRead() {
-    return builtGetter = new SuperMethodInvocation(
+    return new SuperMethodInvocation(
         indexGetName, new KernelArguments(<Expression>[indexAccess()]), getter);
   }
 
@@ -489,7 +484,7 @@ class StaticAccessor extends Accessor {
       BuilderHelper helper, this.readTarget, this.writeTarget, Token token)
       : super(helper, token);
 
-  Expression _makeRead() => builtGetter = readTarget == null
+  Expression _makeRead() => readTarget == null
       ? makeInvalidRead()
       : helper.makeStaticGet(readTarget, token);
 
@@ -534,19 +529,12 @@ Expression makeBinary(
     ..fileOffset = offset;
 }
 
-final Name _equalOperator = new Name('==');
-
 Expression buildIsNull(Expression value, {int offset: TreeNode.noOffset}) {
-  return makeBinary(value, _equalOperator, null, new NullLiteral(),
-      offset: offset);
+  return makeBinary(value, equalsName, null, new NullLiteral(), offset: offset);
 }
 
 VariableDeclaration makeOrReuseVariable(Expression value) {
   // TODO: Devise a way to remember if a variable declaration was reused
   // or is fresh (hence needs a let binding).
   return new VariableDeclaration.forValue(value);
-}
-
-Expression wrapInvalid(Expression e) {
-  return new Let(new VariableDeclaration.forValue(e), new InvalidExpression());
 }

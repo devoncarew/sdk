@@ -15,16 +15,14 @@ import 'package:front_end/src/fasta/kernel/kernel_shadow_ast.dart';
 
 import 'package:front_end/src/fasta/kernel/utils.dart' show offsetForToken;
 
-import 'package:front_end/src/fasta/type_inference/type_inference_engine.dart'
-    show FieldNode;
-
 import 'package:front_end/src/fasta/type_inference/type_inferrer.dart'
     show TypeInferrer;
 
 import 'package:front_end/src/fasta/type_inference/type_promotion.dart'
     show TypePromoter;
 
-import 'package:kernel/ast.dart';
+import 'package:kernel/ast.dart'
+    hide InvalidExpression, InvalidInitializer, InvalidStatement;
 
 import 'package:kernel/clone.dart' show CloneVisitor;
 
@@ -86,6 +84,8 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
 
   final bool enableNative;
 
+  final bool isPlatformLibrary;
+
   @override
   final Uri uri;
 
@@ -93,11 +93,6 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
 
   @override
   final TypePromoter<Expression, VariableDeclaration> typePromoter;
-
-  /// If not `null`, dependencies on fields are accumulated into this list.
-  ///
-  /// If `null`, no dependency information is recorded.
-  final List<FieldNode> fieldDependencies;
 
   /// Only used when [member] is a constructor. It tracks if an implicit super
   /// initializer is needed.
@@ -147,11 +142,11 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
       this.classBuilder,
       this.isInstanceMember,
       this.uri,
-      this._typeInferrer,
-      {this.fieldDependencies})
+      this._typeInferrer)
       : enclosingScope = scope,
         library = library,
-        enableNative = (library.uri.scheme == "dart" || library.isPatch),
+        enableNative = library.loader.target.enableNative(library),
+        isPlatformLibrary = library.uri.scheme == 'dart',
         needsImplicitSuperInitializer =
             coreTypes.objectClass != classBuilder?.cls,
         typePromoter = _typeInferrer.typePromoter,
@@ -294,6 +289,18 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
   }
 
   void declareVariable(VariableDeclaration variable) {
+    // ignore: UNUSED_LOCAL_VARIABLE
+    Statement discardedStatement;
+    String name = variable.name;
+    int offset = variable.fileOffset;
+    if (scope.local[name] != null) {
+      // This reports an error for duplicated declarations in the same scope:
+      // `{ var x; var x; }`
+      discardedStatement = pop(); // TODO(ahe): Issue 29717.
+      push(buildCompileTimeErrorStatement(
+          "'$name' already declared in this scope.", offset));
+      return;
+    }
     InputError error = scope.declare(
         variable.name,
         new KernelVariableBuilder(
@@ -301,10 +308,18 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
         variable.fileOffset,
         uri);
     if (error != null) {
-      addCompileTimeError(
-          variable.fileOffset,
-          "Can't declare '${variable.name}' because it was already used in "
-          "this scope.");
+      // This case is different from the above error. In this case, the problem
+      // is using `x` before it's declared: `{ var x; { print(x); var x;
+      // }}`. In this case, we want two errors, the `x` in `print(x)` and the
+      // second (or innermost declaration) of `x`.
+      discardedStatement = pop(); // TODO(ahe): Issue 29717.
+
+      // Reports the error on the last declaration of `x`.
+      push(buildCompileTimeErrorStatement(
+          "Can't declare '$name' because it was already used in this scope.",
+          offset));
+
+      // Reports the error on `print(x)`.
       library.addCompileTimeError(error.charOffset, error.error,
           fileUri: error.uri);
     }
@@ -443,10 +458,9 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
       initializer =
           buildSuperInitializer(node.target, node.arguments, token.charOffset);
     } else {
+      Expression value = toValue(node);
       if (node is! Throw) {
-        // TODO(ahe): This is probably an internal error.
-        needsImplicitSuperInitializer = false;
-        node = wrapInvalid(node);
+        value = wrapInCompileTimeError(value, "Expected an initializer.");
       }
       initializer = buildInvalidIntializer(node, token.charOffset);
     }
@@ -630,17 +644,7 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
 
   @override
   finishSend(Object receiver, Arguments arguments, int charOffset) {
-    bool isIdentical(Object receiver) {
-      return receiver is StaticAccessor &&
-          receiver.readTarget == coreTypes.identicalProcedure;
-    }
-
     if (receiver is FastaAccessor) {
-      if (constantExpressionRequired &&
-          !isIdentical(receiver) &&
-          !receiver.isInitializer) {
-        addCompileTimeError(charOffset, "Not a constant expression.");
-      }
       return receiver.doInvocation(charOffset, arguments);
     } else {
       return buildMethodInvocation(
@@ -671,6 +675,21 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
     KernelCascadeExpression cascadeReceiver = pop();
     cascadeReceiver.finalize(expression);
     push(cascadeReceiver);
+  }
+
+  @override
+  void beginCaseExpression(Token caseKeyword) {
+    debugEvent("beginCaseExpression");
+    super.push(constantExpressionRequired);
+    constantExpressionRequired = true;
+  }
+
+  @override
+  void endCaseExpression(Token colon) {
+    debugEvent("endCaseExpression");
+    Expression expression = popForValue();
+    constantExpressionRequired = pop();
+    super.push(expression);
   }
 
   @override
@@ -889,11 +908,10 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
         }
         return new ThisPropertyAccessor(this, token, n, null, null);
       } else if (
-          // Optimization, if [enableNative] is false, this can't be
+          // Optimization, if [isPlatformLibrary] is false, this can't be
           // dart:_builtin.
-          enableNative &&
+          isPlatformLibrary &&
               name == "main" &&
-              library.uri.scheme == "dart" &&
               library.uri.path == "_builtin" &&
               member?.name == "_getMainClosure") {
         // TODO(ahe): https://github.com/dart-lang/sdk/issues/28989
@@ -1213,10 +1231,7 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
     debugEvent("AssignmentExpression");
     Expression value = popForValue();
     var accessor = pop();
-    if (accessor is TypeDeclarationBuilder) {
-      push(wrapInvalid(new KernelTypeLiteral(
-          accessor.buildTypesWithBuiltArguments(library, null))));
-    } else if (accessor is! FastaAccessor) {
+    if (accessor is TypeDeclarationBuilder || accessor is! FastaAccessor) {
       push(buildCompileTimeError("Can't assign to this.", token.charOffset));
     } else {
       push(new DelayedAssignment(
@@ -1526,8 +1541,13 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
     debugEvent("AsOperator");
     DartType type = pop();
     Expression expression = popForValue();
-    push(new KernelAsExpression(expression, type)
-      ..fileOffset = offsetForToken(operator));
+    if (constantExpressionRequired) {
+      push(buildCompileTimeError(
+          "Not a constant expression.", operator.charOffset));
+    } else {
+      push(new KernelAsExpression(expression, type)
+        ..fileOffset = offsetForToken(operator));
+    }
   }
 
   @override
@@ -1545,7 +1565,12 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
       typePromoter.handleIsCheck(isExpression, isInverted, operand.variable,
           type, functionNestingLevel);
     }
-    push(isExpression);
+    if (constantExpressionRequired) {
+      push(buildCompileTimeError(
+          "Not a constant expression.", operator.charOffset));
+    } else {
+      push(isExpression);
+    }
   }
 
   @override
@@ -1682,6 +1707,12 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
   }
 
   @override
+  void beginFormalParameters(Token token, MemberKind kind) {
+    super.push(constantExpressionRequired);
+    constantExpressionRequired = false;
+  }
+
+  @override
   void endFormalParameters(
       int count, Token beginToken, Token endToken, MemberKind kind) {
     debugEvent("FormalParameters");
@@ -1694,11 +1725,12 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
         popList(count) ?? <VariableDeclaration>[],
         optional,
         beginToken.charOffset);
+    constantExpressionRequired = pop();
     push(formals);
     if ((inCatchClause || functionNestingLevel != 0) &&
         kind != MemberKind.GeneralizedFunctionType) {
       enterLocalScope(formals.computeFormalParameterScope(
-          scope, member ?? classBuilder ?? library));
+          scope, member ?? classBuilder ?? library, this));
     }
   }
 
@@ -1737,9 +1769,10 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
       }
       if (catchParameters.required.length > 2 ||
           catchParameters.optional != null) {
-        body = new Block(<Statement>[new InvalidStatement()]);
-        compileTimeErrorInTry ??= buildCompileTimeErrorStatement(
-            "Invalid catch arguments.", catchKeyword.next.charOffset);
+        body = new Block(<Statement>[
+          compileTimeErrorInTry ??= buildCompileTimeErrorStatement(
+              "Invalid catch arguments.", catchKeyword.next.charOffset)
+        ]);
       }
     }
     push(new Catch(exception, body, guard: type, stackTrace: stackTrace));
@@ -1806,7 +1839,10 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
             token.charOffset)));
       } else {
         push(buildMethodInvocation(toValue(receiver), new Name(operator),
-            new Arguments.empty(), token.charOffset));
+            new Arguments.empty(), token.charOffset,
+            // This *could* be a constant expression, we can't know without
+            // evaluating [receiver].
+            isConstantExpression: true));
       }
     }
   }
@@ -1825,7 +1861,7 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
       push(accessor.buildPrefixIncrement(incrementOperator(token),
           offset: token.charOffset));
     } else {
-      push(wrapInvalid(toValue(accessor)));
+      push(wrapInCompileTimeError(toValue(accessor), "Can't assign to this."));
     }
   }
 
@@ -1837,7 +1873,7 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
       push(new DelayedPostfixIncrement(
           this, token, accessor, incrementOperator(token), null));
     } else {
-      push(wrapInvalid(toValue(accessor)));
+      push(wrapInCompileTimeError(toValue(accessor), "Can't assign to this."));
     }
   }
 
@@ -2107,7 +2143,9 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
         isFinal: true, isLocalFunction: true)
       ..fileOffset = offsetForToken(name.token);
     push(new KernelFunctionDeclaration(
-        variable, new FunctionNode(new InvalidStatement()))
+        variable,
+        // The function node is created later.
+        null)
       ..fileOffset = beginToken.charOffset);
     declareVariable(variable);
     enterLocalScope();
@@ -2162,13 +2200,23 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
     debugEvent("FunctionDeclaration");
     FunctionNode function = pop();
     exitLocalScope();
-    FunctionDeclaration declaration = pop();
-    function.returnType = pop() ?? const DynamicType();
-    declaration.variable.type = function.functionType;
+    var declaration = pop();
+    var returnType = pop() ?? const DynamicType();
     pop(); // Modifiers.
     exitFunction();
-    declaration.function = function;
-    function.parent = declaration;
+    if (declaration is FunctionDeclaration) {
+      function.returnType = returnType;
+      declaration.variable.type = function.functionType;
+      declaration.function = function;
+      function.parent = declaration;
+    } else {
+      // If [declaration] isn't a [FunctionDeclaration], it must be because
+      // there was a compile-time error.
+
+      // TODO(paulberry): ensure that when integrating with analyzer, type
+      // inference is still performed for the dropped declaration.
+      assert(library.compileTimeErrors.isNotEmpty);
+    }
     push(declaration);
   }
 
@@ -2242,7 +2290,9 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
       continueTarget.resolveContinues(body);
     }
     VariableDeclaration variable;
+    bool declaresVariable = false;
     if (lvalue is VariableDeclaration) {
+      declaresVariable = true;
       variable = lvalue;
     } else if (lvalue is FastaAccessor) {
       /// We are in this case, where `lvalue` isn't a [VariableDeclaration]:
@@ -2264,7 +2314,8 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
       variable = new VariableDeclaration.forValue(buildCompileTimeError(
           "Expected lvalue, but got ${lvalue}", forToken.next.next.charOffset));
     }
-    Statement result = new ForInStatement(variable, expression, body,
+    Statement result = new KernelForInStatement(
+        variable, expression, body, declaresVariable,
         isAsync: awaitToken != null)
       ..fileOffset = body.fileOffset;
     if (breakTarget.hasUsers) {
@@ -2610,11 +2661,24 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
 
   @override
   Expression buildCompileTimeError(error, [int charOffset = -1]) {
+    // TODO(ahe): This method should be passed the erroneous expression, wrap
+    // it in a class (TBD) from which the erroneous expression can be easily
+    // extracted. Similar for statements and initializers. See also [issue
+    // 29717](https://github.com/dart-lang/sdk/issues/29717)
     addCompileTimeError(charOffset, error);
     String message = formatUnexpected(uri, charOffset, error);
     Builder constructor = library.loader.getCompileTimeError();
     return new Throw(buildStaticInvocation(constructor.target,
-        new KernelArguments(<Expression>[new StringLiteral(message)])));
+        new KernelArguments(<Expression>[new StringLiteral(message)]),
+        charOffset: charOffset));
+  }
+
+  Expression wrapInCompileTimeError(Expression expression, String message) {
+    return new Let(
+        new VariableDeclaration.forValue(expression)
+          ..fileOffset = expression.fileOffset,
+        buildCompileTimeError(message, expression.fileOffset))
+      ..fileOffset = expression.fileOffset;
   }
 
   Expression buildAbstractClassInstantiationError(String className,
@@ -2665,7 +2729,7 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
   @override
   void handleOperator(Token token) {
     debugEvent("Operator");
-    push(new Operator(token.stringValue)..fileOffset = token.charOffset);
+    push(new Operator(token.stringValue, token.charOffset));
   }
 
   @override
@@ -2674,6 +2738,7 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
     push(new Identifier(token));
   }
 
+  @override
   dynamic addCompileTimeError(int charOffset, String message,
       {bool silent: false}) {
     // TODO(ahe): If constantExpressionRequired is set, set it to false to
@@ -2686,7 +2751,9 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
     if (member.isNative) {
       push(NullValue.FunctionBody);
     } else {
-      push(new Block(<Statement>[new InvalidStatement()]));
+      push(new Block(<Statement>[
+        buildCompileTimeErrorStatement("Expected '{'.", token.charOffset)
+      ]));
     }
   }
 
@@ -2720,6 +2787,32 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
   }
 
   @override
+  bool isIdentical(Member member) => member == coreTypes.identicalProcedure;
+
+  @override
+  Expression buildMethodInvocation(
+      Expression receiver, Name name, Arguments arguments, int offset,
+      {bool isConstantExpression: false, bool isNullAware: false}) {
+    if (constantExpressionRequired && !isConstantExpression) {
+      return buildCompileTimeError("Not a constant expression.", offset);
+    }
+    if (isNullAware) {
+      VariableDeclaration variable = new VariableDeclaration.forValue(receiver);
+      return makeLet(
+          variable,
+          new ConditionalExpression(
+              buildIsNull(new VariableGet(variable)),
+              new NullLiteral(),
+              new MethodInvocation(new VariableGet(variable), name, arguments)
+                ..fileOffset = offset,
+              const DynamicType()));
+    } else {
+      return new KernelMethodInvocation(receiver, name, arguments)
+        ..fileOffset = offset;
+    }
+  }
+
+  @override
   void addCompileTimeErrorFromMessage(FastaMessage message) {
     library.addCompileTimeError(message.charOffset, message.message,
         fileUri: message.uri);
@@ -2732,14 +2825,6 @@ class BodyBuilder extends ScopeListener<JumpTarget> implements BuilderHelper {
 
   @override
   StaticGet makeStaticGet(Member readTarget, Token token) {
-    // TODO(paulberry): only record the dependencies mandated by the top level
-    // type inference spec.
-    if (fieldDependencies != null && readTarget is KernelField) {
-      var fieldNode = _typeInferrer.getFieldNodeForReadTarget(readTarget);
-      if (fieldNode != null) {
-        fieldDependencies.add(fieldNode);
-      }
-    }
     return new KernelStaticGet(readTarget)..fileOffset = offsetForToken(token);
   }
 }
@@ -2755,11 +2840,12 @@ class Identifier {
   String toString() => "identifier($name)";
 }
 
-// TODO(ahe): Shouldn't need to be an expression.
-class Operator extends InvalidExpression {
+class Operator {
   final String name;
 
-  Operator(this.name);
+  final int charOffset;
+
+  Operator(this.name, this.charOffset);
 
   String toString() => "operator($name)";
 }
@@ -2772,8 +2858,7 @@ class InitializedIdentifier extends Identifier {
   String toString() => "initialized-identifier($name, $initializer)";
 }
 
-// TODO(ahe): Shouldn't need to be an expression.
-class Label extends InvalidExpression {
+class Label {
   String name;
 
   Label(this.name);
@@ -2789,22 +2874,6 @@ abstract class ContextAccessor extends FastaAccessor {
   final Token token;
 
   ContextAccessor(this.helper, this.token, this.accessor);
-
-  @override
-  Expression get builtBinary => internalError("Unsupported operation.");
-
-  @override
-  void set builtBinary(Expression expression) {
-    internalError("Unsupported operation.");
-  }
-
-  @override
-  Expression get builtGetter => internalError("Unsupported operation.");
-
-  @override
-  void set builtGetter(Expression expression) {
-    internalError("Unsupported operation.");
-  }
 
   String get plainNameForRead => internalError("Unsupported operation.");
 
@@ -2873,6 +2942,10 @@ class DelayedAssignment extends ContextAccessor {
   }
 
   Expression handleAssignment(bool voidContext) {
+    if (helper.constantExpressionRequired) {
+      return helper.buildCompileTimeError(
+          "Not a constant expression.", offsetForToken(token));
+    }
     if (identical("=", assignmentOperator)) {
       return accessor.buildAssignment(value, voidContext: voidContext);
     } else if (identical("+=", assignmentOperator)) {
@@ -3129,15 +3202,23 @@ class FormalParameters {
         requiredParameterCount: requiredParameterCount);
   }
 
-  Scope computeFormalParameterScope(Scope parent, Builder builder) {
+  Scope computeFormalParameterScope(
+      Scope parent, Builder builder, BuilderHelper helper) {
     if (required.length == 0 && optional == null) return parent;
     Map<String, Builder> local = <String, Builder>{};
+
     for (VariableDeclaration parameter in required) {
+      if (local[parameter.name] != null) {
+        helper.addCompileTimeError(parameter.fileOffset, "Duplicated name.");
+      }
       local[parameter.name] =
           new KernelVariableBuilder(parameter, builder, builder.fileUri);
     }
     if (optional != null) {
       for (VariableDeclaration parameter in optional.formals) {
+        if (local[parameter.name] != null) {
+          helper.addCompileTimeError(parameter.fileOffset, "Duplicated name.");
+        }
         local[parameter.name] =
             new KernelVariableBuilder(parameter, builder, builder.fileUri);
       }

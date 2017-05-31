@@ -285,13 +285,21 @@ abstract class ResolutionWorldBuilderBase
   final Map<ClassEntity, _ClassUsage> _processedClasses =
       <ClassEntity, _ClassUsage>{};
 
+  Map<ClassEntity, _ClassUsage> get classUsageForTesting => _processedClasses;
+
   /// Map of registered usage of static members of live classes.
   final Map<Entity, _StaticMemberUsage> _staticMemberUsage =
       <Entity, _StaticMemberUsage>{};
 
+  Map<Entity, _StaticMemberUsage> get staticMemberUsageForTesting =>
+      _staticMemberUsage;
+
   /// Map of registered usage of instance members of live classes.
   final Map<MemberEntity, _MemberUsage> _instanceMemberUsage =
       <MemberEntity, _MemberUsage>{};
+
+  Map<MemberEntity, _MemberUsage> get instanceMemberUsageForTesting =>
+      _instanceMemberUsage;
 
   /// Map containing instance members of live classes that are not yet live
   /// themselves.
@@ -331,6 +339,7 @@ abstract class ResolutionWorldBuilderBase
   final ElementEnvironment _elementEnvironment;
 
   final CommonElements _commonElements;
+  final ConstantSystem _constantSystem;
 
   final NativeBasicData _nativeBasicData;
   final NativeDataBuilder _nativeDataBuilder;
@@ -365,6 +374,7 @@ abstract class ResolutionWorldBuilderBase
   ResolutionWorldBuilderBase(
       this._elementEnvironment,
       this._commonElements,
+      this._constantSystem,
       this._nativeBasicData,
       this._nativeDataBuilder,
       this._interceptorDataBuilder,
@@ -922,6 +932,7 @@ abstract class KernelResolutionWorldBuilderBase
   KernelResolutionWorldBuilderBase(
       ElementEnvironment elementEnvironment,
       CommonElements commonElements,
+      ConstantSystem constantSystem,
       NativeBasicData nativeBasicData,
       NativeDataBuilder nativeDataBuilder,
       InterceptorDataBuilder interceptorDataBuilder,
@@ -930,6 +941,7 @@ abstract class KernelResolutionWorldBuilderBase
       : super(
             elementEnvironment,
             commonElements,
+            constantSystem,
             nativeBasicData,
             nativeDataBuilder,
             interceptorDataBuilder,
@@ -946,8 +958,7 @@ abstract class KernelResolutionWorldBuilderBase
         nativeData: _nativeDataBuilder.close(),
         interceptorData: _interceptorDataBuilder.close(),
         backendUsage: _backendUsageBuilder.close(),
-        // TODO(johnniwinther): Compute these.
-        constantSystem: null,
+        constantSystem: _constantSystem,
         resolutionWorldBuilder: this,
         functionSet: _allFunctions.close(),
         allTypedefs: _allTypedefs,

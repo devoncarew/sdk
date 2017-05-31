@@ -5,7 +5,6 @@
 [ $compiler == dartk || $compiler == dartkp ]
 call_nonexistent_static_test/01: CompileTimeError
 call_nonexistent_static_test/04: CompileTimeError
-compile_time_constant_c_test/03: MissingCompileTimeError
 compile_time_constant_test/01: MissingCompileTimeError
 conditional_method_invocation_test/11: MissingCompileTimeError
 conditional_property_access_test/09: MissingCompileTimeError
@@ -151,6 +150,7 @@ ref_before_declaration_test/06: MissingCompileTimeError
 ref_before_declaration_test/07: MissingCompileTimeError
 regress_13494_test: CompileTimeError
 regress_22438_test: RuntimeError
+regress_29349_test: CompileTimeError
 scope_variable_test/01: MissingCompileTimeError
 static_field3_test/03: CompileTimeError
 static_field3_test/04: CompileTimeError
@@ -174,8 +174,6 @@ super_conditional_operator_test/13: MissingCompileTimeError
 super_conditional_operator_test/14: MissingCompileTimeError
 super_conditional_operator_test/15: MissingCompileTimeError
 super_conditional_operator_test/16: MissingCompileTimeError
-super_conditional_operator_test/17: MissingCompileTimeError
-super_conditional_operator_test/18: MissingCompileTimeError
 super_no_such_method1_test/01: RuntimeError
 super_no_such_method2_test/01: RuntimeError
 super_no_such_method3_test/01: RuntimeError
@@ -186,13 +184,25 @@ syntax_test/02: MissingCompileTimeError
 syntax_test/03: MissingCompileTimeError
 syntax_test/27: MissingCompileTimeError
 this_conditional_operator_test/01: MissingCompileTimeError
-try_catch_syntax_test/05: MissingCompileTimeError
 try_catch_syntax_test/07: MissingCompileTimeError
 try_catch_syntax_test/09: MissingCompileTimeError
 try_catch_syntax_test/10: MissingCompileTimeError
 try_catch_syntax_test/11: MissingCompileTimeError
 try_catch_syntax_test/12: MissingCompileTimeError
 vm/regress_27201_test: CompileTimeError
+
+assign_to_type_test/01: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
+assign_to_type_test/02: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
+assign_to_type_test/03: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
+assign_to_type_test/04: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
+class_literal_test/12: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
+class_literal_test/13: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
+class_literal_test/24: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
+first_class_types_literals_test/03: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
+first_class_types_literals_test/04: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
+first_class_types_literals_test/08: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
+first_class_types_literals_test/09: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
+if_null_assignment_behavior_test/15: CompileTimeError # Fasta bug: Incorrect handling of types as expressions.
 
 config_import_corelib_test: RuntimeError # KernelVM bug: Configurable imports.
 config_import_test: RuntimeError # KernelVM bug: Configurable imports.
@@ -387,7 +397,6 @@ ref_before_declaration_test/04: Crash
 ref_before_declaration_test/05: Crash
 ref_before_declaration_test/06: Crash
 ref_before_declaration_test/07: Crash
-try_catch_syntax_test/05: Crash
 vm/lazy_deopt_vm_test: Crash
 
 # dartk: precompilation failures
@@ -408,7 +417,6 @@ ref_before_declaration_test/07: Crash
 ref_before_declaration_test/none: Crash
 setter_declaration2_negative_test: Crash
 setter_declaration_negative_test: Crash
-try_catch_syntax_test/05: Crash
 
 # dartk: precompilation failures (debug)
 [ $compiler == dartkp && $mode == debug ]
@@ -534,4 +542,3 @@ issue_1751477_test: CompileTimeError # Deferred loading kernel issue 28335.
 regress_22443_test: CompileTimeError # Deferred loading kernel issue 28335.
 regress_23408_test: CompileTimeError # Deferred loading kernel issue 28335.
 regress_28278_test: CompileTimeError # Deferred loading kernel issue 28335.
-case_expression_with_assignment_test/01: Crash # Issue 29379

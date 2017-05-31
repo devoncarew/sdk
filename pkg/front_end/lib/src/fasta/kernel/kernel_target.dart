@@ -40,13 +40,11 @@ import 'package:kernel/ast.dart'
         VariableGet,
         VoidType;
 
-import 'package:kernel/core_types.dart' show CoreTypes;
 import 'package:kernel/transformations/erasure.dart' show Erasure;
 
 import 'package:kernel/transformations/continuation.dart' as transformAsync;
 
-import 'package:kernel/transformations/mixin_full_resolution.dart'
-    show MixinFullResolution;
+import 'package:kernel/transformations/mixin_full_resolution.dart' as mix;
 
 import 'package:kernel/type_algebra.dart' show substitute;
 
@@ -280,7 +278,6 @@ class KernelTarget extends TargetImplementation {
     if (errors.isNotEmpty) {
       handleInputError(null,
           isFullProgram: true, trimDependencies: trimDependencies);
-      if (trimDependencies) trimDependenciesInProgram();
       return _program;
     }
 
@@ -662,7 +659,7 @@ class KernelTarget extends TargetImplementation {
   }
 
   void transformMixinApplications() {
-    new MixinFullResolution(backendTarget).transform(_program);
+    mix.transformLibraries(backendTarget, loader.coreTypes, loader.libraries);
     ticker.logMs("Transformed mixin applications");
   }
 
@@ -672,9 +669,8 @@ class KernelTarget extends TargetImplementation {
       _program.accept(new Erasure());
       ticker.logMs("Erased type variables in generic methods");
     }
-    var coreTypes = new CoreTypes(_program);
     // TODO(kmillikin): Make this run on a per-method basis.
-    transformAsync.transformLibraries(coreTypes, loader.libraries);
+    transformAsync.transformLibraries(loader.coreTypes, loader.libraries);
     ticker.logMs("Transformed async methods");
   }
 
@@ -701,7 +697,7 @@ class KernelTarget extends TargetImplementation {
     // TODO(sigmund): replace this step with data that is directly computed from
     // the builders: we should know the tree-shaking roots without having to do
     // a second visit over the tree.
-    new RootsMarker(data).run(_program, isIncluded);
+    new RootsMarker(loader.coreTypes, data).run(_program, isIncluded);
     trimProgram(_program, data, isIncluded);
   }
 

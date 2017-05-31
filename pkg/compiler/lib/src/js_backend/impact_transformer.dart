@@ -11,7 +11,6 @@ import '../common/codegen.dart' show CodegenImpact;
 import '../common/resolution.dart' show ResolutionImpact;
 import '../constants/expressions.dart';
 import '../common_elements.dart' show ElementEnvironment;
-import '../elements/elements.dart' show AsyncMarker;
 import '../elements/entities.dart';
 import '../elements/resolution_types.dart' show Types;
 import '../elements/types.dart';
@@ -266,8 +265,10 @@ class JavaScriptImpactTransformer extends ImpactTransformer {
           registerImpact(_impacts.stringLiteral);
           break;
         default:
-          assert(invariant(NO_LOCATION_SPANNABLE, false,
-              message: "Unexpected constant literal: ${constant.kind}."));
+          assert(
+              false,
+              failedAt(NO_LOCATION_SPANNABLE,
+                  "Unexpected constant literal: ${constant.kind}."));
       }
     }
 

@@ -782,6 +782,10 @@ class CompilationUnitElementX extends ElementX
       String content = libraryReference.dartString.slowToString();
       Uri uri = this.script.readableUri.resolve(content);
       Uri expectedUri = library.canonicalUri;
+      // Also allow `string.dart` to refer to `dart:core` as `core.dart`.
+      if (library.isPlatformLibrary && !uri.isScheme("dart")) {
+        expectedUri = library.entryCompilationUnit.script.readableUri;
+      }
       if (uri != expectedUri) {
         // Consider finding a relative URI reference for the error message.
         reporter.reportWarningMessage(tag.name,
@@ -1570,8 +1574,9 @@ abstract class VariableElementX extends ElementX
         definitionCache = initializedIdentifier;
       }
     }
-    invariant(definitions, definitionCache != null,
-        message: "Could not find '$name'.");
+    if (definitionCache == null) {
+      failedAt(definitionCache, "Could not find '$name'.");
+    }
     definitionsCache = definitions;
   }
 
