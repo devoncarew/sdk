@@ -31,6 +31,7 @@ import 'package:analyzer/src/lint/registry.dart' as linter;
 import 'package:analyzer/src/summary/format.dart';
 import 'package:analyzer/src/summary/idl.dart';
 import 'package:analyzer/src/summary/package_bundle_reader.dart';
+import 'package:analyzer/src/task/driver.dart';
 import 'package:front_end/src/base/api_signature.dart';
 import 'package:front_end/src/base/performace_logger.dart';
 import 'package:front_end/src/incremental/byte_store.dart';
@@ -978,9 +979,14 @@ class AnalysisDriver implements AnalysisDriverGeneric {
 
     // If we don't need the fully resolved unit, check for the cached result.
     if (!withUnit) {
-      List<int> bytes = _byteStore.get(key);
-      if (bytes != null) {
-        return _getAnalysisResultFromBytes(file, signature, bytes);
+      AnalysisResult result = driverCacheTag.makeCurrentWhile(() {
+        List<int> bytes = _byteStore.get(key);
+        if (bytes != null) {
+          return _getAnalysisResultFromBytes(file, signature, bytes);
+        }
+      });
+      if (result != null) {
+        return result;
       }
     }
 

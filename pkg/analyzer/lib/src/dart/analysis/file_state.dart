@@ -385,9 +385,14 @@ class FileState {
 
     if (USE_FASTA_PARSER) {
       try {
-        fasta.ScannerResult scanResult = fasta.scan(_contentBytes,
+        fasta.ScannerResult scanResult =
+            PerformanceStatistics.scan.makeCurrentWhile(() {
+          return fasta.scan(
+            _contentBytes,
             includeComments: true,
-            scanGenericMethodComments: analysisOptions.strongMode);
+            scanGenericMethodComments: analysisOptions.strongMode,
+          );
+        });
 
         var astBuilder = new fasta.AstBuilder(
             new ErrorReporter(errorListener, source),
@@ -407,6 +412,7 @@ class FileState {
         unit.lineInfo = lineInfo;
         return unit;
       } catch (e, st) {
+        // TODO(devoncarew): We likely shouldn't be doing raw prints here.
         print(e);
         print(st);
         rethrow;
@@ -415,7 +421,9 @@ class FileState {
       CharSequenceReader reader = new CharSequenceReader(content);
       Scanner scanner = new Scanner(source, reader, errorListener);
       scanner.scanGenericMethodComments = analysisOptions.strongMode;
-      Token token = scanner.tokenize();
+      Token token = PerformanceStatistics.scan.makeCurrentWhile(() {
+        return scanner.tokenize();
+      });
       LineInfo lineInfo = new LineInfo(scanner.lineStarts);
 
       Parser parser = new Parser(source, errorListener);
