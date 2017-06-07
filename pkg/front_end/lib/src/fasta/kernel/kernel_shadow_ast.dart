@@ -1034,13 +1034,14 @@ class KernelMapLiteral extends MapLiteral implements KernelExpression {
 /// Shadow object for [MethodInvocation].
 class KernelMethodInvocation extends MethodInvocation
     implements KernelExpression {
-  KernelMethodInvocation(Expression receiver, Name name, Arguments arguments,
-      [Procedure interfaceTarget])
-      : super(receiver, name, arguments, interfaceTarget);
+  /// Indicates whether this method invocation is a call to a `call` method
+  /// resulting from the invocation of a function expression.
+  final bool _isImplicitCall;
 
-  KernelMethodInvocation.byReference(Expression receiver, Name name,
-      Arguments arguments, Reference interfaceTargetReference)
-      : super.byReference(receiver, name, arguments, interfaceTargetReference);
+  KernelMethodInvocation(Expression receiver, Name name, Arguments arguments,
+      {bool isImplicitCall: false, Procedure interfaceTarget})
+      : _isImplicitCall = isImplicitCall,
+        super(receiver, name, arguments, interfaceTarget);
 
   @override
   void _collectDependencies(KernelDependencyCollector collector) {
@@ -1061,21 +1062,28 @@ class KernelMethodInvocation extends MethodInvocation
     if (receiverType is InterfaceType) {
       interfaceMember = inferrer.classHierarchy
           .getInterfaceMember(receiverType.classNode, name);
-      if (interfaceMember is Procedure) {
-        // Our non-strong golden files currently don't include interface
-        // targets, so we can't store the interface target without causing tests
-        // to fail.  TODO(paulberry): fix this.
-        if (inferrer.strongMode) {
+      // Our non-strong golden files currently don't include interface
+      // targets, so we can't store the interface target without causing tests
+      // to fail.  TODO(paulberry): fix this.
+      if (inferrer.strongMode) {
+        if (interfaceMember != null) {
           inferrer.instrumentation?.record(Uri.parse(inferrer.uri), fileOffset,
               'target', new InstrumentationValueForMember(interfaceMember));
+        }
+        // interfaceTarget is currently required to be a procedure, so we skip
+        // if it's anything else.  TODO(paulberry): fix this - see
+        // https://codereview.chromium.org/2923653003/.
+        if (interfaceMember is Procedure) {
           interfaceTarget = interfaceMember;
         }
+      }
+      if (interfaceMember is Procedure) {
         isOverloadedArithmeticOperator = inferrer.typeSchemaEnvironment
             .isOverloadedArithmeticOperator(interfaceMember);
       }
     }
-    var calleeType =
-        inferrer.getCalleeFunctionType(interfaceMember, receiverType, name);
+    var calleeType = inferrer.getCalleeFunctionType(
+        interfaceMember, receiverType, name, !_isImplicitCall);
     var inferredType = inferrer.inferInvocation(typeContext, typeNeeded,
         fileOffset, calleeType, calleeType.returnType, arguments,
         isOverloadedArithmeticOperator: isOverloadedArithmeticOperator,
@@ -1520,15 +1528,15 @@ class KernelSymbolLiteral extends SymbolLiteral implements KernelExpression {
 class KernelThisExpression extends ThisExpression implements KernelExpression {
   @override
   void _collectDependencies(KernelDependencyCollector collector) {
-    // TODO(paulberry): figure out the right thing to do here.
-    throw 'TODO(paulberry)';
+    // Field initializers are not allowed to refer to [this].  But if it
+    // happens, we can still proceed; no additional type inference dependencies
+    // are introduced.
   }
 
   @override
   DartType _inferExpression(
       KernelTypeInferrer inferrer, DartType typeContext, bool typeNeeded) {
-    // TODO(scheglov): implement.
-    return typeNeeded ? const DynamicType() : null;
+    return typeNeeded ? (inferrer.thisType ?? const DynamicType()) : null;
   }
 }
 
@@ -1569,15 +1577,16 @@ class KernelTypeInferenceEngine extends TypeInferenceEngineImpl {
 
   @override
   KernelTypeInferrer createLocalTypeInferrer(
-      Uri uri, TypeInferenceListener listener) {
-    return new KernelTypeInferrer._(this, uri.toString(), listener, false);
+      Uri uri, TypeInferenceListener listener, InterfaceType thisType) {
+    return new KernelTypeInferrer._(
+        this, uri.toString(), listener, false, thisType);
   }
 
   @override
-  KernelTypeInferrer createTopLevelTypeInferrer(
-      KernelField field, TypeInferenceListener listener) {
+  KernelTypeInferrer createTopLevelTypeInferrer(TypeInferenceListener listener,
+      InterfaceType thisType, KernelField field) {
     return field._typeInferrer =
-        new KernelTypeInferrer._(this, field.fileUri, listener, true);
+        new KernelTypeInferrer._(this, field.fileUri, listener, true, thisType);
   }
 
   @override
@@ -1618,8 +1627,8 @@ class KernelTypeInferrer extends TypeInferrerImpl {
   final typePromoter = new KernelTypePromoter();
 
   KernelTypeInferrer._(KernelTypeInferenceEngine engine, String uri,
-      TypeInferenceListener listener, bool topLevel)
-      : super(engine, uri, listener, topLevel);
+      TypeInferenceListener listener, bool topLevel, InterfaceType thisType)
+      : super(engine, uri, listener, topLevel, thisType);
 
   @override
   Expression getFieldInitializer(KernelField field) {
@@ -1705,13 +1714,7 @@ class KernelTypeLiteral extends TypeLiteral implements KernelExpression {
 
 /// Concrete implementation of [TypePromoter] specialized to work with kernel
 /// objects.
-///
-/// Note: the second type parameter really ought to be
-/// KernelVariableDeclaration, but we can't do that yet because BodyBuilder
-/// still uses raw VariableDeclaration objects sometimes.
-/// TODO(paulberry): fix this.
-class KernelTypePromoter
-    extends TypePromoterImpl<Expression, VariableDeclaration> {
+class KernelTypePromoter extends TypePromoterImpl {
   @override
   int getVariableFunctionNestingLevel(VariableDeclaration variable) {
     if (variable is KernelVariableDeclaration) {
@@ -1841,7 +1844,7 @@ class KernelVariableDeclaration extends VariableDeclaration
 
 /// Concrete shadow object representing a read from a variable in kernel form.
 class KernelVariableGet extends VariableGet implements KernelExpression {
-  final TypePromotionFact<VariableDeclaration> _fact;
+  final TypePromotionFact _fact;
 
   final TypePromotionScope _scope;
 

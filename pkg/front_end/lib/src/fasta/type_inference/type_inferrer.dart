@@ -4,6 +4,7 @@
 
 import 'package:front_end/src/base/instrumentation.dart';
 import 'package:front_end/src/fasta/kernel/kernel_shadow_ast.dart';
+import 'package:front_end/src/fasta/names.dart' show callName;
 import 'package:front_end/src/fasta/type_inference/type_inference_engine.dart';
 import 'package:front_end/src/fasta/type_inference/type_inference_listener.dart';
 import 'package:front_end/src/fasta/type_inference/type_promotion.dart';
@@ -29,7 +30,6 @@ import 'package:kernel/ast.dart'
         ProcedureKind,
         Statement,
         TypeParameterType,
-        VariableDeclaration,
         VoidType;
 import 'package:kernel/class_hierarchy.dart';
 import 'package:kernel/core_types.dart';
@@ -61,9 +61,8 @@ class ClosureContext {
             returnContext, inferrer.coreTypes.iterableClass);
       }
     } else if (isAsync) {
-      returnContext = inferrer.wrapType(
-          inferrer.typeSchemaEnvironment.flattenFutures(returnContext),
-          inferrer.coreTypes.futureOrClass);
+      returnContext = inferrer.wrapFutureOrType(
+          inferrer.typeSchemaEnvironment.flattenFutures(returnContext));
     }
     return new ClosureContext._(isAsync, isGenerator, returnContext);
   }
@@ -162,7 +161,7 @@ class ClosureContext {
 abstract class TypeInferrer {
   /// Gets the [TypePromoter] that can be used to perform type promotion within
   /// this method body or initializer.
-  TypePromoter<Expression, VariableDeclaration> get typePromoter;
+  TypePromoter get typePromoter;
 
   /// The URI of the code for which type inference is currently being
   /// performed--this is used for testing.
@@ -212,6 +211,8 @@ abstract class TypeInferrerImpl extends TypeInferrer {
 
   final TypeInferenceListener listener;
 
+  final InterfaceType thisType;
+
   /// Context information for the current closure, or `null` if we are not
   /// inside a closure.
   ClosureContext closureContext;
@@ -222,8 +223,8 @@ abstract class TypeInferrerImpl extends TypeInferrer {
   /// Not used when performing local inference.
   bool isImmediatelyEvident = true;
 
-  TypeInferrerImpl(
-      TypeInferenceEngineImpl engine, this.uri, this.listener, bool topLevel)
+  TypeInferrerImpl(TypeInferenceEngineImpl engine, this.uri, this.listener,
+      bool topLevel, this.thisType)
       : coreTypes = engine.coreTypes,
         strongMode = engine.strongMode,
         classHierarchy = engine.classHierarchy,
@@ -233,16 +234,21 @@ abstract class TypeInferrerImpl extends TypeInferrer {
 
   /// Gets the type promoter that should be used to promote types during
   /// inference.
-  TypePromoter<Expression, VariableDeclaration> get typePromoter;
+  TypePromoter get typePromoter;
 
-  FunctionType getCalleeFunctionType(
-      Member interfaceMember, DartType receiverType, Name methodName) {
+  FunctionType getCalleeFunctionType(Member interfaceMember,
+      DartType receiverType, Name methodName, bool followCall) {
     var type = getCalleeType(interfaceMember, receiverType, methodName);
     if (type is FunctionType) {
       return type;
-    } else {
-      return _functionReturningDynamic;
+    } else if (followCall && type is InterfaceType) {
+      var member = classHierarchy.getInterfaceMember(type.classNode, callName);
+      var callType = member?.getterType;
+      if (callType is FunctionType) {
+        return callType;
+      }
     }
+    return _functionReturningDynamic;
   }
 
   DartType getCalleeType(
@@ -531,7 +537,8 @@ abstract class TypeInferrerImpl extends TypeInferrer {
     }
     // TODO(paulberry): If [type] is a subtype of `Future`, should we just
     // return it unmodified?
-    return new InterfaceType(coreTypes.futureOrClass, <DartType>[type]);
+    return new InterfaceType(
+        coreTypes.futureOrClass, <DartType>[type ?? const DynamicType()]);
   }
 
   DartType wrapFutureType(DartType type) {

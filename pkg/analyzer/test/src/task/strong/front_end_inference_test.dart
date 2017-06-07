@@ -96,37 +96,36 @@ class _ElementNamer {
       return;
     }
 
-    LibraryElement library = element.library;
-    if (library == null) {
-      throw new StateError('Unexpected element without library: $element');
+    var enclosing = element.enclosingElement;
+    if (enclosing is CompilationUnitElement) {
+      enclosing = enclosing.enclosingElement;
+    } else if (enclosing is ClassElement &&
+        currentFactoryConstructor != null &&
+        identical(enclosing, currentFactoryConstructor.enclosingElement) &&
+        element is TypeParameterElement) {
+      enclosing = currentFactoryConstructor;
     }
-    String libraryName = library.name;
+    if (enclosing != null) {
+      if (enclosing is LibraryElement &&
+          (enclosing.name == 'dart.core' ||
+              enclosing.name == 'dart.async' ||
+              enclosing.name == 'test')) {
+        // For brevity, omit library name
+      } else {
+        appendElementName(buffer, enclosing);
+        buffer.write('::');
+      }
+    }
 
     String name = element.name ?? '';
-    if (name.endsWith('=') &&
+    if (element is ConstructorElement && name == '') {
+      name = '•';
+    } else if (name.endsWith('=') &&
         element is PropertyAccessorElement &&
         element.isSetter) {
       name = name.substring(0, name.length - 1);
     }
-    if (libraryName != 'dart.core' &&
-        libraryName != 'dart.async' &&
-        libraryName != 'test') {
-      buffer.write('$libraryName::');
-    }
-    var enclosing = element.enclosingElement;
-    if (enclosing is ClassElement) {
-      buffer.write('${enclosing.name}::');
-      if (currentFactoryConstructor != null &&
-          identical(enclosing, currentFactoryConstructor.enclosingElement) &&
-          element is TypeParameterElement) {
-        String factoryConstructorName = currentFactoryConstructor.name;
-        if (factoryConstructorName == '') {
-          factoryConstructorName = '•';
-        }
-        buffer.write('$factoryConstructorName::');
-      }
-    }
-    buffer.write('$name');
+    buffer.write(name);
   }
 }
 
@@ -245,7 +244,9 @@ class _InstrumentationValueForType extends fasta.InstrumentationValue {
 
   void _appendType(StringBuffer buffer, DartType type) {
     if (type is FunctionType) {
-      _appendTypeArguments(buffer, type.typeArguments);
+      if (type.typeFormals.isNotEmpty) {
+        _appendTypeArguments(buffer, type.typeArguments);
+      }
       _appendParameters(buffer, type.parameters);
       buffer.write(' -> ');
       _appendType(buffer, type.returnType);
@@ -339,7 +340,7 @@ class _InstrumentationVisitor extends RecursiveAstVisitor<Null> {
     if (node.parent is! FunctionDeclaration) {
       DartType type = node.staticType;
       if (type is FunctionType) {
-        _instrumentation.record(uri, node.offset, 'returnType',
+        _instrumentation.record(uri, node.parameters.offset, 'returnType',
             new _InstrumentationValueForType(type.returnType, elementNamer));
         List<FormalParameter> parameters = node.parameters.parameters;
         for (int i = 0; i < parameters.length; i++) {
@@ -360,6 +361,15 @@ class _InstrumentationVisitor extends RecursiveAstVisitor<Null> {
   @override
   visitFunctionExpressionInvocation(FunctionExpressionInvocation node) {
     super.visitFunctionExpressionInvocation(node);
+    var receiverType = node.function.staticType;
+    if (receiverType is InterfaceType) {
+      // This is a hack since analyzer doesn't record .call targets
+      var target = receiverType.element.lookUpMethod('call', null) ??
+          receiverType.element.lookUpGetter('call', null);
+      if (target != null) {
+        _recordTarget(node.argumentList.offset, target);
+      }
+    }
     if (node.typeArguments == null) {
       var inferredTypeArguments = _getInferredFunctionTypeArguments(
               node.function.staticType,
@@ -410,7 +420,8 @@ class _InstrumentationVisitor extends RecursiveAstVisitor<Null> {
 
   visitMethodInvocation(MethodInvocation node) {
     super.visitMethodInvocation(node);
-    if (node.target != null) {
+    var element = node.methodName.staticElement;
+    if (_elementRequiresMethodDispatch(element)) {
       _recordTarget(node.methodName.offset, node.methodName.staticElement);
     }
     if (node.typeArguments == null) {
@@ -483,6 +494,17 @@ class _InstrumentationVisitor extends RecursiveAstVisitor<Null> {
           _recordTopType(variable.name.offset, element.type);
         }
       }
+    }
+  }
+
+  bool _elementRequiresMethodDispatch(Element element) {
+    if (element is ClassMemberElement) {
+      return !element.isStatic;
+    } else if (element is ExecutableElement &&
+        element.enclosingElement is ClassElement) {
+      return !element.isStatic;
+    } else {
+      return false;
     }
   }
 

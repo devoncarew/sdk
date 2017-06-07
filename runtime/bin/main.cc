@@ -84,6 +84,16 @@ static const char* snapshot_deps_filename = NULL;
 DFE dfe;
 #endif
 
+// Value of the --save-compilation-trace flag.
+// (This pointer points into an argv buffer and does not need to be
+// free'd.)
+static const char* save_compilation_trace_filename = NULL;
+
+// Value of the --load-compilation-trace flag.
+// (This pointer points into an argv buffer and does not need to be
+// free'd.)
+static const char* load_compilation_trace_filename = NULL;
+
 // Value of the --save-feedback flag.
 // (This pointer points into an argv buffer and does not need to be
 // free'd.)
@@ -203,6 +213,28 @@ static bool ProcessPackagesOption(const char* arg,
     return false;
   }
   commandline_packages_file = arg;
+  return true;
+}
+
+
+static bool ProcessSaveCompilationTraceOption(const char* arg,
+                                              CommandLineOptions* vm_options) {
+  ASSERT(arg != NULL);
+  if (*arg == '-') {
+    return false;
+  }
+  save_compilation_trace_filename = arg;
+  return true;
+}
+
+
+static bool ProcessLoadCompilationTraceOption(const char* arg,
+                                              CommandLineOptions* vm_options) {
+  ASSERT(arg != NULL);
+  if (*arg == '-') {
+    return false;
+  }
+  load_compilation_trace_filename = arg;
   return true;
 }
 
@@ -528,7 +560,6 @@ static bool ProcessShortSocketWriteOption(const char* arg,
 }
 
 
-#if !defined(HOST_OS_MACOS)
 extern const char* commandline_root_certs_file;
 extern const char* commandline_root_certs_cache;
 
@@ -564,7 +595,6 @@ static bool ProcessRootCertsCacheOption(const char* arg,
   commandline_root_certs_cache = arg;
   return true;
 }
-#endif  // !defined(HOST_OS_MACOS)
 
 
 static struct {
@@ -595,6 +625,8 @@ static struct {
     {"--snapshot-kind=", ProcessSnapshotKindOption},
     {"--snapshot-depfile=", ProcessSnapshotDepsFilenameOption},
     {"--use-blobs", ProcessUseBlobsOption},
+    {"--save-compilation-trace=", ProcessSaveCompilationTraceOption},
+    {"--load-compilation-trace=", ProcessLoadCompilationTraceOption},
     {"--save-feedback=", ProcessSaveFeedbackOption},
     {"--load-feedback=", ProcessLoadFeedbackOption},
     {"--trace-loading", ProcessTraceLoadingOption},
@@ -602,10 +634,8 @@ static struct {
     {"--hot-reload-rollback-test-mode", ProcessHotReloadRollbackTestModeOption},
     {"--short_socket_read", ProcessShortSocketReadOption},
     {"--short_socket_write", ProcessShortSocketWriteOption},
-#if !defined(HOST_OS_MACOS)
     {"--root-certs-file=", ProcessRootCertsFileOption},
     {"--root-certs-cache=", ProcessRootCertsCacheOption},
-#endif  // !defined(HOST_OS_MACOS)
     {NULL, NULL}};
 
 
@@ -1404,6 +1434,20 @@ static void WriteFile(const char* filename,
 }
 
 
+static void ReadFile(const char* filename, uint8_t** buffer, intptr_t* size) {
+  File* file = File::Open(filename, File::kRead);
+  if (file == NULL) {
+    ErrorExit(kErrorExitCode, "Unable to open file %s\n", filename);
+  }
+  *size = file->Length();
+  *buffer = reinterpret_cast<uint8_t*>(malloc(*size));
+  if (!file->ReadFully(*buffer, *size)) {
+    ErrorExit(kErrorExitCode, "Unable to read file %s\n", filename);
+  }
+  file->Release();
+}
+
+
 bool RunMainIsolate(const char* script_name, CommandLineOptions* dart_options) {
   // Call CreateIsolateAndSetup which creates an isolate and loads up
   // the specified application script.
@@ -1547,7 +1591,18 @@ bool RunMainIsolate(const char* script_name, CommandLineOptions* dart_options) {
                   script_name);
       }
 
-      if (gen_snapshot_kind == kAppJIT) Dart_SortClasses();
+      if (gen_snapshot_kind == kAppJIT) {
+        result = Dart_SortClasses();
+        CHECK_RESULT(result);
+      }
+
+      if (load_compilation_trace_filename != NULL) {
+        uint8_t* buffer = NULL;
+        intptr_t size = 0;
+        ReadFile(load_compilation_trace_filename, &buffer, &size);
+        result = Dart_LoadCompilationTrace(buffer, size);
+        CHECK_RESULT(result);
+      }
 
       // The helper function _getMainClosure creates a closure for the main
       // entry point which is either explicitly or implictly exported from the
@@ -1585,10 +1640,16 @@ bool RunMainIsolate(const char* script_name, CommandLineOptions* dart_options) {
         uint8_t* buffer = NULL;
         intptr_t size = 0;
         result = Dart_SaveJITFeedback(&buffer, &size);
-        if (Dart_IsError(result)) {
-          ErrorExit(kErrorExitCode, "%s\n", Dart_GetError(result));
-        }
+        CHECK_RESULT(result);
         WriteFile(save_feedback_filename, buffer, size);
+      }
+
+      if (save_compilation_trace_filename != NULL) {
+        uint8_t* buffer = NULL;
+        intptr_t size = 0;
+        result = Dart_SaveCompilationTrace(&buffer, &size);
+        CHECK_RESULT(result);
+        WriteFile(save_compilation_trace_filename, buffer, size);
       }
     }
   }

@@ -31,21 +31,6 @@ class IncrementalClassHierarchyTest extends _ClassHierarchyTest {
   ClassHierarchy createClassHierarchy(Program program) {
     return new IncrementalClassHierarchy();
   }
-
-  @failingTest
-  void test_forEachOverridePair_supertypeOverridesInterface() {
-    super.test_forEachOverridePair_supertypeOverridesInterface();
-  }
-
-  @failingTest
-  void test_forEachOverridePair_thisOverridesSupertype() {
-    super.test_forEachOverridePair_thisOverridesSupertype();
-  }
-
-  @failingTest
-  void test_forEachOverridePair_thisOverridesSupertype_setter() {
-    super.test_forEachOverridePair_thisOverridesSupertype_setter();
-  }
 }
 
 abstract class _ClassHierarchyTest {
@@ -108,10 +93,11 @@ abstract class _ClassHierarchyTest {
 
   ClassHierarchy createClassHierarchy(Program program);
 
-  Procedure newEmptyMethod(String name, {bool abstract: false}) {
-    var body = abstract ? null : new Block([]);
+  Procedure newEmptyMethod(String name, {bool isAbstract: false}) {
+    var body = isAbstract ? null : new Block([]);
     return new Procedure(new Name(name), ProcedureKind.Method,
-        new FunctionNode(body, returnType: const VoidType()));
+        new FunctionNode(body, returnType: const VoidType()),
+        isAbstract: isAbstract);
   }
 
   Procedure newEmptySetter(String name, {bool abstract: false}) {
@@ -146,7 +132,7 @@ abstract class _ClassHierarchyTest {
     var b = addClass(new Class(
         name: 'B',
         supertype: a.asThisSupertype,
-        procedures: [newEmptyMethod('foo', abstract: true)]));
+        procedures: [newEmptyMethod('foo', isAbstract: true)]));
     var c = addClass(new Class(
         name: 'C',
         supertype: a.asThisSupertype,
@@ -164,7 +150,7 @@ class A {
   method bar() → void {}
 }
 class B extends self::A {
-  method foo() → void;
+  abstract method foo() → void;
 }
 class C extends self::A implements self::B {}
 class D {}
@@ -177,8 +163,6 @@ class E = self::D with self::A implements self::B {}
 
   /// 3. A non-abstract member is inherited from a superclass, and it overrides
   /// an abstract member declared in this class.
-  /// TODO(scheglov): Implementation does not follow the documentation.
-  @failingTest
   void test_forEachOverridePair_supertypeOverridesThisAbstract() {
     var a = addClass(new Class(
         name: 'A',
@@ -187,7 +171,7 @@ class E = self::D with self::A implements self::B {}
     var b = addClass(new Class(
         name: 'B',
         supertype: a.asThisSupertype,
-        procedures: [newEmptyMethod('foo', abstract: true)]));
+        procedures: [newEmptyMethod('foo', isAbstract: true)]));
 
     _assertTestLibraryText('''
 class A {
@@ -195,11 +179,16 @@ class A {
   method bar() → void {}
 }
 class B extends self::A {
-  method foo() → void;
+  abstract method foo() → void;
 }
 ''');
 
-    _assertOverridePairs(b, ['test::A::foo overrides test::B::foo']);
+    // The documentation says:
+    // It is possible for two methods to override one another in both directions.
+    _assertOverridePairs(b, [
+      'test::A::foo overrides test::B::foo',
+      'test::B::foo overrides test::A::foo'
+    ]);
   }
 
   /// 1. A member declared in the class overrides a member inheritable through
@@ -680,44 +669,41 @@ class C extends self::B {}
   }
 
   void test_getDispatchTarget_abstract() {
-    var aMethodConcrete = newEmptyMethod('aMethodConcrete');
-    var bMethodConcrete = newEmptyMethod('aMethodConcrete');
-    var a = addClass(new Class(name: 'A', supertype: objectSuper, procedures: [
-      newEmptyMethod('aMethodAbstract', abstract: true),
-      aMethodConcrete
-    ]));
-    var b = addClass(
-        new Class(name: 'B', supertype: a.asThisSupertype, procedures: [
-      newEmptyMethod('aMethodConcrete', abstract: true),
-      newEmptyMethod('bMethodAbstract', abstract: true),
-      bMethodConcrete
-    ]));
-    addClass(new Class(name: 'C', supertype: b.asThisSupertype));
+    var aFoo = newEmptyMethod('foo', isAbstract: true);
+    var aBar = newEmptyMethod('bar');
+    var bFoo = newEmptyMethod('foo');
+    var bBar = newEmptyMethod('bar', isAbstract: true);
+    var a = addClass(new Class(
+        isAbstract: true,
+        name: 'A',
+        supertype: objectSuper,
+        procedures: [aFoo, aBar]));
+    var b = addClass(new Class(
+        isAbstract: true,
+        name: 'B',
+        supertype: a.asThisSupertype,
+        procedures: [bFoo, bBar]));
+    var c = addClass(new Class(name: 'C', supertype: b.asThisSupertype));
 
     _assertTestLibraryText('''
-class A {
-  method aMethodAbstract() → void;
-  method aMethodConcrete() → void {}
+abstract class A {
+  abstract method foo() → void;
+  method bar() → void {}
 }
-class B extends self::A {
-  method aMethodConcrete() → void;
-  method bMethodAbstract() → void;
-  method aMethodConcrete() → void {}
+abstract class B extends self::A {
+  method foo() → void {}
+  abstract method bar() → void;
 }
 class C extends self::B {}
 ''');
 
-    expect(hierarchy.getDispatchTarget(a, new Name('aMethodConcrete')),
-        aMethodConcrete);
-    // TODO(scheglov): The next two commented statements verify the behavior
-    // documented as "If the class is abstract, abstract members are ignored and
-    // the dispatch is resolved if the class was not abstract.". Unfortunately
-    // the implementation does not follow the documentation. We need to fix
-    // either documentation, or implementation.
-//    expect(hierarchy.getDispatchTarget(c, new Name('aMethodConcrete')),
-//        aMethodConcrete);
-//    expect(hierarchy.getDispatchTarget(b, new Name('aMethodConcrete')),
-//        aMethodConcrete);
+    expect(hierarchy.getDispatchTarget(a, new Name('foo')), isNull);
+    expect(hierarchy.getDispatchTarget(b, new Name('foo')), bFoo);
+    expect(hierarchy.getDispatchTarget(c, new Name('foo')), bFoo);
+
+    expect(hierarchy.getDispatchTarget(a, new Name('bar')), aBar);
+    expect(hierarchy.getDispatchTarget(b, new Name('bar')), aBar);
+    expect(hierarchy.getDispatchTarget(c, new Name('bar')), aBar);
   }
 
   void test_getInterfaceMember_extends() {
@@ -808,6 +794,25 @@ class C implements self::B {}
     expect(hierarchy.getInterfaceMember(c, bMethodName), bMethod);
     expect(hierarchy.getInterfaceMember(c, aSetterName, setter: true), aSetter);
     expect(hierarchy.getInterfaceMember(c, bSetterName, setter: true), bSetter);
+  }
+
+  void test_getOrderedClasses() {
+    var a = addClass(new Class(name: 'A', supertype: objectSuper));
+    var b = addClass(new Class(name: 'B', supertype: a.asThisSupertype));
+    var c = addClass(new Class(name: 'C', supertype: b.asThisSupertype));
+
+    void assertOrderOfClasses(List<Class> unordered, List<Class> expected) {
+      var ordered = hierarchy.getOrderedClasses(unordered);
+      expect(ordered, expected);
+    }
+
+    assertOrderOfClasses([a, b, c], [a, b, c]);
+    assertOrderOfClasses([b, a, c], [a, b, c]);
+    assertOrderOfClasses([a, c, b], [a, b, c]);
+    assertOrderOfClasses([b, c, a], [a, b, c]);
+    assertOrderOfClasses([c, a, b], [a, b, c]);
+    assertOrderOfClasses([c, b, a], [a, b, c]);
+    assertOrderOfClasses([c, b], [b, c]);
   }
 
   void test_getRankedSuperclasses() {

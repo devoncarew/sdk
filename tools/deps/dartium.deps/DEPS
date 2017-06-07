@@ -7,7 +7,7 @@
 vars = {
   # Start of Dartium vars
 
-  "dartium_chromium_commit": "050b7bc71c7edb7f916428091386aab1ca95e6d2",
+  "dartium_chromium_commit": "f4176572f643733083b6025ed6d17111f711bbec",
   "chromium_base_revision": "378081",
 
   # We use mirrors of all github repos to guarantee reproducibility and

@@ -5,7 +5,7 @@
 library fasta.fasta_accessors;
 
 import 'package:front_end/src/fasta/kernel/kernel_shadow_ast.dart'
-    show KernelArguments;
+    show KernelArguments, KernelThisExpression;
 
 import 'package:front_end/src/fasta/kernel/utils.dart' show offsetForToken;
 
@@ -73,7 +73,10 @@ abstract class BuilderHelper {
 
   Expression buildCompileTimeError(error, [int offset]);
 
-  Initializer buildInvalidIntializer(Expression expression, [int offset]);
+  Initializer buildInvalidInitializer(Expression expression, [int offset]);
+
+  Initializer buildFieldInitializer(
+      String name, int offset, Expression expression);
 
   Initializer buildSuperInitializer(
       Constructor constructor, Arguments arguments,
@@ -102,7 +105,7 @@ abstract class BuilderHelper {
 
   Expression buildMethodInvocation(
       Expression receiver, Name name, Arguments arguments, int offset,
-      {bool isConstantExpression, bool isNullAware});
+      {bool isConstantExpression, bool isNullAware, bool isImplicitCall});
 
   DartType validatedTypeVariableUse(
       TypeParameterType type, int offset, bool nonInstanceAccessIsError);
@@ -123,10 +126,9 @@ abstract class FastaAccessor implements Accessor {
 
   Expression buildForEffect() => buildSimpleRead();
 
-  Initializer buildFieldInitializer(
-      Map<String, FieldInitializer> initializers) {
+  Initializer buildFieldInitializer(Map<String, int> initializedFields) {
     int offset = offsetForToken(token);
-    return helper.buildInvalidIntializer(
+    return helper.buildInvalidInitializer(
         helper.buildCompileTimeError(
             // TODO(ahe): This error message is really bad.
             "Can't use $plainNameForRead here.",
@@ -192,9 +194,8 @@ abstract class ErrorAccessor implements FastaAccessor {
   withReceiver(Object receiver, int operatorOffset, {bool isNullAware}) => this;
 
   @override
-  Initializer buildFieldInitializer(
-      Map<String, FieldInitializer> initializers) {
-    return helper.buildInvalidIntializer(
+  Initializer buildFieldInitializer(Map<String, int> initializedFields) {
+    return helper.buildInvalidInitializer(
         buildError(new Arguments.empty(), isSetter: true));
   }
 
@@ -286,18 +287,18 @@ class ThisAccessor extends FastaAccessor {
 
   Expression buildSimpleRead() {
     if (!isSuper) {
-      return new ThisExpression();
+      return new KernelThisExpression();
     } else {
       return helper.buildCompileTimeError(
           "Can't use `super` as an expression.", offsetForToken(token));
     }
   }
 
-  Initializer buildFieldInitializer(
-      Map<String, FieldInitializer> initializers) {
+  @override
+  Initializer buildFieldInitializer(Map<String, int> initializedFields) {
     String keyword = isSuper ? "super" : "this";
     int offset = offsetForToken(token);
-    return helper.buildInvalidIntializer(
+    return helper.buildInvalidInitializer(
         helper.buildCompileTimeError(
             "Can't use '$keyword' here, did you mean '$keyword()'?", offset),
         offset);
@@ -313,10 +314,10 @@ class ThisAccessor extends FastaAccessor {
       // Notice that 'this' or 'super' can't be null. So we can ignore the
       // value of [isNullAware].
       MethodInvocation result = helper.buildMethodInvocation(
-          new ThisExpression(),
+          new KernelThisExpression(),
           send.name,
           send.arguments,
-          offsetForToken(token));
+          offsetForToken(send.token));
       return isSuper ? helper.toSuperMethodInvocation(result) : result;
     } else {
       if (isSuper) {
@@ -336,7 +337,8 @@ class ThisAccessor extends FastaAccessor {
       return buildConstructorInitializer(offset, new Name(""), arguments);
     } else {
       return helper.buildMethodInvocation(
-          new ThisExpression(), callName, arguments, offset);
+          new KernelThisExpression(), callName, arguments, offset,
+          isImplicitCall: true);
     }
   }
 
@@ -346,7 +348,7 @@ class ThisAccessor extends FastaAccessor {
     if (constructor == null ||
         !helper.checkArguments(
             constructor.function, arguments, <TypeParameter>[])) {
-      return helper.buildInvalidIntializer(
+      return helper.buildInvalidInitializer(
           buildThrowNoSuchMethodError(arguments,
               isSuper: isSuper, name: name.name, offset: offset),
           offset);
@@ -564,11 +566,8 @@ class IndexAccessor extends kernel.IndexAccessor with FastaAccessor {
 
   Expression doInvocation(int offset, Arguments arguments) {
     return helper.buildMethodInvocation(
-      buildSimpleRead(),
-      callName,
-      arguments,
-      offset,
-    );
+        buildSimpleRead(), callName, arguments, offset,
+        isImplicitCall: true);
   }
 
   toString() => "IndexAccessor()";
@@ -665,7 +664,8 @@ class StaticAccessor extends kernel.StaticAccessor with FastaAccessor {
           arguments, offset + (readTarget?.name?.name?.length ?? 0),
           // This isn't a constant expression, but we have checked if a
           // constant expression error should be emitted already.
-          isConstantExpression: true);
+          isConstantExpression: true,
+          isImplicitCall: true);
     } else {
       return helper.buildStaticInvocation(readTarget, arguments)
         ..fileOffset = offset;
@@ -692,7 +692,8 @@ class SuperPropertyAccessor extends kernel.SuperPropertyAccessor
           buildSimpleRead(), callName, arguments, offset,
           // This isn't a constant expression, but we have checked if a
           // constant expression error should be emitted already.
-          isConstantExpression: true);
+          isConstantExpression: true,
+          isImplicitCall: true);
     } else {
       return new DirectMethodInvocation(new ThisExpression(), getter, arguments)
         ..fileOffset = offset;
@@ -713,7 +714,8 @@ class ThisIndexAccessor extends kernel.ThisIndexAccessor with FastaAccessor {
 
   Expression doInvocation(int offset, Arguments arguments) {
     return helper.buildMethodInvocation(
-        buildSimpleRead(), callName, arguments, offset);
+        buildSimpleRead(), callName, arguments, offset,
+        isImplicitCall: true);
   }
 
   toString() => "ThisIndexAccessor()";
@@ -730,7 +732,8 @@ class SuperIndexAccessor extends kernel.SuperIndexAccessor with FastaAccessor {
 
   Expression doInvocation(int offset, Arguments arguments) {
     return helper.buildMethodInvocation(
-        buildSimpleRead(), callName, arguments, offset);
+        buildSimpleRead(), callName, arguments, offset,
+        isImplicitCall: true);
   }
 
   toString() => "SuperIndexAccessor()";
@@ -756,7 +759,7 @@ class ThisPropertyAccessor extends kernel.ThisPropertyAccessor
       interfaceTarget = null;
     }
     return helper.buildMethodInvocation(
-        new ThisExpression(), name, arguments, offset);
+        new KernelThisExpression(), name, arguments, offset);
   }
 
   toString() => "ThisPropertyAccessor()";
@@ -779,6 +782,12 @@ class NullAwarePropertyAccessor extends kernel.NullAwarePropertyAccessor
   toString() => "NullAwarePropertyAccessor()";
 }
 
+int adjustForImplicitCall(String name, int offset) {
+  // Normally the offset is at the start of the token, but in this case,
+  // because we insert a '.call', we want it at the end instead.
+  return offset + (name?.length ?? 0);
+}
+
 class VariableAccessor extends kernel.VariableAccessor with FastaAccessor {
   VariableAccessor(
       BuilderHelper helper, Token token, VariableDeclaration variable,
@@ -788,10 +797,9 @@ class VariableAccessor extends kernel.VariableAccessor with FastaAccessor {
   String get plainNameForRead => variable.name;
 
   Expression doInvocation(int offset, Arguments arguments) {
-    // Normally the offset is at the start of the token, but in this case,
-    // because we insert a '.call', we want it at the end instead.
     return helper.buildMethodInvocation(buildSimpleRead(), callName, arguments,
-        offset + (variable.name?.length ?? 0));
+        adjustForImplicitCall(plainNameForRead, offset),
+        isImplicitCall: true);
   }
 
   toString() => "VariableAccessor()";
@@ -805,15 +813,16 @@ class ReadOnlyAccessor extends kernel.ReadOnlyAccessor with FastaAccessor {
       : super(helper, expression, token);
 
   Expression doInvocation(int offset, Arguments arguments) {
-    return helper.buildMethodInvocation(
-        buildSimpleRead(), callName, arguments, offset);
+    return helper.buildMethodInvocation(buildSimpleRead(), callName, arguments,
+        adjustForImplicitCall(plainNameForRead, offset),
+        isImplicitCall: true);
   }
 }
 
 class ParenthesizedExpression extends ReadOnlyAccessor {
   ParenthesizedExpression(
       BuilderHelper helper, Expression expression, Token token)
-      : super(helper, expression, "<a parenthesized expression>", token);
+      : super(helper, expression, null, token);
 
   Expression makeInvalidWrite(Expression value) {
     return helper.buildCompileTimeError(

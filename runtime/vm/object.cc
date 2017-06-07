@@ -10850,6 +10850,26 @@ RawClass* Library::LookupClassAllowPrivate(const String& name) const {
 }
 
 
+// Mixin applications can have multiple private keys from different libraries.
+RawClass* Library::SlowLookupClassAllowMultiPartPrivate(
+    const String& name) const {
+  Array& dict = Array::Handle(dictionary());
+  Object& entry = Object::Handle();
+  String& cls_name = String::Handle();
+  for (intptr_t i = 0; i < dict.Length(); i++) {
+    entry = dict.At(i);
+    if (entry.IsClass()) {
+      cls_name = Class::Cast(entry).Name();
+      // Warning: comparison is not symmetric.
+      if (String::EqualsIgnoringPrivateKey(cls_name, name)) {
+        return Class::Cast(entry).raw();
+      }
+    }
+  }
+  return Class::null();
+}
+
+
 RawLibraryPrefix* Library::LookupLocalLibraryPrefix(const String& name) const {
   const Object& obj = Object::Handle(LookupLocalObject(name));
   if (obj.IsLibraryPrefix()) {
@@ -15878,6 +15898,7 @@ bool Instance::IsInstanceOf(
       }
       if (instantiated_other.IsDynamicType() ||
           instantiated_other.IsObjectType() ||
+          instantiated_other.IsVoidType() ||
           instantiated_other.IsDartFunctionType()) {
         return true;
       }
@@ -15928,7 +15949,8 @@ bool Instance::IsInstanceOf(
     if (instantiated_other.IsTypeRef()) {
       instantiated_other = TypeRef::Cast(instantiated_other).type();
     }
-    if (instantiated_other.IsDynamicType()) {
+    if (instantiated_other.IsDynamicType() ||
+        instantiated_other.IsObjectType() || instantiated_other.IsVoidType()) {
       return true;
     }
   }
@@ -15963,7 +15985,7 @@ bool Instance::IsInstanceOf(
   if (IsNull()) {
     ASSERT(cls.IsNullClass());
     // As of Dart 1.5, the null instance and Null type are handled differently.
-    // We already checked for other.IsDynamicType().
+    // We already checked other for dynamic and void.
     return other_class.IsNullClass() || other_class.IsObjectClass();
   }
   return cls.IsSubtypeOf(type_arguments, other_class, other_type_arguments,

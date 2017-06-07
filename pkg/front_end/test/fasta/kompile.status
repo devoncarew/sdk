@@ -81,6 +81,7 @@ inference/block_bodied_lambdas_sync_star: Crash
 inference/block_bodied_lambdas_void_context: Crash
 inference/bottom: Crash
 inference/bottom_in_closure: Crash
+inference/call_corner_cases: Crash
 inference/circular_reference_via_closures: Crash
 inference/circular_reference_via_closures_initializer_types: Crash
 inference/conditional_lub: Crash
@@ -312,6 +313,7 @@ inference/simple_literal_null: Crash
 inference/static_method_tear_off: Crash
 inference/string_literal: Crash
 inference/subexpressions_of_explicitly_typed_fields: Crash
+inference/this_reference: Crash
 inference/top_level_return_and_yield: Crash
 inference/toplevel_inference_toplevel_var: Crash
 inference/type_cast: Crash

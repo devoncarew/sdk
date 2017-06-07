@@ -42,26 +42,23 @@ class ClosureTask extends CompilerTask implements ClosureClassMaps {
   DiagnosticReporter get reporter => compiler.reporter;
 
   ClosureClassMap getMemberMap(MemberElement member) {
-    return getClosureToClassMapping(member.resolvedAst);
+    return getClosureToClassMapping(member);
   }
 
   ClosureClassMap getLocalFunctionMap(LocalFunctionElement localFunction) {
-    return getClosureToClassMapping(localFunction.resolvedAst);
+    return getClosureToClassMapping(localFunction);
   }
 
   /// Returns the [ClosureClassMap] computed for [resolvedAst].
-  ClosureClassMap getClosureToClassMapping(ResolvedAst resolvedAst) {
+  ClosureClassMap getClosureToClassMapping(Element element) {
     return measure(() {
-      Element element = resolvedAst.element;
       if (element.isGenerativeConstructorBody) {
         ConstructorBodyElement constructorBody = element;
         element = constructorBody.constructor;
       }
       ClosureClassMap closureClassMap = _closureMappingCache[element];
-      assert(
-          closureClassMap != null,
-          failedAt(resolvedAst.element,
-              "No ClosureClassMap computed for ${element}."));
+      assert(closureClassMap != null,
+          failedAt(element, "No ClosureClassMap computed for ${element}."));
       return closureClassMap;
     });
   }
@@ -78,23 +75,22 @@ class ClosureTask extends CompilerTask implements ClosureClassMaps {
         // Skip top-level/static fields without an initializer.
         return;
       }
-      computeClosureToClassMapping(resolvedAst, closedWorldRefiner);
+      computeClosureToClassMapping(element, closedWorldRefiner);
     });
   }
 
   ClosureClassMap computeClosureToClassMapping(
-      ResolvedAst resolvedAst, ClosedWorldRefiner closedWorldRefiner) {
+      AstElement element, ClosedWorldRefiner closedWorldRefiner) {
     return measure(() {
-      Element element = resolvedAst.element;
       ClosureClassMap cached = _closureMappingCache[element];
       if (cached != null) return cached;
-      if (resolvedAst.kind != ResolvedAstKind.PARSED) {
+      if (element.resolvedAst.kind != ResolvedAstKind.PARSED) {
         return _closureMappingCache[element] =
             new ClosureClassMap(null, null, null, new ThisLocal(element));
       }
       return reporter.withCurrentElement(element.implementation, () {
-        Node node = resolvedAst.node;
-        TreeElements elements = resolvedAst.elements;
+        Node node = element.resolvedAst.node;
+        TreeElements elements = element.resolvedAst.elements;
 
         ClosureTranslator translator = new ClosureTranslator(
             compiler, closedWorldRefiner, elements, _closureMappingCache);
@@ -111,7 +107,7 @@ class ClosureTask extends CompilerTask implements ClosureClassMaps {
         } else {
           assert(element.isField,
               failedAt(element, "Expected $element to be a field."));
-          Node initializer = resolvedAst.body;
+          Node initializer = element.resolvedAst.body;
           if (initializer != null) {
             // The lazy initializer of a static.
             translator.translateLazyInitializer(element, node, initializer);
@@ -134,15 +130,10 @@ class ClosureTask extends CompilerTask implements ClosureClassMaps {
   }
 }
 
-/// Common interface for [BoxFieldElement] and [ClosureFieldElement] as
-/// non-elements.
-// TODO(johnniwinther): Remove `implements Element`.
-abstract class CapturedVariable implements Element {}
-
 // TODO(ahe): These classes continuously cause problems.  We need to
 // find a more general solution.
 class ClosureFieldElement extends ElementX
-    implements FieldElement, CapturedVariable, PrivatelyNamedJSEntity {
+    implements FieldElement, PrivatelyNamedJSEntity {
   /// The [BoxLocal] or [LocalElement] being accessed through the field.
   final Local local;
 
@@ -299,11 +290,7 @@ class BoxLocal extends Local {
 // TODO(ngeoffray, ahe): These classes continuously cause problems.  We need to
 // find a more general solution.
 class BoxFieldElement extends ElementX
-    implements
-        TypedElement,
-        CapturedVariable,
-        FieldElement,
-        PrivatelyNamedJSEntity {
+    implements TypedElement, FieldElement, PrivatelyNamedJSEntity {
   final BoxLocal box;
 
   BoxFieldElement(String name, this.variableElement, BoxLocal box)
@@ -426,7 +413,7 @@ class ClosureScope {
   // If the scope is attached to a [For] contains the variables that are
   // declared in the initializer of the [For] and that need to be boxed.
   // Otherwise contains the empty List.
-  List<VariableElement> boxedLoopVariables = const <VariableElement>[];
+  List<Local> boxedLoopVariables = const <Local>[];
 
   ClosureScope(this.boxElement, this.capturedVariables);
 
@@ -486,8 +473,7 @@ class ClosureClassMap {
 
   /// Maps free locals, arguments, function elements, and box locals to
   /// their locations.
-  final Map<Local, CapturedVariable> freeVariableMap =
-      new Map<Local, CapturedVariable>();
+  final Map<Local, FieldEntity> freeVariableMap = new Map<Local, FieldEntity>();
 
   /// Maps [Loop] and [FunctionExpression] nodes to their [ClosureScope] which
   /// contains their box and the captured variables that are stored in the box.
@@ -517,7 +503,7 @@ class ClosureClassMap {
     return freeVariableMap.containsKey(element);
   }
 
-  void forEachFreeVariable(f(Local variable, CapturedVariable field)) {
+  void forEachFreeVariable(f(Local variable, FieldEntity field)) {
     freeVariableMap.forEach(f);
   }
 
@@ -534,14 +520,14 @@ class ClosureClassMap {
   }
 
   bool isVariableBoxed(Local variable) {
-    CapturedVariable copy = freeVariableMap[variable];
+    FieldEntity copy = freeVariableMap[variable];
     if (copy is BoxFieldElement) {
       return true;
     }
     return capturingScopesBox(variable);
   }
 
-  void forEachCapturedVariable(void f(Local variable, CapturedVariable field)) {
+  void forEachCapturedVariable(void f(Local variable, FieldEntity field)) {
     freeVariableMap.forEach((variable, copy) {
       if (variable is BoxLocal) return;
       f(variable, copy);
@@ -1139,6 +1125,7 @@ class ClosureTranslator extends Visitor {
             compiler.backend.rtiNeed.methodNeedsRti(element);
       }
     }
+    closureMappingCache[element] = closureData;
     closureMappingCache[element.declaration] = closureData;
     if (closureData.callElement != null) {
       closureMappingCache[closureData.callElement] = closureData;

@@ -10,7 +10,7 @@ import 'package:front_end/src/fasta/type_inference/type_inference_engine.dart'
 import 'package:front_end/src/fasta/type_inference/type_inference_listener.dart'
     show TypeInferenceListener;
 
-import 'package:kernel/ast.dart' show AsyncMarker;
+import 'package:kernel/ast.dart' show AsyncMarker, Class, InterfaceType;
 
 import 'package:kernel/class_hierarchy.dart' show ClassHierarchy;
 
@@ -403,8 +403,15 @@ class DietListener extends StackListener {
       MemberBuilder builder, Scope memberScope, bool isInstanceMember,
       [Scope formalParameterScope]) {
     var listener = new TypeInferenceListener();
+    InterfaceType thisType;
+    if (builder.isClassMember) {
+      // Note: we set thisType regardless of whether we are building a static
+      // member, since that provides better error recovery.
+      Class cls = builder.parent.target;
+      thisType = cls.thisType;
+    }
     var typeInferrer =
-        typeInferenceEngine.createLocalTypeInferrer(uri, listener);
+        typeInferenceEngine.createLocalTypeInferrer(uri, listener, thisType);
     return new BodyBuilder(library, builder, memberScope, formalParameterScope,
         hierarchy, coreTypes, currentClass, isInstanceMember, uri, typeInferrer)
       ..constantExpressionRequired = builder.isConstructor && builder.isConst;
@@ -506,7 +513,6 @@ class DietListener extends StackListener {
       token = parser.parseFormalParametersOpt(token, kind);
       var formals = listener.pop();
       listener.checkEmpty(token.charOffset);
-      listener.prepareInitializers();
       token = parser.parseInitializersOpt(token);
       token = parser.parseAsyncModifier(token);
       AsyncMarker asyncModifier = getAsyncMarker(listener) ?? AsyncMarker.Sync;
@@ -514,10 +520,6 @@ class DietListener extends StackListener {
       bool allowAbstract = asyncModifier == AsyncMarker.Sync;
       parser.parseFunctionBody(token, isExpression, allowAbstract);
       var body = listener.pop();
-      if (listener.stack.length == 2) {
-        listener.pop(); // constructor initializers
-        listener.pop(); // separator before constructor initializers
-      }
       listener.checkEmpty(token.charOffset);
       listener.finishFunction(formals, asyncModifier, body);
     } on InputError {
