@@ -49,7 +49,6 @@ void main(List<String> arguments) {
   if (isTravis) {
     compileModule('args', libs: ['command_runner']);
     compileModule('charcode');
-    compileModule('fixnum');
     compileModule('logging');
     compileModule('markdown');
     compileModule('mime');
