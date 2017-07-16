@@ -111,6 +111,11 @@ td.right {
   text-align: right;
 }
 
+table td {
+  max-width: 600px;
+  vertical-align: text-top;
+}
+
 td.pre {
   white-space: pre;
 }
@@ -177,7 +182,8 @@ class AstPage extends DiagnosticPageWithNav {
     }
     AnalysisResult result = await driver.getResult(path);
     if (result == null) {
-      p('An AST could not be produced for the file <code>${escape(path)}</code>.',
+      p('An AST could not be produced for the file <code>${escape(
+          path)}</code>.',
           raw: true);
       return;
     }
@@ -200,8 +206,8 @@ class AstPage extends DiagnosticPageWithNav {
 class CommunicationsPage extends DiagnosticPageWithNav {
   CommunicationsPage(DiagnosticsSite site)
       : super(site, 'communications', 'Communications',
-            description:
-                'Latency statistics for analysis server communications.');
+      description:
+      'Latency statistics for analysis server communications.');
 
   @override
   void generateContent(Map<String, String> params) {
@@ -227,10 +233,10 @@ class CommunicationsPage extends DiagnosticPageWithNav {
 
       int requestCount = perf.requestCount;
       int averageLatency =
-          requestCount > 0 ? (perf.requestLatency ~/ requestCount) : 0;
+      requestCount > 0 ? (perf.requestLatency ~/ requestCount) : 0;
       int maximumLatency = perf.maxLatency;
       double slowRequestPercent =
-          requestCount > 0 ? (perf.slowRequestCount / requestCount) : 0.0;
+      requestCount > 0 ? (perf.slowRequestCount / requestCount) : 0.0;
 
       buf.write('<table>');
       writeRow([printInteger(requestCount), 'requests'],
@@ -258,10 +264,10 @@ class CommunicationsPage extends DiagnosticPageWithNav {
 
     int requestCount = perf.requestCount;
     int averageLatency =
-        requestCount > 0 ? (perf.requestLatency ~/ requestCount) : 0;
+    requestCount > 0 ? (perf.requestLatency ~/ requestCount) : 0;
     int maximumLatency = perf.maxLatency;
     double slowRequestPercent =
-        requestCount > 0 ? (perf.slowRequestCount / requestCount) : 0.0;
+    requestCount > 0 ? (perf.slowRequestCount / requestCount) : 0.0;
 
     buf.write('<table>');
     writeRow([printInteger(requestCount), 'requests'],
@@ -289,7 +295,7 @@ class CommunicationsPage extends DiagnosticPageWithNav {
 class CompletionPage extends DiagnosticPageWithNav {
   CompletionPage(DiagnosticsSite site)
       : super(site, 'completion', 'Code Completion',
-            description: 'Latency statistics for code completion.');
+      description: 'Latency statistics for code completion.');
 
   @override
   void generateContent(Map<String, String> params) {
@@ -297,7 +303,7 @@ class CompletionPage extends DiagnosticPageWithNav {
         .firstWhere((handler) => handler is CompletionDomainHandler);
 
     List<CompletionPerformance> completions =
-        completionDomain.performanceList.items.toList();
+    completionDomain.performanceList.items.toList();
 
     if (completions.isEmpty) {
       blankslate('No completions recorded.');
@@ -305,8 +311,11 @@ class CompletionPage extends DiagnosticPageWithNav {
     }
 
     int fastCount =
-        completions.where((c) => c.elapsedInMilliseconds <= 100).length;
-    p('${completions.length} results; ${printPercentage(fastCount / completions.length)} within 100ms.');
+        completions
+            .where((c) => c.elapsedInMilliseconds <= 100)
+            .length;
+    p('${completions.length} results; ${printPercentage(
+        fastCount / completions.length)} within 100ms.');
 
     // draw a chart
     buf.writeln(
@@ -341,7 +350,8 @@ class CompletionPage extends DiagnosticPageWithNav {
         '<tr><th>Time</th><th>Results</th><th>Source</th><th>Snippet</th></tr>');
     for (CompletionPerformance completion in completions) {
       buf.writeln('<tr>'
-          '<td class="pre right">${printMilliseconds(completion.elapsedInMilliseconds)}</td>'
+          '<td class="pre right">${printMilliseconds(
+          completion.elapsedInMilliseconds)}</td>'
           '<td class="right">${completion.suggestionCount}</td>'
           '<td>${escape(completion.source.shortName)}</td>'
           '<td><code>${escape(completion.snippet)}</code></td>'
@@ -354,8 +364,8 @@ class CompletionPage extends DiagnosticPageWithNav {
 class ContextsPage extends DiagnosticPageWithNav {
   ContextsPage(DiagnosticsSite site)
       : super(site, 'contexts', 'Contexts',
-            description:
-                'An analysis context defines the options and the set of sources being analyzed.');
+      description:
+      'An analysis context defines the options and the set of sources being analyzed.');
 
   String get navDetail => printInteger(server.driverMap.length);
 
@@ -395,7 +405,7 @@ class ContextsPage extends DiagnosticPageWithNav {
     folders
         .sort((first, second) => first.shortName.compareTo(second.shortName));
     Folder folder =
-        folders.firstWhere((f) => f.path == contextPath, orElse: () => null);
+    folders.firstWhere((f) => f.path == contextPath, orElse: () => null);
 
     if (folder == null) {
       folder = folders.first;
@@ -429,9 +439,13 @@ class ContextsPage extends DiagnosticPageWithNav {
     h3('Analysis options');
     p(describe(driver.analysisOptions), raw: true);
     buf.writeln(
-        writeOption('Has .packages file', folder.getChild('.packages').exists));
+        writeOption('Has .packages file', folder
+            .getChild('.packages')
+            .exists));
     buf.writeln(writeOption(
-        'Has pubspec.yaml file', folder.getChild('pubspec.yaml').exists));
+        'Has pubspec.yaml file', folder
+        .getChild('pubspec.yaml')
+        .exists));
     buf.writeln('</div>');
 
     buf.writeln('<div class="column one-half">');
@@ -460,12 +474,13 @@ class ContextsPage extends DiagnosticPageWithNav {
     List<String> priorityFiles = driver.priorityFiles;
     List<String> addedFiles = driver.addedFiles.toList();
     List<String> implicitFiles =
-        driver.knownFiles.difference(driver.addedFiles).toList();
+    driver.knownFiles.difference(driver.addedFiles).toList();
     addedFiles.sort();
     implicitFiles.sort();
 
     String lenCounter(List list) {
-      return '<span class="counter" style="float: right;">${list.length}</span>';
+      return '<span class="counter" style="float: right;">${list
+          .length}</span>';
     }
 
     h3('Context files');
@@ -592,7 +607,9 @@ abstract class DiagnosticPage extends Page {
 
       <nav class="masthead-nav">
         <a href="/status" ${isNavPage ? ' class="active"' : ''}>Diagnostics</a>
-        <a href="/feedback" ${isCurrentPage('/feedback') ? ' class="active"' : ''}>Feedback</a>
+        <a href="/feedback" ${isCurrentPage('/feedback')
+        ? ' class="active"'
+        : ''}>Feedback</a>
         <a href="https://www.dartlang.org/tools/analyzer" target="_blank">Docs</a>
         <a href="https://htmlpreview.github.io/?https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/doc/api.html" target="_blank">Spec</a>
       </nav>
@@ -685,6 +702,7 @@ class DiagnosticsSite extends Site implements AbstractGetHandler {
     pages.add(new CompletionPage(this));
     pages.add(new CommunicationsPage(this));
     pages.add(new ContextsPage(this));
+    pages.add(new EnvironmentVariablesPage(this));
     pages.add(new ExceptionsPage(this));
     pages.add(new InstrumentationPage(this));
     pages.add(new OverlaysPage(this));
@@ -723,7 +741,7 @@ class ElementModelPage extends DiagnosticPageWithNav {
 
   ElementModelPage(DiagnosticsSite site)
       : super(site, 'element', 'Element model',
-            description: 'The element model for a file.');
+      description: 'The element model for a file.');
 
   @override
   String get description => _description ?? super.description;
@@ -746,7 +764,8 @@ class ElementModelPage extends DiagnosticPageWithNav {
     }
     AnalysisResult result = await driver.getResult(path);
     if (result == null) {
-      p('An element model could not be produced for the file <code>${escape(path)}</code>.',
+      p('An element model could not be produced for the file <code>${escape(
+          path)}</code>.',
           raw: true);
       return;
     }
@@ -777,10 +796,28 @@ class ExceptionPage extends DiagnosticPage {
   }
 }
 
+class EnvironmentVariablesPage extends DiagnosticPageWithNav {
+  EnvironmentVariablesPage(DiagnosticsSite site)
+      : super(site, 'environment', 'Environment Variables',
+      description: 'System environment variables as seen from the analysis server.');
+
+  @override
+  void generateContent(Map<String, String> params) {
+    buf.writeln('<table>');
+    buf.writeln('<tr><th>Variable</th><th>Value</th></tr>');
+    for (String key in Platform.environment.keys.toList()
+      ..sort()) {
+      String value = Platform.environment[key];
+      buf.writeln('<tr><td>${escape(key)}</td><td>${escape(value)}</td></tr>');
+    }
+    buf.writeln('</table>');
+  }
+}
+
 class ExceptionsPage extends DiagnosticPageWithNav {
   ExceptionsPage(DiagnosticsSite site)
       : super(site, 'exceptions', 'Exceptions',
-            description: 'Exceptions from the analysis server.');
+      description: 'Exceptions from the analysis server.');
 
   Iterable<ServerException> get exceptions => server.exceptions.items;
 
@@ -806,7 +843,7 @@ class ExceptionsPage extends DiagnosticPageWithNav {
 class FeedbackPage extends DiagnosticPage {
   FeedbackPage(DiagnosticsSite site)
       : super(site, 'feedback', 'Feedback',
-            description: 'Providing feedback and filing issues.');
+      description: 'Providing feedback and filing issues.');
 
   @override
   void generateContent(Map<String, String> params) {
@@ -833,9 +870,12 @@ class FeedbackPage extends DiagnosticPage {
 
     p('Other data to include:');
     ul([
-      "the IDE you are using and it's version${ideText.isEmpty ? '' : ' ($ideText)'}",
+      "the IDE you are using and it's version${ideText.isEmpty
+          ? ''
+          : ' ($ideText)'}",
       'the Dart SDK version (<code>${escape(_sdkVersion)}</code>)',
-      'your operating system (<code>${escape(Platform.operatingSystem)}</code>)',
+      'your operating system (<code>${escape(
+          Platform.operatingSystem)}</code>)',
     ], (line) => buf.writeln(line));
 
     p('Thanks!');
@@ -845,14 +885,14 @@ class FeedbackPage extends DiagnosticPage {
 class InstrumentationPage extends DiagnosticPageWithNav {
   InstrumentationPage(DiagnosticsSite site)
       : super(site, 'instrumentation', 'Instrumentation',
-            description:
-                'Verbose instrumentation data from the analysis server.');
+      description:
+      'Verbose instrumentation data from the analysis server.');
 
   @override
   void generateContent(Map<String, String> params) {
     p(
         'Instrumentation can be enabled by starting the analysis server with the '
-        '<code>--instrumentation-log-file=path/to/file</code> flag.',
+            '<code>--instrumentation-log-file=path/to/file</code> flag.',
         raw: true);
 
     if (!AnalysisEngine.instance.instrumentationService.isActive) {
@@ -883,7 +923,7 @@ class MemoryAndCpuPage extends DiagnosticPageWithNav {
 
   MemoryAndCpuPage(DiagnosticsSite site, this.profiler)
       : super(site, 'memory', 'Memory and CPU Usage',
-            description: 'Memory and CPU usage for the analysis server.');
+      description: 'Memory and CPU usage for the analysis server.');
 
   DiagnosticDomainHandler get diagnosticDomain {
     return server.handlers
@@ -916,12 +956,13 @@ class NotFoundPage extends DiagnosticPage {
 class OverlaysPage extends DiagnosticPageWithNav {
   OverlaysPage(DiagnosticsSite site)
       : super(site, 'overlays', 'Overlays',
-            description: 'Editing overlays - unsaved file changes.');
+      description: 'Editing overlays - unsaved file changes.');
 
   @override
   void generateContent(Map<String, String> params) {
     FileContentOverlay overlays = server.fileContentOverlay;
-    List<String> paths = overlays.paths.toList()..sort();
+    List<String> paths = overlays.paths.toList()
+      ..sort();
 
     String overlayPath = params['overlay'];
     if (overlayPath != null) {
@@ -942,7 +983,8 @@ class OverlaysPage extends DiagnosticPageWithNav {
       blankslate('No overlays.');
     } else {
       String lenCounter(List list) {
-        return '<span class="counter" style="float: right;">${list.length}</span>';
+        return '<span class="counter" style="float: right;">${list
+            .length}</span>';
       }
 
       h3('Overlays ${lenCounter(paths)}', raw: true);
@@ -988,10 +1030,14 @@ class PluginsPage extends DiagnosticPageWithNav {
   }
 }
 
+// TODO(devoncarew): We're not currently tracking the time spent in specific
+// lints by default (analysisOptions / driverOptions enableTiming)
+final bool _showLints = false;
+
 class ProfilePage extends DiagnosticPageWithNav {
   ProfilePage(DiagnosticsSite site)
       : super(site, 'profile', 'Profiling Info',
-            description: 'Profiling performance tag data and lint timings.');
+      description: 'Profiling performance tag data.');
 
   @override
   void generateContent(Map<String, String> params) {
@@ -1006,12 +1052,12 @@ class ProfilePage extends DiagnosticPageWithNav {
 
     // print total time
     int totalTime =
-        tags.fold<int>(0, (int a, PerformanceTag tag) => a + tag.elapsedMs);
+    tags.fold<int>(0, (int a, PerformanceTag tag) => a + tag.elapsedMs);
     p('Total measured time: ${printMilliseconds(totalTime)}');
 
     // draw a pie chart
     String rowData =
-        tags.map((tag) => "['${tag.label}', ${tag.elapsedMs}]").join(',');
+    tags.map((tag) => "['${tag.label}', ${tag.elapsedMs}]").join(',');
     buf.writeln(
         '<div id="chart-div" style="width: 700px; height: 300px;"></div>');
     buf.writeln('''
@@ -1062,35 +1108,46 @@ class ProfilePage extends DiagnosticPageWithNav {
     tags.forEach(writeRow);
     buf.write('</table>');
 
-    h3('Lint rule timings');
-    List<LintRule> rules = Registry.ruleRegistry.rules.toList();
-    int totalLintTime = rules.fold(0,
-        (sum, rule) => sum + lintRegistry.getTimer(rule).elapsedMilliseconds);
-    p('Total time spent in lints: ${printMilliseconds(totalLintTime)}');
+    if (_showLints) {
+      h3('Lint rule timings');
+      List<LintRule> rules = Registry.ruleRegistry.rules.toList();
+      int totalLintTime = rules.fold(0,
+              (sum, rule) =>
+          sum + lintRegistry
+              .getTimer(rule)
+              .elapsedMilliseconds);
+      p('Total time spent in lints: ${printMilliseconds(totalLintTime)}');
 
-    rules.sort((first, second) {
-      int firstTime = lintRegistry.getTimer(first).elapsedMilliseconds;
-      int secondTime = lintRegistry.getTimer(second).elapsedMilliseconds;
-      if (firstTime == secondTime) {
-        return first.lintCode.name.compareTo(second.lintCode.name);
+      rules.sort((first, second) {
+        int firstTime = lintRegistry
+            .getTimer(first)
+            .elapsedMilliseconds;
+        int secondTime = lintRegistry
+            .getTimer(second)
+            .elapsedMilliseconds;
+        if (firstTime == secondTime) {
+          return first.lintCode.name.compareTo(second.lintCode.name);
+        }
+        return secondTime - firstTime;
+      });
+      buf.write('<table>');
+      _writeRow(['Lint code', 'Time (in ms)'], header: true);
+      for (var rule in rules) {
+        int time = lintRegistry
+            .getTimer(rule)
+            .elapsedMilliseconds;
+        _writeRow([rule.lintCode.name, printMilliseconds(time)]);
       }
-      return secondTime - firstTime;
-    });
-    buf.write('<table>');
-    _writeRow(['Lint code', 'Time (in ms)'], header: true);
-    for (var rule in rules) {
-      int time = lintRegistry.getTimer(rule).elapsedMilliseconds;
-      _writeRow([rule.lintCode.name, printMilliseconds(time)]);
+      buf.write('</table>');
     }
-    buf.write('</table>');
   }
 }
 
 class StatusPage extends DiagnosticPageWithNav {
   StatusPage(DiagnosticsSite site)
       : super(site, 'status', 'Status',
-            description:
-                'General status and diagnostics for the analysis server.');
+      description:
+      'General status and diagnostics for the analysis server.');
 
   @override
   void generateContent(Map<String, String> params) {
@@ -1122,7 +1179,7 @@ class StatusPage extends DiagnosticPageWithNav {
 class SubscriptionsPage extends DiagnosticPageWithNav {
   SubscriptionsPage(DiagnosticsSite site)
       : super(site, 'subscriptions', 'Subscriptions',
-            description: 'Registered subscriptions to analysis server events.');
+      description: 'Registered subscriptions to analysis server events.');
 
   @override
   void generateContent(Map<String, String> params) {
@@ -1147,7 +1204,7 @@ class SubscriptionsPage extends DiagnosticPageWithNav {
 
     // execution domain
     ExecutionDomainHandler domain = server.handlers.firstWhere(
-        (handler) => handler is ExecutionDomainHandler,
+            (handler) => handler is ExecutionDomainHandler,
         orElse: () => null);
 
     h3('Execution domain');
