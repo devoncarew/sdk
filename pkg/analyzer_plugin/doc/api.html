@@ -1,4 +1,5 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html><html>
+<head>
   <meta charset="UTF-8">
   <title>Analysis Server Plugin API Specification</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Roboto:500,400italic,300,400" type="text/css"><style>body {
@@ -153,7 +154,7 @@ a:focus, a:hover {
     "<b>name</b>": String
     "<b>version</b>": String
     "<b>contactInfo</b>": <span style="color:#999999">optional</span> String
-    "<b>interestingFiles</b>": List&lt;String&gt;
+    "<b>interestingFiles</b>": List<String>
   }
 }</pre></div>
     <p>
@@ -206,7 +207,7 @@ a:focus, a:hover {
           Information that the user can use to use to contact the maintainers of
           the plugin when there is a problem.
         </p>
-      </dd><dt class="field"><b>interestingFiles: List&lt;String&gt;</b></dt><dd>
+      </dd><dt class="field"><b>interestingFiles: List<String></b></dt><dd>
         
         <p>
           The glob patterns of the files for which the plugin will provide
@@ -290,9 +291,9 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>files</b>": List&lt;<a href="#type_FilePath">FilePath</a>&gt;
-    "<b>targets</b>": List&lt;<a href="#type_NavigationTarget">NavigationTarget</a>&gt;
-    "<b>regions</b>": List&lt;<a href="#type_NavigationRegion">NavigationRegion</a>&gt;
+    "<b>files</b>": List<<a href="#type_FilePath">FilePath</a>>
+    "<b>targets</b>": List<<a href="#type_NavigationTarget">NavigationTarget</a>>
+    "<b>regions</b>": List<<a href="#type_NavigationRegion">NavigationRegion</a>>
   }
 }</pre></div>
     <p>
@@ -332,19 +333,19 @@ a:focus, a:hover {
           The length of the region for which navigation information is being
           requested.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>files: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>files: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
         
         <p>
           A list of the paths of files that are referenced by the navigation
           targets.
         </p>
-      </dd><dt class="field"><b>targets: List&lt;<a href="#type_NavigationTarget">NavigationTarget</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>targets: List<<a href="#type_NavigationTarget">NavigationTarget</a>></b></dt><dd>
         
         <p>
           A list of the navigation targets that are referenced by the
           navigation regions.
         </p>
-      </dd><dt class="field"><b>regions: List&lt;<a href="#type_NavigationRegion">NavigationRegion</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>regions: List<<a href="#type_NavigationRegion">NavigationRegion</a>></b></dt><dd>
         
         <p>
           A list of the navigation regions within the requested region of
@@ -354,7 +355,7 @@ a:focus, a:hover {
   "id": String
   "method": "analysis.handleWatchEvents"
   "params": {
-    "<b>events</b>": List&lt;<a href="#type_WatchEvent">WatchEvent</a>&gt;
+    "<b>events</b>": List<<a href="#type_WatchEvent">WatchEvent</a>>
   }
 }</pre><br><pre>response: {
   "id": String
@@ -366,7 +367,7 @@ a:focus, a:hover {
       patterns will be forwarded to the plugin.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>events: List&lt;<a href="#type_WatchEvent">WatchEvent</a>&gt;</b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>events: List<<a href="#type_WatchEvent">WatchEvent</a>></b></dt><dd>
         
         <p>
           The watch events that the plugin should handle.
@@ -375,7 +376,7 @@ a:focus, a:hover {
   "id": String
   "method": "analysis.setContextRoots"
   "params": {
-    "<b>roots</b>": List&lt;<a href="#type_ContextRoot">ContextRoot</a>&gt;
+    "<b>roots</b>": List<<a href="#type_ContextRoot">ContextRoot</a>>
   }
 }</pre><br><pre>response: {
   "id": String
@@ -385,7 +386,7 @@ a:focus, a:hover {
       Set the list of context roots that should be analyzed.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>roots: List&lt;<a href="#type_ContextRoot">ContextRoot</a>&gt;</b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>roots: List<<a href="#type_ContextRoot">ContextRoot</a>></b></dt><dd>
         
         <p>
           A list of the context roots that should be analyzed.
@@ -394,7 +395,7 @@ a:focus, a:hover {
   "id": String
   "method": "analysis.setPriorityFiles"
   "params": {
-    "<b>files</b>": List&lt;<a href="#type_FilePath">FilePath</a>&gt;
+    "<b>files</b>": List<<a href="#type_FilePath">FilePath</a>>
   }
 }</pre><br><pre>response: {
   "id": String
@@ -410,7 +411,7 @@ a:focus, a:hover {
       the second, the second higher priority than the third, and so on.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>files: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>files: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
         
         <p>
           The files that are to be a priority for analysis.
@@ -419,7 +420,7 @@ a:focus, a:hover {
   "id": String
   "method": "analysis.setSubscriptions"
   "params": {
-    "<b>subscriptions</b>": Map&lt;<a href="#type_AnalysisService">AnalysisService</a>, List&lt;<a href="#type_FilePath">FilePath</a>&gt;&gt;
+    "<b>subscriptions</b>": Map<<a href="#type_AnalysisService">AnalysisService</a>, List<<a href="#type_FilePath">FilePath</a>>>
   }
 }</pre><br><pre>response: {
   "id": String
@@ -433,7 +434,7 @@ a:focus, a:hover {
       had been included in the map with an explicit empty list of files.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: Map&lt;<a href="#type_AnalysisService">AnalysisService</a>, List&lt;<a href="#type_FilePath">FilePath</a>&gt;&gt;</b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: Map<<a href="#type_AnalysisService">AnalysisService</a>, List<<a href="#type_FilePath">FilePath</a>>></b></dt><dd>
         
         <p>
           A table mapping services to a list of the files being subscribed to
@@ -443,7 +444,7 @@ a:focus, a:hover {
   "id": String
   "method": "analysis.updateContent"
   "params": {
-    "<b>files</b>": Map&lt;<a href="#type_FilePath">FilePath</a>, <a href="#type_AddContentOverlay">AddContentOverlay</a> | <a href="#type_ChangeContentOverlay">ChangeContentOverlay</a> | <a href="#type_RemoveContentOverlay">RemoveContentOverlay</a>&gt;
+    "<b>files</b>": Map<<a href="#type_FilePath">FilePath</a>, <a href="#type_AddContentOverlay">AddContentOverlay</a> | <a href="#type_ChangeContentOverlay">ChangeContentOverlay</a> | <a href="#type_RemoveContentOverlay">RemoveContentOverlay</a>>
   }
 }</pre><br><pre>response: {
   "id": String
@@ -458,7 +459,7 @@ a:focus, a:hover {
       the file path represents the path to a directory on the filesystem.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>files: Map&lt;<a href="#type_FilePath">FilePath</a>, <a href="#type_AddContentOverlay">AddContentOverlay</a> | <a href="#type_ChangeContentOverlay">ChangeContentOverlay</a> | <a href="#type_RemoveContentOverlay">RemoveContentOverlay</a>&gt;</b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>files: Map<<a href="#type_FilePath">FilePath</a>, <a href="#type_AddContentOverlay">AddContentOverlay</a> | <a href="#type_ChangeContentOverlay">ChangeContentOverlay</a> | <a href="#type_RemoveContentOverlay">RemoveContentOverlay</a>></b></dt><dd>
         
         <p>
           A table mapping the files whose content has changed to a description
@@ -468,7 +469,7 @@ a:focus, a:hover {
   "event": "analysis.errors"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>errors</b>": List&lt;<a href="#type_AnalysisError">AnalysisError</a>&gt;
+    "<b>errors</b>": List<<a href="#type_AnalysisError">AnalysisError</a>>
   }
 }</pre></div>
     <p>
@@ -482,7 +483,7 @@ a:focus, a:hover {
         <p>
           The file containing the errors.
         </p>
-      </dd><dt class="field"><b>errors: List&lt;<a href="#type_AnalysisError">AnalysisError</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>errors: List<<a href="#type_AnalysisError">AnalysisError</a>></b></dt><dd>
         
         <p>
           The errors contained in the file.
@@ -491,7 +492,7 @@ a:focus, a:hover {
   "event": "analysis.folding"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>regions</b>": List&lt;<a href="#type_FoldingRegion">FoldingRegion</a>&gt;
+    "<b>regions</b>": List<<a href="#type_FoldingRegion">FoldingRegion</a>>
   }
 }</pre></div>
     <p>
@@ -516,7 +517,7 @@ a:focus, a:hover {
         <p>
           The file containing the folding regions.
         </p>
-      </dd><dt class="field"><b>regions: List&lt;<a href="#type_FoldingRegion">FoldingRegion</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>regions: List<<a href="#type_FoldingRegion">FoldingRegion</a>></b></dt><dd>
         
         <p>
           The folding regions contained in the file.
@@ -525,7 +526,7 @@ a:focus, a:hover {
   "event": "analysis.highlights"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>regions</b>": List&lt;<a href="#type_HighlightRegion">HighlightRegion</a>&gt;
+    "<b>regions</b>": List<<a href="#type_HighlightRegion">HighlightRegion</a>>
   }
 }</pre></div>
     <p>
@@ -546,7 +547,7 @@ a:focus, a:hover {
         <p>
           The file containing the highlight regions.
         </p>
-      </dd><dt class="field"><b>regions: List&lt;<a href="#type_HighlightRegion">HighlightRegion</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>regions: List<<a href="#type_HighlightRegion">HighlightRegion</a>></b></dt><dd>
         
         <p>
           The highlight regions contained in the file.
@@ -555,9 +556,9 @@ a:focus, a:hover {
   "event": "analysis.navigation"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>regions</b>": List&lt;<a href="#type_NavigationRegion">NavigationRegion</a>&gt;
-    "<b>targets</b>": List&lt;<a href="#type_NavigationTarget">NavigationTarget</a>&gt;
-    "<b>files</b>": List&lt;<a href="#type_FilePath">FilePath</a>&gt;
+    "<b>regions</b>": List<<a href="#type_NavigationRegion">NavigationRegion</a>>
+    "<b>targets</b>": List<<a href="#type_NavigationTarget">NavigationTarget</a>>
+    "<b>files</b>": List<<a href="#type_FilePath">FilePath</a>>
   }
 }</pre></div>
     <p>
@@ -586,19 +587,19 @@ a:focus, a:hover {
         <p>
           The file containing the navigation regions.
         </p>
-      </dd><dt class="field"><b>regions: List&lt;<a href="#type_NavigationRegion">NavigationRegion</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>regions: List<<a href="#type_NavigationRegion">NavigationRegion</a>></b></dt><dd>
         
         <p>
           The navigation regions contained in the file.
         </p>
-      </dd><dt class="field"><b>targets: List&lt;<a href="#type_NavigationTarget">NavigationTarget</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>targets: List<<a href="#type_NavigationTarget">NavigationTarget</a>></b></dt><dd>
         
         <p>
           The navigation targets referenced in the file. They are referenced by
           <a href="#type_NavigationRegion">NavigationRegion</a>s by their index
           in this array.
         </p>
-      </dd><dt class="field"><b>files: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>files: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
         
         <p>
           The files containing navigation targets referenced in the file. They
@@ -610,7 +611,7 @@ a:focus, a:hover {
   "event": "analysis.occurrences"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>occurrences</b>": List&lt;<a href="#type_Occurrences">Occurrences</a>&gt;
+    "<b>occurrences</b>": List<<a href="#type_Occurrences">Occurrences</a>>
   }
 }</pre></div>
     <p>
@@ -634,7 +635,7 @@ a:focus, a:hover {
         <p>
           The file in which the references occur.
         </p>
-      </dd><dt class="field"><b>occurrences: List&lt;<a href="#type_Occurrences">Occurrences</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>occurrences: List<<a href="#type_Occurrences">Occurrences</a>></b></dt><dd>
         
         <p>
           The occurrences of references to elements within the file.
@@ -643,7 +644,7 @@ a:focus, a:hover {
   "event": "analysis.outline"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>outline</b>": List&lt;<a href="#type_Outline">Outline</a>&gt;
+    "<b>outline</b>": List<<a href="#type_Outline">Outline</a>>
   }
 }</pre></div>
     <p>
@@ -665,7 +666,7 @@ a:focus, a:hover {
         <p>
           The file with which the outline is associated.
         </p>
-      </dd><dt class="field"><b>outline: List&lt;<a href="#type_Outline">Outline</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>outline: List<<a href="#type_Outline">Outline</a>></b></dt><dd>
         
         <p>
           The outline fragments associated with the file.
@@ -690,7 +691,7 @@ a:focus, a:hover {
   "result": {
     "<b>replacementOffset</b>": int
     "<b>replacementLength</b>": int
-    "<b>results</b>": List&lt;<a href="#type_CompletionSuggestion">CompletionSuggestion</a>&gt;
+    "<b>results</b>": List<<a href="#type_CompletionSuggestion">CompletionSuggestion</a>>
   }
 }</pre></div>
     <p>
@@ -726,7 +727,7 @@ a:focus, a:hover {
           is applied (that is, the number of characters in the existing
           identifier).
         </p>
-      </dd><dt class="field"><b>results: List&lt;<a href="#type_CompletionSuggestion">CompletionSuggestion</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>results: List<<a href="#type_CompletionSuggestion">CompletionSuggestion</a>></b></dt><dd>
         
         <p>
           The completion suggestions being reported. The notification contains
@@ -757,7 +758,7 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>assists</b>": List&lt;<a href="#type_PrioritizedSourceChange">PrioritizedSourceChange</a>&gt;
+    "<b>assists</b>": List<<a href="#type_PrioritizedSourceChange">PrioritizedSourceChange</a>>
   }
 }</pre></div>
     <p>
@@ -783,7 +784,7 @@ a:focus, a:hover {
         <p>
           The length of the code for which assists are being requested.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>assists: List&lt;<a href="#type_PrioritizedSourceChange">PrioritizedSourceChange</a>&gt;</b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>assists: List<<a href="#type_PrioritizedSourceChange">PrioritizedSourceChange</a>></b></dt><dd>
         
         <p>
           The assists that are available at the given location.
@@ -799,7 +800,7 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>fixes</b>": List&lt;<a href="#type_AnalysisErrorFixes">AnalysisErrorFixes</a>&gt;
+    "<b>fixes</b>": List<<a href="#type_AnalysisErrorFixes">AnalysisErrorFixes</a>>
   }
 }</pre></div>
     <p>
@@ -818,7 +819,7 @@ a:focus, a:hover {
         <p>
           The offset used to select the errors for which fixes will be returned.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>fixes: List&lt;<a href="#type_AnalysisErrorFixes">AnalysisErrorFixes</a>&gt;</b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>fixes: List<<a href="#type_AnalysisErrorFixes">AnalysisErrorFixes</a>></b></dt><dd>
         
         <p>
           The fixes that are available for the errors at the given offset.
@@ -905,7 +906,7 @@ a:focus, a:hover {
         <p>
           The URL of a page containing documentation associated with this error.
         </p>
-      </dd><dt class="field"><b>contextMessages: List&lt;<a href="#type_DiagnosticMessage">DiagnosticMessage</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>contextMessages: List<<a href="#type_DiagnosticMessage">DiagnosticMessage</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           Additional messages associated with this diagnostic that provide
@@ -934,7 +935,7 @@ a:focus, a:hover {
         <p>
           The error with which the fixes are associated.
         </p>
-      </dd><dt class="field"><b>fixes: List&lt;<a href="#type_PrioritizedSourceChange">PrioritizedSourceChange</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>fixes: List<<a href="#type_PrioritizedSourceChange">PrioritizedSourceChange</a>></b></dt><dd>
         
         <p>
           The fixes associated with the error.
@@ -978,7 +979,7 @@ a:focus, a:hover {
     
   <dl><dt class="field"><b>type = "change"</b></dt><dd>
         
-      </dd><dt class="field"><b>edits: List&lt;<a href="#type_SourceEdit">SourceEdit</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>edits: List<<a href="#type_SourceEdit">SourceEdit</a>></b></dt><dd>
         
         <p>
           The edits to be applied to the file.
@@ -1086,7 +1087,7 @@ a:focus, a:hover {
           A default String for use in generating argument list source contents
           on the client side.
         </p>
-      </dd><dt class="field"><b>defaultArgumentListTextRanges: List&lt;int&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>defaultArgumentListTextRanges: List<int><span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           Pairs of offsets and lengths describing 'defaultArgumentListString'
@@ -1109,14 +1110,14 @@ a:focus, a:hover {
           field being suggested. This field is omitted if the suggested element
           is not a getter, function or method.
         </p>
-      </dd><dt class="field"><b>parameterNames: List&lt;String&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>parameterNames: List<String><span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The names of the parameters of the function or method being suggested.
           This field is omitted if the suggested element is not a setter,
           function or method.
         </p>
-      </dd><dt class="field"><b>parameterTypes: List&lt;String&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>parameterTypes: List<String><span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The types of the parameters of the function or method being suggested.
@@ -1243,7 +1244,7 @@ a:focus, a:hover {
           The absolute path of the root directory containing the files to be
           analyzed.
         </p>
-      </dd><dt class="field"><b>exclude: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>exclude: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
         
         <p>
           A list of the absolute paths of files and directories within the root
@@ -1486,7 +1487,7 @@ a:focus, a:hover {
         <p>
           A fact label. The schema defines which fact labels are meaningful.
         </p>
-      </dd><dt class="field"><b>value: List&lt;int&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>value: List<int><span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The <tt>String</tt> value of the fact.
@@ -1546,7 +1547,7 @@ a:focus, a:hover {
       only a single position that is not linked to others.
     </p>
     
-  <dl><dt class="field"><b>positions: List&lt;<a href="#type_Position">Position</a>&gt;</b></dt><dd>
+  <dl><dt class="field"><b>positions: List<<a href="#type_Position">Position</a>></b></dt><dd>
         
         <p>
           The positions of the regions (after applying the relevant edits) that
@@ -1557,7 +1558,7 @@ a:focus, a:hover {
         <p>
           The length of the regions that should be edited simultaneously.
         </p>
-      </dd><dt class="field"><b>suggestions: List&lt;<a href="#type_LinkedEditSuggestion">LinkedEditSuggestion</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>suggestions: List<<a href="#type_LinkedEditSuggestion">LinkedEditSuggestion</a>></b></dt><dd>
         
         <p>
           Pre-computed suggestions for what every region might want to be
@@ -1646,7 +1647,7 @@ a:focus, a:hover {
         <p>
           The length of the region from which the user can navigate.
         </p>
-      </dd><dt class="field"><b>targets: List&lt;int&gt;</b></dt><dd>
+      </dd><dt class="field"><b>targets: List<int></b></dt><dd>
         
         <p>
           The indexes of the targets (in the enclosing navigation response) to
@@ -1711,7 +1712,7 @@ a:focus, a:hover {
         <p>
           The element that was referenced.
         </p>
-      </dd><dt class="field"><b>offsets: List&lt;int&gt;</b></dt><dd>
+      </dd><dt class="field"><b>offsets: List<int></b></dt><dd>
         
         <p>
           The offsets of the name of the referenced element within the file.
@@ -1755,7 +1756,7 @@ a:focus, a:hover {
         <p>
           The length of the element code.
         </p>
-      </dd><dt class="field"><b>children: List&lt;<a href="#type_Outline">Outline</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>children: List<<a href="#type_Outline">Outline</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The children of the node. The field will be omitted if the node has no
@@ -1798,7 +1799,7 @@ a:focus, a:hover {
     </p>
     
   <dl><dt class="value">CONVERT_GETTER_TO_METHOD</dt><dt class="value">CONVERT_METHOD_TO_GETTER</dt><dt class="value">EXTRACT_LOCAL_VARIABLE</dt><dt class="value">EXTRACT_METHOD</dt><dt class="value">EXTRACT_WIDGET</dt><dt class="value">INLINE_LOCAL_VARIABLE</dt><dt class="value">INLINE_METHOD</dt><dt class="value">MOVE_FILE</dt><dt class="value">RENAME</dt></dl></dd><dt class="typeDefinition"><a name="type_RefactoringMethodParameter">RefactoringMethodParameter: object</a></dt><dd>
-    
+    <!-- This type does not appear to be referenced yet. -->
     <p>
       A description of a parameter in a method refactoring.
     </p>
@@ -1986,12 +1987,12 @@ a:focus, a:hover {
         <p>
           A human-readable description of the change to be applied.
         </p>
-      </dd><dt class="field"><b>edits: List&lt;<a href="#type_SourceFileEdit">SourceFileEdit</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>edits: List<<a href="#type_SourceFileEdit">SourceFileEdit</a>></b></dt><dd>
         
         <p>
           A list of the edits used to effect the change, grouped by file.
         </p>
-      </dd><dt class="field"><b>linkedEditGroups: List&lt;<a href="#type_LinkedEditGroup">LinkedEditGroup</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>linkedEditGroups: List<<a href="#type_LinkedEditGroup">LinkedEditGroup</a>></b></dt><dd>
         
         <p>
           A list of the linked editing groups used to customize the changes that
@@ -2067,7 +2068,7 @@ a:focus, a:hover {
           field to make sure that the file was not changed since then, so it is
           safe to apply the change.
         </p>
-      </dd><dt class="field"><b>edits: List&lt;<a href="#type_SourceEdit">SourceEdit</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>edits: List<<a href="#type_SourceEdit">SourceEdit</a>></b></dt><dd>
         
         <p>
           A list of the edits used to effect the change.
@@ -2157,30 +2158,30 @@ a:focus, a:hover {
     </p>
     
     
-  <h4>Feedback:</h4><dl><dt class="field"><b>coveringExpressionOffsets: List&lt;int&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
+  <h4>Feedback:</h4><dl><dt class="field"><b>coveringExpressionOffsets: List<int><span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The offsets of the expressions that cover the specified selection,
           from the down most to the up most.
         </p>
-      </dd><dt class="field"><b>coveringExpressionLengths: List&lt;int&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>coveringExpressionLengths: List<int><span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The lengths of the expressions that cover the specified selection,
           from the down most to the up most.
         </p>
-      </dd><dt class="field"><b>names: List&lt;String&gt;</b></dt><dd>
+      </dd><dt class="field"><b>names: List<String></b></dt><dd>
         
         <p>
           The proposed names for the local variable.
         </p>
-      </dd><dt class="field"><b>offsets: List&lt;int&gt;</b></dt><dd>
+      </dd><dt class="field"><b>offsets: List<int></b></dt><dd>
         
         <p>
           The offsets of the expressions that would be replaced by a reference
           to the variable.
         </p>
-      </dd><dt class="field"><b>lengths: List&lt;int&gt;</b></dt><dd>
+      </dd><dt class="field"><b>lengths: List<int></b></dt><dd>
         
         <p>
           The lengths of the expressions that would be replaced by a reference
@@ -2231,7 +2232,7 @@ a:focus, a:hover {
           not have a declared return type, this field will contain an empty
           string.
         </p>
-      </dd><dt class="field"><b>names: List&lt;String&gt;</b></dt><dd>
+      </dd><dt class="field"><b>names: List<String></b></dt><dd>
         
         <p>
           The proposed names for the method.
@@ -2241,18 +2242,18 @@ a:focus, a:hover {
         <p>
           True if a getter could be created rather than a method.
         </p>
-      </dd><dt class="field"><b>parameters: List&lt;<a href="#type_RefactoringMethodParameter">RefactoringMethodParameter</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>parameters: List<<a href="#type_RefactoringMethodParameter">RefactoringMethodParameter</a>></b></dt><dd>
         
         <p>
           The proposed parameters for the method.
         </p>
-      </dd><dt class="field"><b>offsets: List&lt;int&gt;</b></dt><dd>
+      </dd><dt class="field"><b>offsets: List<int></b></dt><dd>
         
         <p>
           The offsets of the expressions or statements that would be replaced by
           an invocation of the method.
         </p>
-      </dd><dt class="field"><b>lengths: List&lt;int&gt;</b></dt><dd>
+      </dd><dt class="field"><b>lengths: List<int></b></dt><dd>
         
         <p>
           The lengths of the expressions or statements that would be replaced by
@@ -2277,7 +2278,7 @@ a:focus, a:hover {
         <p>
           The name that the method should be given.
         </p>
-      </dd><dt class="field"><b>parameters: List&lt;<a href="#type_RefactoringMethodParameter">RefactoringMethodParameter</a>&gt;</b></dt><dd>
+      </dd><dt class="field"><b>parameters: List<<a href="#type_RefactoringMethodParameter">RefactoringMethodParameter</a>></b></dt><dd>
         
         <p>
           The parameters that should be defined for the method.
@@ -2427,6 +2428,5 @@ a:focus, a:hover {
       </dd></dl></dd></dl>
 <h2 class="domain"><a name="index">Index</a></h2>
 <h3>Domains</h3><h4>plugin (<a href="#domain_plugin">↑</a>)</h4><div class="subindex"><h5>Requests</h5><ul><li><a href="#request_plugin.versionCheck">versionCheck</a></li><li><a href="#request_plugin.shutdown">shutdown</a></li></ul><h5>Notifications</h5><div class="subindex"><ul><li><a href="#notification_plugin.error">error</a></li></ul></div></div><h4>analysis (<a href="#domain_analysis">↑</a>)</h4><div class="subindex"><h5>Requests</h5><ul><li><a href="#request_analysis.getNavigation">getNavigation</a></li><li><a href="#request_analysis.handleWatchEvents">handleWatchEvents</a></li><li><a href="#request_analysis.setContextRoots">setContextRoots</a></li><li><a href="#request_analysis.setPriorityFiles">setPriorityFiles</a></li><li><a href="#request_analysis.setSubscriptions">setSubscriptions</a></li><li><a href="#request_analysis.updateContent">updateContent</a></li></ul><h5>Notifications</h5><div class="subindex"><ul><li><a href="#notification_analysis.errors">errors</a></li><li><a href="#notification_analysis.folding">folding</a></li><li><a href="#notification_analysis.highlights">highlights</a></li><li><a href="#notification_analysis.navigation">navigation</a></li><li><a href="#notification_analysis.occurrences">occurrences</a></li><li><a href="#notification_analysis.outline">outline</a></li></ul></div></div><h4>completion (<a href="#domain_completion">↑</a>)</h4><div class="subindex"><h5>Requests</h5><ul><li><a href="#request_completion.getSuggestions">getSuggestions</a></li></ul></div><h4>edit (<a href="#domain_edit">↑</a>)</h4><div class="subindex"><h5>Requests</h5><ul><li><a href="#request_edit.getAssists">getAssists</a></li><li><a href="#request_edit.getFixes">getFixes</a></li></ul></div><h3>Types (<a href="#types">↑</a>)</h3><div class="subindex"><ul><li><a href="#type_AddContentOverlay">AddContentOverlay</a></li><li><a href="#type_AnalysisError">AnalysisError</a></li><li><a href="#type_AnalysisErrorFixes">AnalysisErrorFixes</a></li><li><a href="#type_AnalysisErrorSeverity">AnalysisErrorSeverity</a></li><li><a href="#type_AnalysisErrorType">AnalysisErrorType</a></li><li><a href="#type_AnalysisService">AnalysisService</a></li><li><a href="#type_ChangeContentOverlay">ChangeContentOverlay</a></li><li><a href="#type_CompletionSuggestion">CompletionSuggestion</a></li><li><a href="#type_CompletionSuggestionKind">CompletionSuggestionKind</a></li><li><a href="#type_ContextRoot">ContextRoot</a></li><li><a href="#type_DiagnosticMessage">DiagnosticMessage</a></li><li><a href="#type_Element">Element</a></li><li><a href="#type_ElementKind">ElementKind</a></li><li><a href="#type_FilePath">FilePath</a></li><li><a href="#type_FoldingKind">FoldingKind</a></li><li><a href="#type_FoldingRegion">FoldingRegion</a></li><li><a href="#type_HighlightRegion">HighlightRegion</a></li><li><a href="#type_HighlightRegionType">HighlightRegionType</a></li><li><a href="#type_KytheEntry">KytheEntry</a></li><li><a href="#type_KytheVName">KytheVName</a></li><li><a href="#type_LinkedEditGroup">LinkedEditGroup</a></li><li><a href="#type_LinkedEditSuggestion">LinkedEditSuggestion</a></li><li><a href="#type_LinkedEditSuggestionKind">LinkedEditSuggestionKind</a></li><li><a href="#type_Location">Location</a></li><li><a href="#type_NavigationRegion">NavigationRegion</a></li><li><a href="#type_NavigationTarget">NavigationTarget</a></li><li><a href="#type_Occurrences">Occurrences</a></li><li><a href="#type_Outline">Outline</a></li><li><a href="#type_Position">Position</a></li><li><a href="#type_PrioritizedSourceChange">PrioritizedSourceChange</a></li><li><a href="#type_RefactoringKind">RefactoringKind</a></li><li><a href="#type_RefactoringMethodParameter">RefactoringMethodParameter</a></li><li><a href="#type_RefactoringMethodParameterKind">RefactoringMethodParameterKind</a></li><li><a href="#type_RefactoringProblem">RefactoringProblem</a></li><li><a href="#type_RefactoringProblemSeverity">RefactoringProblemSeverity</a></li><li><a href="#type_RemoveContentOverlay">RemoveContentOverlay</a></li><li><a href="#type_RequestError">RequestError</a></li><li><a href="#type_RequestErrorCode">RequestErrorCode</a></li><li><a href="#type_SourceChange">SourceChange</a></li><li><a href="#type_SourceEdit">SourceEdit</a></li><li><a href="#type_SourceFileEdit">SourceFileEdit</a></li><li><a href="#type_WatchEvent">WatchEvent</a></li><li><a href="#type_WatchEventType">WatchEventType</a></li></ul></div><h3>Refactorings (<a href="#refactorings">↑</a>)</h3><div class="subindex"><ul><li><a href="#refactoring_CONVERT_GETTER_TO_METHOD">CONVERT_GETTER_TO_METHOD</a></li><li><a href="#refactoring_CONVERT_METHOD_TO_GETTER">CONVERT_METHOD_TO_GETTER</a></li><li><a href="#refactoring_EXTRACT_LOCAL_VARIABLE">EXTRACT_LOCAL_VARIABLE</a></li><li><a href="#refactoring_EXTRACT_METHOD">EXTRACT_METHOD</a></li><li><a href="#refactoring_INLINE_LOCAL_VARIABLE">INLINE_LOCAL_VARIABLE</a></li><li><a href="#refactoring_INLINE_METHOD">INLINE_METHOD</a></li><li><a href="#refactoring_MOVE_FILE">MOVE_FILE</a></li><li><a href="#refactoring_RENAME">RENAME</a></li></ul></div>
-
-
-</body></html>
+</body>
+</html>

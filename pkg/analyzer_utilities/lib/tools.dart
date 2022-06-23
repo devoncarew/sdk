@@ -8,7 +8,7 @@ import 'dart:io';
 
 import 'package:analyzer_utilities/html.dart';
 import 'package:analyzer_utilities/text_formatter.dart';
-import 'package:html/dom.dart' as dom;
+import 'package:analyzer_utilities/docs.dart' as dom;
 import 'package:path/path.dart';
 import 'package:test/test.dart';
 
@@ -473,7 +473,7 @@ abstract class HtmlCodeGenerator {
 
   /// Execute [callback], wrapping its output in an element with the given
   /// [name] and [attributes].
-  void element(String name, Map<Object, String> attributes,
+  void element(String name, Map<String, String> attributes,
       [void Function()? callback]) {
     add(makeElement(name, attributes, collectHtml(callback)));
   }
