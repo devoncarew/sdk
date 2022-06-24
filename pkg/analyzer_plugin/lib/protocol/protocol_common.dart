@@ -83,7 +83,7 @@ class AddContentOverlay implements HasToJson {
 ///   "correction": optional String
 ///   "code": String
 ///   "url": optional String
-///   "contextMessages": optional List&lt;DiagnosticMessage&gt;
+///   "contextMessages": optional List<DiagnosticMessage>
 ///   "hasFix": optional bool
 /// }
 ///
@@ -420,7 +420,7 @@ class AnalysisErrorType implements Enum {
 ///
 /// {
 ///   "type": "change"
-///   "edits": List&lt;SourceEdit&gt;
+///   "edits": List<SourceEdit>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -497,11 +497,11 @@ class ChangeContentOverlay implements HasToJson {
 ///   "docComplete": optional String
 ///   "declaringType": optional String
 ///   "defaultArgumentListString": optional String
-///   "defaultArgumentListTextRanges": optional List&lt;int&gt;
+///   "defaultArgumentListTextRanges": optional List<int>
 ///   "element": optional Element
 ///   "returnType": optional String
-///   "parameterNames": optional List&lt;String&gt;
-///   "parameterTypes": optional List&lt;String&gt;
+///   "parameterNames": optional List<String>
+///   "parameterTypes": optional List<String>
 ///   "requiredParameterCount": optional int
 ///   "hasNamedParameters": optional bool
 ///   "parameterName": optional String
@@ -2493,7 +2493,7 @@ class HighlightRegionType implements Enum {
 ///   "kind": optional String
 ///   "target": optional KytheVName
 ///   "fact": String
-///   "value": optional List&lt;int&gt;
+///   "value": optional List<int>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -2712,9 +2712,9 @@ class KytheVName implements HasToJson {
 /// LinkedEditGroup
 ///
 /// {
-///   "positions": List&lt;Position&gt;
+///   "positions": List<Position>
 ///   "length": int
-///   "suggestions": List&lt;LinkedEditSuggestion&gt;
+///   "suggestions": List<LinkedEditSuggestion>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -3095,7 +3095,7 @@ class Location implements HasToJson {
 /// {
 ///   "offset": int
 ///   "length": int
-///   "targets": List&lt;int&gt;
+///   "targets": List<int>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -3335,7 +3335,7 @@ class NavigationTarget implements HasToJson {
 ///
 /// {
 ///   "element": Element
-///   "offsets": List&lt;int&gt;
+///   "offsets": List<int>
 ///   "length": int
 /// }
 ///
@@ -3420,7 +3420,7 @@ class Occurrences implements HasToJson {
 ///   "length": int
 ///   "codeOffset": int
 ///   "codeLength": int
-///   "children": optional List&lt;Outline&gt;
+///   "children": optional List<Outline>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -4273,8 +4273,8 @@ class RemoveContentOverlay implements HasToJson {
 ///
 /// {
 ///   "message": String
-///   "edits": List&lt;SourceFileEdit&gt;
-///   "linkedEditGroups": List&lt;LinkedEditGroup&gt;
+///   "edits": List<SourceFileEdit>
+///   "linkedEditGroups": List<LinkedEditGroup>
 ///   "selection": optional Position
 ///   "selectionLength": optional int
 ///   "id": optional String
@@ -4561,7 +4561,7 @@ class SourceEdit implements HasToJson {
 /// {
 ///   "file": FilePath
 ///   "fileStamp": long
-///   "edits": List&lt;SourceEdit&gt;
+///   "edits": List<SourceEdit>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.

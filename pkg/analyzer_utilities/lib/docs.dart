@@ -1,7 +1,11 @@
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 
+import 'dart:convert';
+
 // ignore: implementation_imports
 import 'package:analyzer/src/manifest/manifest_validator.dart';
+
+const htmlEscape = HtmlEscape(HtmlEscapeMode.element);
 
 abstract class Node {
   Element? parent;
@@ -76,7 +80,7 @@ class Document extends Element {
             !(node.nodes.first as Text).text.contains('\n')) {
           buf.write('>');
           var text = node.nodes.first as Text;
-          buf.write(text.text);
+          buf.write(htmlEscape.convert(text.text));
           buf.write('</${node.name}>');
         } else {
           buf.write('>');
@@ -88,7 +92,7 @@ class Document extends Element {
           }
         }
       } else if (node is Text) {
-        buf.write(node.text);
+        buf.write(htmlEscape.convert(node.text));
       } else {
         throw 'unknown node type: $node';
       }

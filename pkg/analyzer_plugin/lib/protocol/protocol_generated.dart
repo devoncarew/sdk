@@ -18,7 +18,7 @@ import 'package:analyzer_plugin/protocol/protocol_common.dart';
 ///
 /// {
 ///   "error": AnalysisError
-///   "fixes": List&lt;PrioritizedSourceChange&gt;
+///   "fixes": List<PrioritizedSourceChange>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -92,7 +92,7 @@ class AnalysisErrorFixes implements HasToJson {
 ///
 /// {
 ///   "file": FilePath
-///   "errors": List&lt;AnalysisError&gt;
+///   "errors": List<AnalysisError>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -173,7 +173,7 @@ class AnalysisErrorsParams implements HasToJson {
 ///
 /// {
 ///   "file": FilePath
-///   "regions": List&lt;FoldingRegion&gt;
+///   "regions": List<FoldingRegion>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -345,9 +345,9 @@ class AnalysisGetNavigationParams implements RequestParams {
 /// analysis.getNavigation result
 ///
 /// {
-///   "files": List&lt;FilePath&gt;
-///   "targets": List&lt;NavigationTarget&gt;
-///   "regions": List&lt;NavigationRegion&gt;
+///   "files": List<FilePath>
+///   "targets": List<NavigationTarget>
+///   "regions": List<NavigationRegion>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -452,7 +452,7 @@ class AnalysisGetNavigationResult implements ResponseResult {
 /// analysis.handleWatchEvents params
 ///
 /// {
-///   "events": List&lt;WatchEvent&gt;
+///   "events": List<WatchEvent>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -545,7 +545,7 @@ class AnalysisHandleWatchEventsResult implements ResponseResult {
 ///
 /// {
 ///   "file": FilePath
-///   "regions": List&lt;HighlightRegion&gt;
+///   "regions": List<HighlightRegion>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -626,9 +626,9 @@ class AnalysisHighlightsParams implements HasToJson {
 ///
 /// {
 ///   "file": FilePath
-///   "regions": List&lt;NavigationRegion&gt;
-///   "targets": List&lt;NavigationTarget&gt;
-///   "files": List&lt;FilePath&gt;
+///   "regions": List<NavigationRegion>
+///   "targets": List<NavigationTarget>
+///   "files": List<FilePath>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -742,7 +742,7 @@ class AnalysisNavigationParams implements HasToJson {
 ///
 /// {
 ///   "file": FilePath
-///   "occurrences": List&lt;Occurrences&gt;
+///   "occurrences": List<Occurrences>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -824,7 +824,7 @@ class AnalysisOccurrencesParams implements HasToJson {
 ///
 /// {
 ///   "file": FilePath
-///   "outline": List&lt;Outline&gt;
+///   "outline": List<Outline>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -972,7 +972,7 @@ class AnalysisService implements Enum {
 /// analysis.setContextRoots params
 ///
 /// {
-///   "roots": List&lt;ContextRoot&gt;
+///   "roots": List<ContextRoot>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -1063,7 +1063,7 @@ class AnalysisSetContextRootsResult implements ResponseResult {
 /// analysis.setPriorityFiles params
 ///
 /// {
-///   "files": List&lt;FilePath&gt;
+///   "files": List<FilePath>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -1150,7 +1150,7 @@ class AnalysisSetPriorityFilesResult implements ResponseResult {
 /// analysis.setSubscriptions params
 ///
 /// {
-///   "subscriptions": Map&lt;AnalysisService, List&lt;FilePath&gt;&gt;
+///   "subscriptions": Map<AnalysisService, List<FilePath>>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -1247,7 +1247,7 @@ class AnalysisSetSubscriptionsResult implements ResponseResult {
 /// analysis.updateContent params
 ///
 /// {
-///   "files": Map&lt;FilePath, AddContentOverlay | ChangeContentOverlay | RemoveContentOverlay&gt;
+///   "files": Map<FilePath, AddContentOverlay | ChangeContentOverlay | RemoveContentOverlay>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -1423,7 +1423,7 @@ class CompletionGetSuggestionsParams implements RequestParams {
 /// {
 ///   "replacementOffset": int
 ///   "replacementLength": int
-///   "results": List&lt;CompletionSuggestion&gt;
+///   "results": List<CompletionSuggestion>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -1534,7 +1534,7 @@ class CompletionGetSuggestionsResult implements ResponseResult {
 ///
 /// {
 ///   "root": FilePath
-///   "exclude": List&lt;FilePath&gt;
+///   "exclude": List<FilePath>
 ///   "optionsFile": optional FilePath
 /// }
 ///
@@ -1775,7 +1775,7 @@ class EditGetAssistsParams implements RequestParams {
 /// edit.getAssists result
 ///
 /// {
-///   "assists": List&lt;PrioritizedSourceChange&gt;
+///   "assists": List<PrioritizedSourceChange>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -1934,7 +1934,7 @@ class EditGetAvailableRefactoringsParams implements RequestParams {
 /// edit.getAvailableRefactorings result
 ///
 /// {
-///   "kinds": List&lt;RefactoringKind&gt;
+///   "kinds": List<RefactoringKind>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -2084,7 +2084,7 @@ class EditGetFixesParams implements RequestParams {
 /// edit.getFixes result
 ///
 /// {
-///   "fixes": List&lt;AnalysisErrorFixes&gt;
+///   "fixes": List<AnalysisErrorFixes>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -2295,12 +2295,12 @@ class EditGetRefactoringParams implements RequestParams {
 /// edit.getRefactoring result
 ///
 /// {
-///   "initialProblems": List&lt;RefactoringProblem&gt;
-///   "optionsProblems": List&lt;RefactoringProblem&gt;
-///   "finalProblems": List&lt;RefactoringProblem&gt;
+///   "initialProblems": List<RefactoringProblem>
+///   "optionsProblems": List<RefactoringProblem>
+///   "finalProblems": List<RefactoringProblem>
 ///   "feedback": optional RefactoringFeedback
 ///   "change": optional SourceChange
-///   "potentialEdits": optional List&lt;String&gt;
+///   "potentialEdits": optional List<String>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -2474,11 +2474,11 @@ class EditGetRefactoringResult implements ResponseResult {
 /// extractLocalVariable feedback
 ///
 /// {
-///   "coveringExpressionOffsets": optional List&lt;int&gt;
-///   "coveringExpressionLengths": optional List&lt;int&gt;
-///   "names": List&lt;String&gt;
-///   "offsets": List&lt;int&gt;
-///   "lengths": List&lt;int&gt;
+///   "coveringExpressionOffsets": optional List<int>
+///   "coveringExpressionLengths": optional List<int>
+///   "names": List<String>
+///   "offsets": List<int>
+///   "lengths": List<int>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -2681,11 +2681,11 @@ class ExtractLocalVariableOptions extends RefactoringOptions {
 ///   "offset": int
 ///   "length": int
 ///   "returnType": String
-///   "names": List&lt;String&gt;
+///   "names": List<String>
 ///   "canCreateGetter": bool
-///   "parameters": List&lt;RefactoringMethodParameter&gt;
-///   "offsets": List&lt;int&gt;
-///   "lengths": List&lt;int&gt;
+///   "parameters": List<RefactoringMethodParameter>
+///   "offsets": List<int>
+///   "lengths": List<int>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -2850,7 +2850,7 @@ class ExtractMethodFeedback extends RefactoringFeedback {
 ///   "returnType": String
 ///   "createGetter": bool
 ///   "name": String
-///   "parameters": List&lt;RefactoringMethodParameter&gt;
+///   "parameters": List<RefactoringMethodParameter>
 ///   "extractAll": bool
 /// }
 ///
@@ -3294,8 +3294,8 @@ class KytheGetKytheEntriesParams implements RequestParams {
 /// kythe.getKytheEntries result
 ///
 /// {
-///   "entries": List&lt;KytheEntry&gt;
-///   "files": List&lt;FilePath&gt;
+///   "entries": List<KytheEntry>
+///   "files": List<FilePath>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
@@ -3699,7 +3699,7 @@ class PluginVersionCheckParams implements RequestParams {
 ///   "name": String
 ///   "version": String
 ///   "contactInfo": optional String
-///   "interestingFiles": List&lt;String&gt;
+///   "interestingFiles": List<String>
 /// }
 ///
 /// Clients may not extend, implement or mix-in this class.
