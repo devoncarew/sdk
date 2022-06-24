@@ -11,6 +11,7 @@ import 'package:analysis_server/src/analytics/percentile_calculator.dart';
 import 'package:analysis_server/src/lsp/lsp_analysis_server.dart';
 import 'package:analysis_server/src/plugin/plugin_manager.dart';
 import 'package:analysis_server/src/protocol_server.dart';
+import 'package:analyzer/dart/analysis/analysis_context.dart';
 import 'package:telemetry/telemetry.dart';
 
 /// An implementation of [AnalyticsManager] that's appropriate to use when
@@ -36,6 +37,15 @@ class GoogleAnalyticsManager implements AnalyticsManager {
   /// that have been handled.
   final Map<String, _NotificationData> _completedNotifications = {};
 
+  /// A map from the name of a lint to the number of contexts in which the lint
+  /// was enabled.
+  final Map<String, int> _lintUsageCounts = {};
+
+  /// A map from the name of a diagnostic to a map whose values are the number
+  /// of times that the severity of the diagnostic was changed to the severity
+  /// represented by the key.
+  final Map<String, Map<String, int>> _severityAdjustments = {};
+
   /// Initialize a newly created analytics manager to report to the [analytics]
   /// service.
   GoogleAnalyticsManager(this.analytics);
@@ -52,6 +62,22 @@ class GoogleAnalyticsManager implements AnalyticsManager {
         _getRequestData(Method.workspace_didChangeWorkspaceFolders.toString());
     requestData.addValue('added', added.length);
     requestData.addValue('removed', removed.length);
+  }
+
+  @override
+  void createdAnalysisContexts(List<AnalysisContext> contexts) {
+    for (var context in contexts) {
+      for (var rule in context.analysisOptions.lintRules) {
+        var name = rule.name;
+        _lintUsageCounts[name] = (_lintUsageCounts[name] ?? 0) + 1;
+      }
+      for (var processor in context.analysisOptions.errorProcessors) {
+        var severity = processor.severity?.name ?? 'ignore';
+        var severityCounts =
+            _severityAdjustments.putIfAbsent(processor.code, () => {});
+        severityCounts[severity] = (severityCounts[severity] ?? 0) + 1;
+      }
+    }
   }
 
   @override
@@ -118,6 +144,8 @@ class GoogleAnalyticsManager implements AnalyticsManager {
     _sendServerResponseTimes();
     _sendPluginResponseTimes();
     _sendNotificationHandlingTimes();
+    _sendLintUsageCounts();
+    _sendSeverityAdjustments();
 
     analytics.waitForLastPing(timeout: Duration(milliseconds: 200)).then((_) {
       analytics.close();
@@ -204,6 +232,14 @@ class GoogleAnalyticsManager implements AnalyticsManager {
     requestData.responseTimes.addValue(responseTime);
   }
 
+  void _sendLintUsageCounts() {
+    if (_lintUsageCounts.isNotEmpty) {
+      analytics.sendEvent('language_server', 'lintUsageCounts', parameters: {
+        'usageCounts': json.encode(_lintUsageCounts),
+      });
+    }
+  }
+
   /// Send information about the notifications handled by the server.
   void _sendNotificationHandlingTimes() {
     for (var data in _completedNotifications.values) {
@@ -257,6 +293,15 @@ class GoogleAnalyticsManager implements AnalyticsManager {
       'duration': duration.toString(),
       'plugins': _pluginData.usageCountData,
     });
+  }
+
+  void _sendSeverityAdjustments() {
+    if (_severityAdjustments.isNotEmpty) {
+      analytics
+          .sendEvent('language_server', 'severityAdjustments', parameters: {
+        'adjustmentCounts': json.encode(_severityAdjustments),
+      });
+    }
   }
 }
 
