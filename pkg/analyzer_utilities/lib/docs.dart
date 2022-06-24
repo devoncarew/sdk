@@ -67,8 +67,6 @@ class Document extends Element {
   String get outerHtml {
     var buf = StringBuffer();
 
-    buf.write('<!DOCTYPE html>');
-
     void emitChild(Node node) {
       if (node is Element) {
         buf.write('<${node.name}');
@@ -98,15 +96,21 @@ class Document extends Element {
       }
     }
 
+    buf.write('<!DOCTYPE html>');
+
     for (var child in nodes) {
       emitChild(child);
     }
+
+    buf.writeln();
 
     return buf.toString();
   }
 }
 
 Document parse(String htmlContents, Uri uri) {
+  final RegExp commentRegex = RegExp(r'<!--[^>]+-->');
+
   Element createElement(XmlElement xmlElement) {
     // element
     var element = Element.tag(xmlElement.name);
@@ -136,7 +140,10 @@ Document parse(String htmlContents, Uri uri) {
       for (var index = 0; index < indices.length; index += 2) {
         var start = indices[index];
         var end = indices[index + 1];
-        textNodes.add(Text(text.substring(start, end)));
+        // Remove html comments (<!--  -->) from text.
+        textNodes.add(
+          Text(text.substring(start, end).replaceAll(commentRegex, '')),
+        );
       }
 
       element.append(textNodes.removeAt(0));
