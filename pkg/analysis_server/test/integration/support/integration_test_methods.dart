@@ -56,7 +56,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// subscriptions: List<ServerService>
+  /// subscriptions: List&lt;ServerService&gt;
   ///
   ///   A list of the services being subscribed to.
   Future sendServerSetSubscriptions(List<ServerService> subscriptions) async {
@@ -198,7 +198,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// errors: List<AnalysisError>
+  /// errors: List&lt;AnalysisError&gt;
   ///
   ///   The errors associated with the file.
   Future<AnalysisGetErrorsResult> sendAnalysisGetErrors(String file) async {
@@ -224,7 +224,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// hovers: List<HoverInformation>
+  /// hovers: List&lt;HoverInformation&gt;
   ///
   ///   The hover information associated with the location. The list will be
   ///   empty if no information could be determined for the location. The list
@@ -265,7 +265,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// elements: List<ImportedElements>
+  /// elements: List&lt;ImportedElements&gt;
   ///
   ///   The information about the elements that are referenced in the specified
   ///   region of the specified file that come from imported libraries.
@@ -287,12 +287,12 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// libraries: List<FilePath>
+  /// libraries: List&lt;FilePath&gt;
   ///
   ///   A list of the paths of library elements referenced by files in existing
   ///   analysis roots.
   ///
-  /// packageMap: Map<String, Map<String, List<FilePath>>>
+  /// packageMap: Map&lt;String, Map&lt;String, List&lt;FilePath&gt;&gt;&gt;
   ///
   ///   A mapping from context source roots to package maps which map package
   ///   names to source directories for use in client-side package URI
@@ -343,17 +343,17 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// files: List<FilePath>
+  /// files: List&lt;FilePath&gt;
   ///
   ///   A list of the paths of files that are referenced by the navigation
   ///   targets.
   ///
-  /// targets: List<NavigationTarget>
+  /// targets: List&lt;NavigationTarget&gt;
   ///
   ///   A list of the navigation targets that are referenced by the navigation
   ///   regions.
   ///
-  /// regions: List<NavigationRegion>
+  /// regions: List&lt;NavigationRegion&gt;
   ///
   ///   A list of the navigation regions within the requested region of the
   ///   file.
@@ -380,7 +380,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// sources: Map<String, List<String>>
+  /// sources: Map&lt;String, List&lt;String&gt;&gt;
   ///
   ///   A mapping from source URIs to directly reachable source URIs. For
   ///   example, a file "foo.dart" that imports "bar.dart" would have the
@@ -431,7 +431,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The name of the function being invoked at the given offset.
   ///
-  /// parameters: List<ParameterInfo>
+  /// parameters: List&lt;ParameterInfo&gt;
   ///
   ///   A list of information about each of the parameters of the function
   ///   being invoked.
@@ -487,16 +487,16 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// included: List<FilePath>
+  /// included: List&lt;FilePath&gt;
   ///
   ///   A list of the files and directories that should be analyzed.
   ///
-  /// excluded: List<FilePath>
+  /// excluded: List&lt;FilePath&gt;
   ///
   ///   A list of the files and directories within the included directories
   ///   that should not be analyzed.
   ///
-  /// packageRoots: Map<FilePath, FilePath> (optional)
+  /// packageRoots: Map&lt;FilePath, FilePath&gt; (optional)
   ///
   ///   A mapping from source directories to package roots that should override
   ///   the normal package: URI resolution mechanism.
@@ -532,7 +532,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// subscriptions: List<GeneralAnalysisService>
+  /// subscriptions: List&lt;GeneralAnalysisService&gt;
   ///
   ///   A list of the services being subscribed to.
   Future sendAnalysisSetGeneralSubscriptions(
@@ -563,7 +563,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// files: List<FilePath>
+  /// files: List&lt;FilePath&gt;
   ///
   ///   The files that are to be a priority for analysis.
   Future sendAnalysisSetPriorityFiles(List<String> files) async {
@@ -599,7 +599,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// subscriptions: Map<AnalysisService, List<FilePath>>
+  /// subscriptions: Map&lt;AnalysisService, List&lt;FilePath&gt;&gt;
   ///
   ///   A table mapping services to a list of the files being subscribed to the
   ///   service.
@@ -620,8 +620,8 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// files: Map<FilePath, AddContentOverlay | ChangeContentOverlay |
-  /// RemoveContentOverlay>
+  /// files: Map&lt;FilePath, AddContentOverlay | ChangeContentOverlay |
+  /// RemoveContentOverlay&gt;
   ///
   ///   A table mapping the files whose content has changed to a description of
   ///   the content change.
@@ -664,7 +664,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// directories: List<FilePath>
+  /// directories: List&lt;FilePath&gt;
   ///
   ///   A list of the paths of the files that are being analyzed.
   late Stream<AnalysisAnalyzedFilesParams> onAnalysisAnalyzedFiles;
@@ -684,7 +684,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file the closing labels relate to.
   ///
-  /// labels: List<ClosingLabel>
+  /// labels: List&lt;ClosingLabel&gt;
   ///
   ///   Closing labels relevant to the file. Each item represents a useful
   ///   label associated with some range with may be useful to display to the
@@ -708,7 +708,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file containing the errors.
   ///
-  /// errors: List<AnalysisError>
+  /// errors: List&lt;AnalysisError&gt;
   ///
   ///   The errors contained in the file.
   late Stream<AnalysisErrorsParams> onAnalysisErrors;
@@ -731,7 +731,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// files: List<FilePath>
+  /// files: List&lt;FilePath&gt;
   ///
   ///   The files that are no longer being analyzed.
   late Stream<AnalysisFlushResultsParams> onAnalysisFlushResults;
@@ -754,7 +754,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file containing the folding regions.
   ///
-  /// regions: List<FoldingRegion>
+  /// regions: List&lt;FoldingRegion&gt;
   ///
   ///   The folding regions contained in the file.
   late Stream<AnalysisFoldingParams> onAnalysisFolding;
@@ -774,7 +774,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file containing the highlight regions.
   ///
-  /// regions: List<HighlightRegion>
+  /// regions: List&lt;HighlightRegion&gt;
   ///
   ///   The highlight regions contained in the file. Each highlight region
   ///   represents a particular syntactic or semantic meaning associated with
@@ -799,11 +799,11 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file with which the implementations are associated.
   ///
-  /// classes: List<ImplementedClass>
+  /// classes: List&lt;ImplementedClass&gt;
   ///
   ///   The classes defined in the file that are implemented or extended.
   ///
-  /// members: List<ImplementedMember>
+  /// members: List&lt;ImplementedMember&gt;
   ///
   ///   The member defined in the file that are implemented or overridden.
   late Stream<AnalysisImplementedParams> onAnalysisImplemented;
@@ -854,7 +854,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file containing the navigation regions.
   ///
-  /// regions: List<NavigationRegion>
+  /// regions: List&lt;NavigationRegion&gt;
   ///
   ///   The navigation regions contained in the file. The regions are sorted by
   ///   their offsets. Each navigation region represents a list of targets
@@ -864,12 +864,12 @@ abstract class IntegrationTestMixin {
   ///   versions of a package. Note that the navigation regions that are
   ///   returned do not overlap other navigation regions.
   ///
-  /// targets: List<NavigationTarget>
+  /// targets: List&lt;NavigationTarget&gt;
   ///
   ///   The navigation targets referenced in the file. They are referenced by
   ///   NavigationRegions by their index in this array.
   ///
-  /// files: List<FilePath>
+  /// files: List&lt;FilePath&gt;
   ///
   ///   The files containing navigation targets referenced in the file. They
   ///   are referenced by NavigationTargets by their index in this array.
@@ -890,7 +890,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file in which the references occur.
   ///
-  /// occurrences: List<Occurrences>
+  /// occurrences: List&lt;Occurrences&gt;
   ///
   ///   The occurrences of references to elements within the file.
   late Stream<AnalysisOccurrencesParams> onAnalysisOccurrences;
@@ -942,7 +942,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file with which the overrides are associated.
   ///
-  /// overrides: List<Override>
+  /// overrides: List&lt;Override&gt;
   ///
   ///   The overrides associated with the file.
   late Stream<AnalysisOverridesParams> onAnalysisOverrides;
@@ -1018,7 +1018,7 @@ abstract class IntegrationTestMixin {
   ///   is applied (that is, the number of characters in the existing
   ///   identifier).
   ///
-  /// suggestions: List<CompletionSuggestion>
+  /// suggestions: List&lt;CompletionSuggestion&gt;
   ///
   ///   The completion suggestions being reported. This list is filtered by the
   ///   already existing prefix, and sorted first by relevance, and (if the
@@ -1061,7 +1061,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// subscriptions: List<CompletionService>
+  /// subscriptions: List&lt;CompletionService&gt;
   ///
   ///   A list of the services being subscribed to.
   Future sendCompletionSetSubscriptions(
@@ -1082,7 +1082,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// paths: List<LibraryPathSet>
+  /// paths: List&lt;LibraryPathSet&gt;
   ///
   ///   A list of objects each containing a path and the additional libraries
   ///   from which the client is interested in receiving completion
@@ -1225,7 +1225,7 @@ abstract class IntegrationTestMixin {
   ///   is applied (that is, the number of characters in the existing
   ///   identifier).
   ///
-  /// results: List<CompletionSuggestion>
+  /// results: List&lt;CompletionSuggestion&gt;
   ///
   ///   The completion suggestions being reported. The notification contains
   ///   all possible completions at the requested cursor position, even those
@@ -1246,20 +1246,20 @@ abstract class IntegrationTestMixin {
   ///   to existing imports in the library, the corresponding existingImports
   ///   notification will be sent before the completion notification.
   ///
-  /// includedSuggestionSets: List<IncludedSuggestionSet> (optional)
+  /// includedSuggestionSets: List&lt;IncludedSuggestionSet&gt; (optional)
   ///
   ///   References to AvailableSuggestionSet objects previously sent to the
   ///   client. The client can include applicable names from the referenced
   ///   library in code completion suggestions.
   ///
-  /// includedElementKinds: List<ElementKind> (optional)
+  /// includedElementKinds: List&lt;ElementKind&gt; (optional)
   ///
   ///   The client is expected to check this list against the ElementKind sent
   ///   in IncludedSuggestionSet to decide whether or not these symbols should
   ///   should be presented to the user.
   ///
-  /// includedSuggestionRelevanceTags: List<IncludedSuggestionRelevanceTag>
-  /// (optional)
+  /// includedSuggestionRelevanceTags:
+  /// List&lt;IncludedSuggestionRelevanceTag&gt; (optional)
   ///
   ///   The client is expected to check this list against the values of the
   ///   field relevanceTags of AvailableSuggestion to decide if the suggestion
@@ -1284,12 +1284,12 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// changedLibraries: List<AvailableSuggestionSet> (optional)
+  /// changedLibraries: List&lt;AvailableSuggestionSet&gt; (optional)
   ///
   ///   A list of pre-computed, potential completions coming from this set of
   ///   completion suggestions.
   ///
-  /// removedLibraries: List<int> (optional)
+  /// removedLibraries: List&lt;int&gt; (optional)
   ///
   ///   A list of library ids that no longer apply.
   late Stream<CompletionAvailableSuggestionsParams>
@@ -1470,11 +1470,11 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// declarations: List<ElementDeclaration>
+  /// declarations: List&lt;ElementDeclaration&gt;
   ///
   ///   The list of declarations.
   ///
-  /// files: List<FilePath>
+  /// files: List&lt;FilePath&gt;
   ///
   ///   The list of the paths of files with declarations.
   Future<SearchGetElementDeclarationsResult> sendSearchGetElementDeclarations(
@@ -1509,7 +1509,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// hierarchyItems: List<TypeHierarchyItem> (optional)
+  /// hierarchyItems: List&lt;TypeHierarchyItem&gt; (optional)
   ///
   ///   A list of the types in the requested hierarchy. The first element of
   ///   the list is the item representing the type for which the hierarchy was
@@ -1542,7 +1542,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The id associated with the search.
   ///
-  /// results: List<SearchResult>
+  /// results: List&lt;SearchResult&gt;
   ///
   ///   The search results being reported.
   ///
@@ -1589,7 +1589,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// edits: List<SourceEdit>
+  /// edits: List&lt;SourceEdit&gt;
   ///
   ///   The edit(s) to be applied in order to format the code. The list will be
   ///   empty if the code was already formatted (there are no changes).
@@ -1623,13 +1623,13 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// directories: List<FilePath>
+  /// directories: List&lt;FilePath&gt;
   ///
   ///   The paths of the directories containing the code to be formatted.
   ///
   /// Returns
   ///
-  /// edits: List<SourceFileEdit>
+  /// edits: List&lt;SourceFileEdit&gt;
   ///
   ///   The edit(s) to be applied in order to format the code. The list will be
   ///   empty if none of the files were formatted, whether because they were
@@ -1663,7 +1663,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// assists: List<SourceChange>
+  /// assists: List&lt;SourceChange&gt;
   ///
   ///   The assists that are available at the given location.
   Future<EditGetAssistsResult> sendEditGetAssists(
@@ -1693,7 +1693,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// kinds: List<RefactoringKind>
+  /// kinds: List&lt;RefactoringKind&gt;
   ///
   ///   The kinds of refactorings that are valid for the given selection.
   Future<EditGetAvailableRefactoringsResult> sendEditGetAvailableRefactorings(
@@ -1713,7 +1713,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// included: List<FilePath>
+  /// included: List&lt;FilePath&gt;
   ///
   ///   A list of the files and directories for which edits should be
   ///   suggested.
@@ -1737,11 +1737,11 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// edits: List<SourceFileEdit>
+  /// edits: List&lt;SourceFileEdit&gt;
   ///
   ///   A list of source edits to apply the recommended changes.
   ///
-  /// details: List<BulkFix>
+  /// details: List&lt;BulkFix&gt;
   ///
   ///   Details that summarize the fixes associated with the recommended
   ///   changes.
@@ -1773,7 +1773,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// fixes: List<AnalysisErrorFixes>
+  /// fixes: List&lt;AnalysisErrorFixes&gt;
   ///
   ///   The fixes that are available for the errors at the given offset.
   Future<EditGetFixesResult> sendEditGetFixes(String file, int offset) async {
@@ -1853,19 +1853,19 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// initialProblems: List<RefactoringProblem>
+  /// initialProblems: List&lt;RefactoringProblem&gt;
   ///
   ///   The initial status of the refactoring, i.e. problems related to the
   ///   context in which the refactoring is requested. The array will be empty
   ///   if there are no known problems.
   ///
-  /// optionsProblems: List<RefactoringProblem>
+  /// optionsProblems: List&lt;RefactoringProblem&gt;
   ///
   ///   The options validation status, i.e. problems in the given options, such
   ///   as light-weight validation of a new name, flags compatibility, etc. The
   ///   array will be empty if there are no known problems.
   ///
-  /// finalProblems: List<RefactoringProblem>
+  /// finalProblems: List&lt;RefactoringProblem&gt;
   ///
   ///   The final status of the refactoring, i.e. problems identified in the
   ///   result of a full, potentially expensive validation and / or change
@@ -1885,7 +1885,7 @@ abstract class IntegrationTestMixin {
   ///   changes from being computed, such as having no options specified for a
   ///   refactoring that requires them, or if only validation was requested.
   ///
-  /// potentialEdits: List<String> (optional)
+  /// potentialEdits: List&lt;String&gt; (optional)
   ///
   ///   The ids of source edits that are not known to be valid. An edit is not
   ///   known to be valid if there was insufficient type information for the
@@ -1981,7 +1981,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// templates: List<PostfixTemplateDescriptor>
+  /// templates: List&lt;PostfixTemplateDescriptor&gt;
   ///
   ///   The list of available templates.
   Future<EditListPostfixCompletionTemplatesResult>
@@ -2007,7 +2007,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file in which the specified elements are to be made accessible.
   ///
-  /// elements: List<ImportedElements>
+  /// elements: List&lt;ImportedElements&gt;
   ///
   ///   The elements to be made accessible in the specified file.
   ///
@@ -2177,12 +2177,12 @@ abstract class IntegrationTestMixin {
   ///   The offset in the context file, e.g. the line offset in the current
   ///   debugger frame.
   ///
-  /// variables: List<RuntimeCompletionVariable>
+  /// variables: List&lt;RuntimeCompletionVariable&gt;
   ///
   ///   The runtime context variables that are potentially referenced in the
   ///   code.
   ///
-  /// expressions: List<RuntimeCompletionExpression> (optional)
+  /// expressions: List&lt;RuntimeCompletionExpression&gt; (optional)
   ///
   ///   The list of sub-expressions in the code for which the client wants to
   ///   provide runtime types. It does not have to be the full list of
@@ -2196,7 +2196,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// suggestions: List<CompletionSuggestion> (optional)
+  /// suggestions: List&lt;CompletionSuggestion&gt; (optional)
   ///
   ///   The completion suggestions. In contrast to usual completion request,
   ///   suggestions for private elements also will be provided.
@@ -2207,7 +2207,7 @@ abstract class IntegrationTestMixin {
   ///   server omits this field in the response, and instead will return the
   ///   "expressions" field.
   ///
-  /// expressions: List<RuntimeCompletionExpression> (optional)
+  /// expressions: List&lt;RuntimeCompletionExpression&gt; (optional)
   ///
   ///   The list of sub-expressions in the code for which the server would like
   ///   to know runtime types to provide better completion suggestions.
@@ -2294,7 +2294,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// subscriptions: List<ExecutionService>
+  /// subscriptions: List&lt;ExecutionService&gt;
   ///
   ///   A list of the services being subscribed to.
   @deprecated
@@ -2324,7 +2324,7 @@ abstract class IntegrationTestMixin {
   ///   The kind of the executable file. This field is omitted if the file is
   ///   not a Dart file.
   ///
-  /// referencedFiles: List<FilePath> (optional)
+  /// referencedFiles: List&lt;FilePath&gt; (optional)
   ///
   ///   A list of the Dart files that are referenced by the file. This field is
   ///   omitted if the file is not an HTML file.
@@ -2337,7 +2337,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// contexts: List<ContextData>
+  /// contexts: List&lt;ContextData&gt;
   ///
   ///   The list of analysis contexts.
   Future<DiagnosticGetDiagnosticsResult> sendDiagnosticGetDiagnostics() async {
@@ -2476,11 +2476,11 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// entries: List<KytheEntry>
+  /// entries: List&lt;KytheEntry&gt;
   ///
   ///   The list of KytheEntry objects for the queried file.
   ///
-  /// files: List<FilePath>
+  /// files: List&lt;FilePath&gt;
   ///
   ///   The set of files paths that were required, but not in the file system,
   ///   to give a complete and accurate Kythe graph for the file. This could be
@@ -2515,7 +2515,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// properties: List<FlutterWidgetProperty>
+  /// properties: List&lt;FlutterWidgetProperty&gt;
   ///
   ///   The list of properties of the widget. Some of the properties might be
   ///   read only, when their editor is not set. This might be because they
@@ -2601,7 +2601,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// subscriptions: Map<FlutterService, List<FilePath>>
+  /// subscriptions: Map&lt;FlutterService, List&lt;FilePath&gt;&gt;
   ///
   ///   A table mapping services to a list of the files being subscribed to the
   ///   service.

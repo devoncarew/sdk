@@ -32,7 +32,7 @@ final Matcher isAddContentOverlay = LazyMatcher(() => MatchesJsonObject(
 ///   "correction": optional String
 ///   "code": String
 ///   "url": optional String
-///   "contextMessages": optional List<DiagnosticMessage>
+///   "contextMessages": optional List&lt;DiagnosticMessage&gt;
 ///   "hasFix": optional bool
 /// }
 final Matcher isAnalysisError =
@@ -53,7 +53,7 @@ final Matcher isAnalysisError =
 ///
 /// {
 ///   "error": AnalysisError
-///   "fixes": List<SourceChange>
+///   "fixes": List&lt;SourceChange&gt;
 /// }
 final Matcher isAnalysisErrorFixes = LazyMatcher(() => MatchesJsonObject(
     'AnalysisErrorFixes',
@@ -158,10 +158,10 @@ final Matcher isAnalysisStatus = LazyMatcher(() => MatchesJsonObject(
 ///   "declaringLibraryUri": String
 ///   "element": Element
 ///   "defaultArgumentListString": optional String
-///   "defaultArgumentListTextRanges": optional List<int>
-///   "parameterNames": optional List<String>
-///   "parameterTypes": optional List<String>
-///   "relevanceTags": optional List<AvailableSuggestionRelevanceTag>
+///   "defaultArgumentListTextRanges": optional List&lt;int&gt;
+///   "parameterNames": optional List&lt;String&gt;
+///   "parameterTypes": optional List&lt;String&gt;
+///   "relevanceTags": optional List&lt;AvailableSuggestionRelevanceTag&gt;
 ///   "requiredParameterCount": optional int
 /// }
 final Matcher isAvailableSuggestion =
@@ -188,7 +188,7 @@ final Matcher isAvailableSuggestionRelevanceTag = isString;
 /// {
 ///   "id": int
 ///   "uri": String
-///   "items": List<AvailableSuggestion>
+///   "items": List&lt;AvailableSuggestion&gt;
 /// }
 final Matcher isAvailableSuggestionSet = LazyMatcher(() => MatchesJsonObject(
     'AvailableSuggestionSet',
@@ -198,7 +198,7 @@ final Matcher isAvailableSuggestionSet = LazyMatcher(() => MatchesJsonObject(
 ///
 /// {
 ///   "path": FilePath
-///   "fixes": List<BulkFixDetail>
+///   "fixes": List&lt;BulkFixDetail&gt;
 /// }
 final Matcher isBulkFix = LazyMatcher(() => MatchesJsonObject(
     'BulkFix', {'path': isFilePath, 'fixes': isListOf(isBulkFixDetail)}));
@@ -216,7 +216,7 @@ final Matcher isBulkFixDetail = LazyMatcher(() => MatchesJsonObject(
 ///
 /// {
 ///   "type": "change"
-///   "edits": List<SourceEdit>
+///   "edits": List&lt;SourceEdit&gt;
 /// }
 final Matcher isChangeContentOverlay = LazyMatcher(() => MatchesJsonObject(
     'ChangeContentOverlay',
@@ -281,11 +281,11 @@ final Matcher isCompletionService =
 ///   "docComplete": optional String
 ///   "declaringType": optional String
 ///   "defaultArgumentListString": optional String
-///   "defaultArgumentListTextRanges": optional List<int>
+///   "defaultArgumentListTextRanges": optional List&lt;int&gt;
 ///   "element": optional Element
 ///   "returnType": optional String
-///   "parameterNames": optional List<String>
-///   "parameterTypes": optional List<String>
+///   "parameterNames": optional List&lt;String&gt;
+///   "parameterTypes": optional List&lt;String&gt;
 ///   "requiredParameterCount": optional int
 ///   "hasNamedParameters": optional bool
 ///   "parameterName": optional String
@@ -358,7 +358,7 @@ final Matcher isCompletionSuggestionKind =
 ///   "explicitFileCount": int
 ///   "implicitFileCount": int
 ///   "workItemQueueLength": int
-///   "cacheEntryExceptions": List<String>
+///   "cacheEntryExceptions": List&lt;String&gt;
 /// }
 final Matcher isContextData =
     LazyMatcher(() => MatchesJsonObject('ContextData', {
@@ -533,7 +533,7 @@ final Matcher isExecutionService =
 ///
 /// {
 ///   "uri": int
-///   "elements": List<int>
+///   "elements": List&lt;int&gt;
 /// }
 final Matcher isExistingImport = LazyMatcher(() => MatchesJsonObject(
     'ExistingImport', {'uri': isInt, 'elements': isListOf(isInt)}));
@@ -542,7 +542,7 @@ final Matcher isExistingImport = LazyMatcher(() => MatchesJsonObject(
 ///
 /// {
 ///   "elements": ImportedElementSet
-///   "imports": List<ExistingImport>
+///   "imports": List&lt;ExistingImport&gt;
 /// }
 final Matcher isExistingImports = LazyMatcher(() => MatchesJsonObject(
     'ExistingImports',
@@ -571,11 +571,11 @@ final Matcher isFilePath = isString;
 ///   "codeLength": int
 ///   "label": optional String
 ///   "dartElement": optional Element
-///   "attributes": optional List<FlutterOutlineAttribute>
+///   "attributes": optional List&lt;FlutterOutlineAttribute&gt;
 ///   "className": optional String
 ///   "parentAssociationLabel": optional String
 ///   "variableName": optional String
-///   "children": optional List<FlutterOutline>
+///   "children": optional List&lt;FlutterOutline&gt;
 /// }
 final Matcher isFlutterOutline =
     LazyMatcher(() => MatchesJsonObject('FlutterOutline', {
@@ -652,7 +652,7 @@ final Matcher isFlutterService = MatchesEnum('FlutterService', ['OUTLINE']);
 ///   "isRequired": bool
 ///   "isSafeToUpdate": bool
 ///   "name": String
-///   "children": optional List<FlutterWidgetProperty>
+///   "children": optional List&lt;FlutterWidgetProperty&gt;
 ///   "editor": optional FlutterWidgetPropertyEditor
 ///   "value": optional FlutterWidgetPropertyValue
 /// }
@@ -674,7 +674,7 @@ final Matcher isFlutterWidgetProperty =
 ///
 /// {
 ///   "kind": FlutterWidgetPropertyEditorKind
-///   "enumItems": optional List<FlutterWidgetPropertyValueEnumItem>
+///   "enumItems": optional List&lt;FlutterWidgetPropertyValueEnumItem&gt;
 /// }
 final Matcher isFlutterWidgetPropertyEditor = LazyMatcher(() =>
     MatchesJsonObject('FlutterWidgetPropertyEditor', {
@@ -1010,9 +1010,9 @@ final Matcher isImplementedMember = LazyMatcher(() =>
 /// ImportedElementSet
 ///
 /// {
-///   "strings": List<String>
-///   "uris": List<int>
-///   "names": List<int>
+///   "strings": List&lt;String&gt;
+///   "uris": List&lt;int&gt;
+///   "names": List&lt;int&gt;
 /// }
 final Matcher isImportedElementSet = LazyMatcher(() => MatchesJsonObject(
         'ImportedElementSet', {
@@ -1026,7 +1026,7 @@ final Matcher isImportedElementSet = LazyMatcher(() => MatchesJsonObject(
 /// {
 ///   "path": FilePath
 ///   "prefix": String
-///   "elements": List<String>
+///   "elements": List&lt;String&gt;
 /// }
 final Matcher isImportedElements = LazyMatcher(() => MatchesJsonObject(
     'ImportedElements',
@@ -1060,7 +1060,7 @@ final Matcher isIncludedSuggestionSet = LazyMatcher(() => MatchesJsonObject(
 ///   "kind": optional String
 ///   "target": optional KytheVName
 ///   "fact": String
-///   "value": optional List<int>
+///   "value": optional List&lt;int&gt;
 /// }
 final Matcher isKytheEntry = LazyMatcher(() => MatchesJsonObject('KytheEntry', {
       'source': isKytheVName,
@@ -1092,7 +1092,7 @@ final Matcher isKytheVName = LazyMatcher(() => MatchesJsonObject('KytheVName', {
 ///
 /// {
 ///   "scope": FilePath
-///   "libraryPaths": List<FilePath>
+///   "libraryPaths": List&lt;FilePath&gt;
 /// }
 final Matcher isLibraryPathSet = LazyMatcher(() => MatchesJsonObject(
     'LibraryPathSet',
@@ -1101,9 +1101,9 @@ final Matcher isLibraryPathSet = LazyMatcher(() => MatchesJsonObject(
 /// LinkedEditGroup
 ///
 /// {
-///   "positions": List<Position>
+///   "positions": List&lt;Position&gt;
 ///   "length": int
-///   "suggestions": List<LinkedEditSuggestion>
+///   "suggestions": List&lt;LinkedEditSuggestion&gt;
 /// }
 final Matcher isLinkedEditGroup =
     LazyMatcher(() => MatchesJsonObject('LinkedEditGroup', {
@@ -1160,7 +1160,7 @@ final Matcher isLocation = LazyMatcher(() => MatchesJsonObject('Location', {
 /// {
 ///   "offset": int
 ///   "length": int
-///   "targets": List<int>
+///   "targets": List&lt;int&gt;
 /// }
 final Matcher isNavigationRegion = LazyMatcher(() => MatchesJsonObject(
     'NavigationRegion',
@@ -1195,7 +1195,7 @@ final Matcher isNavigationTarget =
 ///
 /// {
 ///   "element": Element
-///   "offsets": List<int>
+///   "offsets": List&lt;int&gt;
 ///   "length": int
 /// }
 final Matcher isOccurrences = LazyMatcher(() => MatchesJsonObject('Occurrences',
@@ -1209,7 +1209,7 @@ final Matcher isOccurrences = LazyMatcher(() => MatchesJsonObject('Occurrences',
 ///   "length": int
 ///   "codeOffset": int
 ///   "codeLength": int
-///   "children": optional List<Outline>
+///   "children": optional List&lt;Outline&gt;
 /// }
 final Matcher isOutline = LazyMatcher(() => MatchesJsonObject('Outline', {
       'element': isElement,
@@ -1236,7 +1236,7 @@ final Matcher isOverriddenMember = LazyMatcher(() => MatchesJsonObject(
 ///   "offset": int
 ///   "length": int
 ///   "superclassMember": optional OverriddenMember
-///   "interfaceMembers": optional List<OverriddenMember>
+///   "interfaceMembers": optional List&lt;OverriddenMember&gt;
 /// }
 final Matcher isOverride = LazyMatcher(() => MatchesJsonObject('Override', {
       'offset': isInt,
@@ -1505,10 +1505,10 @@ final Matcher isRuntimeCompletionExpression = LazyMatcher(() =>
 ///   "libraryPath": optional FilePath
 ///   "kind": RuntimeCompletionExpressionTypeKind
 ///   "name": optional String
-///   "typeArguments": optional List<RuntimeCompletionExpressionType>
+///   "typeArguments": optional List&lt;RuntimeCompletionExpressionType&gt;
 ///   "returnType": optional RuntimeCompletionExpressionType
-///   "parameterTypes": optional List<RuntimeCompletionExpressionType>
-///   "parameterNames": optional List<String>
+///   "parameterTypes": optional List&lt;RuntimeCompletionExpressionType&gt;
+///   "parameterNames": optional List&lt;String&gt;
 /// }
 final Matcher isRuntimeCompletionExpressionType =
     LazyMatcher(() => MatchesJsonObject('RuntimeCompletionExpressionType', {
@@ -1554,7 +1554,7 @@ final Matcher isSearchId = isString;
 ///   "location": Location
 ///   "kind": SearchResultKind
 ///   "isPotential": bool
-///   "path": List<Element>
+///   "path": List&lt;Element&gt;
 /// }
 final Matcher isSearchResult =
     LazyMatcher(() => MatchesJsonObject('SearchResult', {
@@ -1619,8 +1619,8 @@ final Matcher isServerService = MatchesEnum('ServerService', ['LOG', 'STATUS']);
 ///
 /// {
 ///   "message": String
-///   "edits": List<SourceFileEdit>
-///   "linkedEditGroups": List<LinkedEditGroup>
+///   "edits": List&lt;SourceFileEdit&gt;
+///   "linkedEditGroups": List&lt;LinkedEditGroup&gt;
 ///   "selection": optional Position
 ///   "selectionLength": optional int
 ///   "id": optional String
@@ -1653,7 +1653,7 @@ final Matcher isSourceEdit = LazyMatcher(() => MatchesJsonObject(
 /// {
 ///   "file": FilePath
 ///   "fileStamp": long
-///   "edits": List<SourceEdit>
+///   "edits": List&lt;SourceEdit&gt;
 /// }
 final Matcher isSourceFileEdit = LazyMatcher(() => MatchesJsonObject(
     'SourceFileEdit',
@@ -1666,9 +1666,9 @@ final Matcher isSourceFileEdit = LazyMatcher(() => MatchesJsonObject(
 ///   "displayName": optional String
 ///   "memberElement": optional Element
 ///   "superclass": optional int
-///   "interfaces": List<int>
-///   "mixins": List<int>
-///   "subclasses": List<int>
+///   "interfaces": List&lt;int&gt;
+///   "mixins": List&lt;int&gt;
+///   "subclasses": List&lt;int&gt;
 /// }
 final Matcher isTypeHierarchyItem =
     LazyMatcher(() => MatchesJsonObject('TypeHierarchyItem', {
@@ -1685,7 +1685,7 @@ final Matcher isTypeHierarchyItem =
 /// analysis.analyzedFiles params
 ///
 /// {
-///   "directories": List<FilePath>
+///   "directories": List&lt;FilePath&gt;
 /// }
 final Matcher isAnalysisAnalyzedFilesParams = LazyMatcher(() =>
     MatchesJsonObject('analysis.analyzedFiles params',
@@ -1695,7 +1695,7 @@ final Matcher isAnalysisAnalyzedFilesParams = LazyMatcher(() =>
 ///
 /// {
 ///   "file": FilePath
-///   "labels": List<ClosingLabel>
+///   "labels": List&lt;ClosingLabel&gt;
 /// }
 final Matcher isAnalysisClosingLabelsParams = LazyMatcher(() =>
     MatchesJsonObject('analysis.closingLabels params',
@@ -1705,7 +1705,7 @@ final Matcher isAnalysisClosingLabelsParams = LazyMatcher(() =>
 ///
 /// {
 ///   "file": FilePath
-///   "errors": List<AnalysisError>
+///   "errors": List&lt;AnalysisError&gt;
 /// }
 final Matcher isAnalysisErrorsParams = LazyMatcher(() => MatchesJsonObject(
     'analysis.errors params',
@@ -1714,7 +1714,7 @@ final Matcher isAnalysisErrorsParams = LazyMatcher(() => MatchesJsonObject(
 /// analysis.flushResults params
 ///
 /// {
-///   "files": List<FilePath>
+///   "files": List&lt;FilePath&gt;
 /// }
 final Matcher isAnalysisFlushResultsParams = LazyMatcher(() =>
     MatchesJsonObject(
@@ -1724,7 +1724,7 @@ final Matcher isAnalysisFlushResultsParams = LazyMatcher(() =>
 ///
 /// {
 ///   "file": FilePath
-///   "regions": List<FoldingRegion>
+///   "regions": List&lt;FoldingRegion&gt;
 /// }
 final Matcher isAnalysisFoldingParams = LazyMatcher(() => MatchesJsonObject(
     'analysis.folding params',
@@ -1741,7 +1741,7 @@ final Matcher isAnalysisGetErrorsParams = LazyMatcher(
 /// analysis.getErrors result
 ///
 /// {
-///   "errors": List<AnalysisError>
+///   "errors": List&lt;AnalysisError&gt;
 /// }
 final Matcher isAnalysisGetErrorsResult = LazyMatcher(() => MatchesJsonObject(
     'analysis.getErrors result', {'errors': isListOf(isAnalysisError)}));
@@ -1758,7 +1758,7 @@ final Matcher isAnalysisGetHoverParams = LazyMatcher(() => MatchesJsonObject(
 /// analysis.getHover result
 ///
 /// {
-///   "hovers": List<HoverInformation>
+///   "hovers": List&lt;HoverInformation&gt;
 /// }
 final Matcher isAnalysisGetHoverResult = LazyMatcher(() => MatchesJsonObject(
     'analysis.getHover result', {'hovers': isListOf(isHoverInformation)}));
@@ -1777,7 +1777,7 @@ final Matcher isAnalysisGetImportedElementsParams = LazyMatcher(() =>
 /// analysis.getImportedElements result
 ///
 /// {
-///   "elements": List<ImportedElements>
+///   "elements": List&lt;ImportedElements&gt;
 /// }
 final Matcher isAnalysisGetImportedElementsResult = LazyMatcher(() =>
     MatchesJsonObject('analysis.getImportedElements result',
@@ -1789,8 +1789,8 @@ final Matcher isAnalysisGetLibraryDependenciesParams = isNull;
 /// analysis.getLibraryDependencies result
 ///
 /// {
-///   "libraries": List<FilePath>
-///   "packageMap": Map<String, Map<String, List<FilePath>>>
+///   "libraries": List&lt;FilePath&gt;
+///   "packageMap": Map&lt;String, Map&lt;String, List&lt;FilePath&gt;&gt;&gt;
 /// }
 final Matcher isAnalysisGetLibraryDependenciesResult = LazyMatcher(
     () => MatchesJsonObject('analysis.getLibraryDependencies result', {
@@ -1813,9 +1813,9 @@ final Matcher isAnalysisGetNavigationParams = LazyMatcher(() =>
 /// analysis.getNavigation result
 ///
 /// {
-///   "files": List<FilePath>
-///   "targets": List<NavigationTarget>
-///   "regions": List<NavigationRegion>
+///   "files": List&lt;FilePath&gt;
+///   "targets": List&lt;NavigationTarget&gt;
+///   "regions": List&lt;NavigationRegion&gt;
 /// }
 final Matcher isAnalysisGetNavigationResult =
     LazyMatcher(() => MatchesJsonObject('analysis.getNavigation result', {
@@ -1836,7 +1836,7 @@ final Matcher isAnalysisGetReachableSourcesParams = LazyMatcher(() =>
 /// analysis.getReachableSources result
 ///
 /// {
-///   "sources": Map<String, List<String>>
+///   "sources": Map&lt;String, List&lt;String&gt;&gt;
 /// }
 final Matcher isAnalysisGetReachableSourcesResult = LazyMatcher(() =>
     MatchesJsonObject('analysis.getReachableSources result',
@@ -1856,7 +1856,7 @@ final Matcher isAnalysisGetSignatureParams = LazyMatcher(() =>
 ///
 /// {
 ///   "name": String
-///   "parameters": List<ParameterInfo>
+///   "parameters": List&lt;ParameterInfo&gt;
 ///   "dartdoc": optional String
 /// }
 final Matcher isAnalysisGetSignatureResult = LazyMatcher(() =>
@@ -1868,7 +1868,7 @@ final Matcher isAnalysisGetSignatureResult = LazyMatcher(() =>
 ///
 /// {
 ///   "file": FilePath
-///   "regions": List<HighlightRegion>
+///   "regions": List&lt;HighlightRegion&gt;
 /// }
 final Matcher isAnalysisHighlightsParams = LazyMatcher(() => MatchesJsonObject(
     'analysis.highlights params',
@@ -1878,8 +1878,8 @@ final Matcher isAnalysisHighlightsParams = LazyMatcher(() => MatchesJsonObject(
 ///
 /// {
 ///   "file": FilePath
-///   "classes": List<ImplementedClass>
-///   "members": List<ImplementedMember>
+///   "classes": List&lt;ImplementedClass&gt;
+///   "members": List&lt;ImplementedMember&gt;
 /// }
 final Matcher isAnalysisImplementedParams =
     LazyMatcher(() => MatchesJsonObject('analysis.implemented params', {
@@ -1904,9 +1904,9 @@ final Matcher isAnalysisInvalidateParams = LazyMatcher(() => MatchesJsonObject(
 ///
 /// {
 ///   "file": FilePath
-///   "regions": List<NavigationRegion>
-///   "targets": List<NavigationTarget>
-///   "files": List<FilePath>
+///   "regions": List&lt;NavigationRegion&gt;
+///   "targets": List&lt;NavigationTarget&gt;
+///   "files": List&lt;FilePath&gt;
 /// }
 final Matcher isAnalysisNavigationParams =
     LazyMatcher(() => MatchesJsonObject('analysis.navigation params', {
@@ -1920,7 +1920,7 @@ final Matcher isAnalysisNavigationParams =
 ///
 /// {
 ///   "file": FilePath
-///   "occurrences": List<Occurrences>
+///   "occurrences": List&lt;Occurrences&gt;
 /// }
 final Matcher isAnalysisOccurrencesParams = LazyMatcher(() => MatchesJsonObject(
     'analysis.occurrences params',
@@ -1943,7 +1943,7 @@ final Matcher isAnalysisOutlineParams = LazyMatcher(() => MatchesJsonObject(
 ///
 /// {
 ///   "file": FilePath
-///   "overrides": List<Override>
+///   "overrides": List&lt;Override&gt;
 /// }
 final Matcher isAnalysisOverridesParams = LazyMatcher(() => MatchesJsonObject(
     'analysis.overrides params',
@@ -1958,9 +1958,9 @@ final Matcher isAnalysisReanalyzeResult = isNull;
 /// analysis.setAnalysisRoots params
 ///
 /// {
-///   "included": List<FilePath>
-///   "excluded": List<FilePath>
-///   "packageRoots": optional Map<FilePath, FilePath>
+///   "included": List&lt;FilePath&gt;
+///   "excluded": List&lt;FilePath&gt;
+///   "packageRoots": optional Map&lt;FilePath, FilePath&gt;
 /// }
 final Matcher isAnalysisSetAnalysisRootsParams = LazyMatcher(() =>
     MatchesJsonObject('analysis.setAnalysisRoots params',
@@ -1973,7 +1973,7 @@ final Matcher isAnalysisSetAnalysisRootsResult = isNull;
 /// analysis.setGeneralSubscriptions params
 ///
 /// {
-///   "subscriptions": List<GeneralAnalysisService>
+///   "subscriptions": List&lt;GeneralAnalysisService&gt;
 /// }
 final Matcher isAnalysisSetGeneralSubscriptionsParams = LazyMatcher(() =>
     MatchesJsonObject('analysis.setGeneralSubscriptions params',
@@ -1985,7 +1985,7 @@ final Matcher isAnalysisSetGeneralSubscriptionsResult = isNull;
 /// analysis.setPriorityFiles params
 ///
 /// {
-///   "files": List<FilePath>
+///   "files": List&lt;FilePath&gt;
 /// }
 final Matcher isAnalysisSetPriorityFilesParams = LazyMatcher(() =>
     MatchesJsonObject(
@@ -1997,7 +1997,7 @@ final Matcher isAnalysisSetPriorityFilesResult = isNull;
 /// analysis.setSubscriptions params
 ///
 /// {
-///   "subscriptions": Map<AnalysisService, List<FilePath>>
+///   "subscriptions": Map&lt;AnalysisService, List&lt;FilePath&gt;&gt;
 /// }
 final Matcher isAnalysisSetSubscriptionsParams = LazyMatcher(() =>
     MatchesJsonObject('analysis.setSubscriptions params',
@@ -2009,7 +2009,7 @@ final Matcher isAnalysisSetSubscriptionsResult = isNull;
 /// analysis.updateContent params
 ///
 /// {
-///   "files": Map<FilePath, AddContentOverlay | ChangeContentOverlay | RemoveContentOverlay>
+///   "files": Map&lt;FilePath, AddContentOverlay | ChangeContentOverlay | RemoveContentOverlay&gt;
 /// }
 final Matcher isAnalysisUpdateContentParams =
     LazyMatcher(() => MatchesJsonObject('analysis.updateContent params', {
@@ -2089,8 +2089,8 @@ final Matcher isAnalyticsSendTimingResult = isNull;
 /// completion.availableSuggestions params
 ///
 /// {
-///   "changedLibraries": optional List<AvailableSuggestionSet>
-///   "removedLibraries": optional List<int>
+///   "changedLibraries": optional List&lt;AvailableSuggestionSet&gt;
+///   "removedLibraries": optional List&lt;int&gt;
 /// }
 final Matcher isCompletionAvailableSuggestionsParams = LazyMatcher(() =>
     MatchesJsonObject('completion.availableSuggestions params', null,
@@ -2183,7 +2183,7 @@ final Matcher isCompletionGetSuggestions2Params =
 /// {
 ///   "replacementOffset": int
 ///   "replacementLength": int
-///   "suggestions": List<CompletionSuggestion>
+///   "suggestions": List&lt;CompletionSuggestion&gt;
 ///   "isIncomplete": bool
 /// }
 final Matcher isCompletionGetSuggestions2Result =
@@ -2216,7 +2216,7 @@ final Matcher isCompletionGetSuggestionsResult = LazyMatcher(() =>
 /// completion.registerLibraryPaths params
 ///
 /// {
-///   "paths": List<LibraryPathSet>
+///   "paths": List&lt;LibraryPathSet&gt;
 /// }
 final Matcher isCompletionRegisterLibraryPathsParams = LazyMatcher(() =>
     MatchesJsonObject('completion.registerLibraryPaths params',
@@ -2231,12 +2231,12 @@ final Matcher isCompletionRegisterLibraryPathsResult = isNull;
 ///   "id": CompletionId
 ///   "replacementOffset": int
 ///   "replacementLength": int
-///   "results": List<CompletionSuggestion>
+///   "results": List&lt;CompletionSuggestion&gt;
 ///   "isLast": bool
 ///   "libraryFile": optional FilePath
-///   "includedSuggestionSets": optional List<IncludedSuggestionSet>
-///   "includedElementKinds": optional List<ElementKind>
-///   "includedSuggestionRelevanceTags": optional List<IncludedSuggestionRelevanceTag>
+///   "includedSuggestionSets": optional List&lt;IncludedSuggestionSet&gt;
+///   "includedElementKinds": optional List&lt;ElementKind&gt;
+///   "includedSuggestionRelevanceTags": optional List&lt;IncludedSuggestionRelevanceTag&gt;
 /// }
 final Matcher isCompletionResultsParams =
     LazyMatcher(() => MatchesJsonObject('completion.results params', {
@@ -2256,7 +2256,7 @@ final Matcher isCompletionResultsParams =
 /// completion.setSubscriptions params
 ///
 /// {
-///   "subscriptions": List<CompletionService>
+///   "subscriptions": List&lt;CompletionService&gt;
 /// }
 final Matcher isCompletionSetSubscriptionsParams = LazyMatcher(() =>
     MatchesJsonObject('completion.setSubscriptions params',
@@ -2283,7 +2283,7 @@ final Matcher isDiagnosticGetDiagnosticsParams = isNull;
 /// diagnostic.getDiagnostics result
 ///
 /// {
-///   "contexts": List<ContextData>
+///   "contexts": List&lt;ContextData&gt;
 /// }
 final Matcher isDiagnosticGetDiagnosticsResult = LazyMatcher(() =>
     MatchesJsonObject('diagnostic.getDiagnostics result',
@@ -2303,7 +2303,7 @@ final Matcher isDiagnosticGetServerPortResult = LazyMatcher(() =>
 /// edit.bulkFixes params
 ///
 /// {
-///   "included": List<FilePath>
+///   "included": List&lt;FilePath&gt;
 ///   "inTestMode": optional bool
 /// }
 final Matcher isEditBulkFixesParams = LazyMatcher(() => MatchesJsonObject(
@@ -2313,8 +2313,8 @@ final Matcher isEditBulkFixesParams = LazyMatcher(() => MatchesJsonObject(
 /// edit.bulkFixes result
 ///
 /// {
-///   "edits": List<SourceFileEdit>
-///   "details": List<BulkFix>
+///   "edits": List&lt;SourceFileEdit&gt;
+///   "details": List&lt;BulkFix&gt;
 /// }
 final Matcher isEditBulkFixesResult = LazyMatcher(() => MatchesJsonObject(
     'edit.bulkFixes result',
@@ -2323,7 +2323,7 @@ final Matcher isEditBulkFixesResult = LazyMatcher(() => MatchesJsonObject(
 /// edit.formatIfEnabled params
 ///
 /// {
-///   "directories": List<FilePath>
+///   "directories": List&lt;FilePath&gt;
 /// }
 final Matcher isEditFormatIfEnabledParams = LazyMatcher(() => MatchesJsonObject(
     'edit.formatIfEnabled params', {'directories': isListOf(isFilePath)}));
@@ -2331,7 +2331,7 @@ final Matcher isEditFormatIfEnabledParams = LazyMatcher(() => MatchesJsonObject(
 /// edit.formatIfEnabled result
 ///
 /// {
-///   "edits": List<SourceFileEdit>
+///   "edits": List&lt;SourceFileEdit&gt;
 /// }
 final Matcher isEditFormatIfEnabledResult = LazyMatcher(() => MatchesJsonObject(
     'edit.formatIfEnabled result', {'edits': isListOf(isSourceFileEdit)}));
@@ -2352,7 +2352,7 @@ final Matcher isEditFormatParams = LazyMatcher(() => MatchesJsonObject(
 /// edit.format result
 ///
 /// {
-///   "edits": List<SourceEdit>
+///   "edits": List&lt;SourceEdit&gt;
 ///   "selectionOffset": int
 ///   "selectionLength": int
 /// }
@@ -2377,7 +2377,7 @@ final Matcher isEditGetAssistsParams = LazyMatcher(() => MatchesJsonObject(
 /// edit.getAssists result
 ///
 /// {
-///   "assists": List<SourceChange>
+///   "assists": List&lt;SourceChange&gt;
 /// }
 final Matcher isEditGetAssistsResult = LazyMatcher(() => MatchesJsonObject(
     'edit.getAssists result', {'assists': isListOf(isSourceChange)}));
@@ -2396,7 +2396,7 @@ final Matcher isEditGetAvailableRefactoringsParams = LazyMatcher(() =>
 /// edit.getAvailableRefactorings result
 ///
 /// {
-///   "kinds": List<RefactoringKind>
+///   "kinds": List&lt;RefactoringKind&gt;
 /// }
 final Matcher isEditGetAvailableRefactoringsResult = LazyMatcher(() =>
     MatchesJsonObject('edit.getAvailableRefactorings result',
@@ -2414,7 +2414,7 @@ final Matcher isEditGetFixesParams = LazyMatcher(() => MatchesJsonObject(
 /// edit.getFixes result
 ///
 /// {
-///   "fixes": List<AnalysisErrorFixes>
+///   "fixes": List&lt;AnalysisErrorFixes&gt;
 /// }
 final Matcher isEditGetFixesResult = LazyMatcher(() => MatchesJsonObject(
     'edit.getFixes result', {'fixes': isListOf(isAnalysisErrorFixes)}));
@@ -2463,12 +2463,12 @@ final Matcher isEditGetRefactoringParams =
 /// edit.getRefactoring result
 ///
 /// {
-///   "initialProblems": List<RefactoringProblem>
-///   "optionsProblems": List<RefactoringProblem>
-///   "finalProblems": List<RefactoringProblem>
+///   "initialProblems": List&lt;RefactoringProblem&gt;
+///   "optionsProblems": List&lt;RefactoringProblem&gt;
+///   "finalProblems": List&lt;RefactoringProblem&gt;
 ///   "feedback": optional RefactoringFeedback
 ///   "change": optional SourceChange
-///   "potentialEdits": optional List<String>
+///   "potentialEdits": optional List&lt;String&gt;
 /// }
 final Matcher isEditGetRefactoringResult =
     LazyMatcher(() => MatchesJsonObject('edit.getRefactoring result', {
@@ -2505,7 +2505,7 @@ final Matcher isEditGetStatementCompletionResult = LazyMatcher(() =>
 ///
 /// {
 ///   "file": FilePath
-///   "elements": List<ImportedElements>
+///   "elements": List&lt;ImportedElements&gt;
 ///   "offset": optional int
 /// }
 final Matcher isEditImportElementsParams = LazyMatcher(() => MatchesJsonObject(
@@ -2548,7 +2548,7 @@ final Matcher isEditListPostfixCompletionTemplatesParams = isNull;
 /// edit.listPostfixCompletionTemplates result
 ///
 /// {
-///   "templates": List<PostfixTemplateDescriptor>
+///   "templates": List&lt;PostfixTemplateDescriptor&gt;
 /// }
 final Matcher isEditListPostfixCompletionTemplatesResult = LazyMatcher(() =>
     MatchesJsonObject('edit.listPostfixCompletionTemplates result',
@@ -2624,8 +2624,8 @@ final Matcher isExecutionDeleteContextResult = isNull;
 ///   "offset": int
 ///   "contextFile": FilePath
 ///   "contextOffset": int
-///   "variables": List<RuntimeCompletionVariable>
-///   "expressions": optional List<RuntimeCompletionExpression>
+///   "variables": List&lt;RuntimeCompletionVariable&gt;
+///   "expressions": optional List&lt;RuntimeCompletionExpression&gt;
 /// }
 final Matcher isExecutionGetSuggestionsParams =
     LazyMatcher(() => MatchesJsonObject('execution.getSuggestions params', {
@@ -2641,8 +2641,8 @@ final Matcher isExecutionGetSuggestionsParams =
 /// execution.getSuggestions result
 ///
 /// {
-///   "suggestions": optional List<CompletionSuggestion>
-///   "expressions": optional List<RuntimeCompletionExpression>
+///   "suggestions": optional List&lt;CompletionSuggestion&gt;
+///   "expressions": optional List&lt;RuntimeCompletionExpression&gt;
 /// }
 final Matcher isExecutionGetSuggestionsResult = LazyMatcher(() =>
     MatchesJsonObject('execution.getSuggestions result', null, optionalFields: {
@@ -2655,7 +2655,7 @@ final Matcher isExecutionGetSuggestionsResult = LazyMatcher(() =>
 /// {
 ///   "file": FilePath
 ///   "kind": optional ExecutableKind
-///   "referencedFiles": optional List<FilePath>
+///   "referencedFiles": optional List&lt;FilePath&gt;
 /// }
 final Matcher isExecutionLaunchDataParams = LazyMatcher(() => MatchesJsonObject(
         'execution.launchData params', {
@@ -2689,7 +2689,7 @@ final Matcher isExecutionMapUriResult = LazyMatcher(() => MatchesJsonObject(
 /// execution.setSubscriptions params
 ///
 /// {
-///   "subscriptions": List<ExecutionService>
+///   "subscriptions": List&lt;ExecutionService&gt;
 /// }
 final Matcher isExecutionSetSubscriptionsParams = LazyMatcher(() =>
     MatchesJsonObject('execution.setSubscriptions params',
@@ -2701,11 +2701,11 @@ final Matcher isExecutionSetSubscriptionsResult = isNull;
 /// extractLocalVariable feedback
 ///
 /// {
-///   "coveringExpressionOffsets": optional List<int>
-///   "coveringExpressionLengths": optional List<int>
-///   "names": List<String>
-///   "offsets": List<int>
-///   "lengths": List<int>
+///   "coveringExpressionOffsets": optional List&lt;int&gt;
+///   "coveringExpressionLengths": optional List&lt;int&gt;
+///   "names": List&lt;String&gt;
+///   "offsets": List&lt;int&gt;
+///   "lengths": List&lt;int&gt;
 /// }
 final Matcher isExtractLocalVariableFeedback =
     LazyMatcher(() => MatchesJsonObject('extractLocalVariable feedback', {
@@ -2733,11 +2733,11 @@ final Matcher isExtractLocalVariableOptions = LazyMatcher(() =>
 ///   "offset": int
 ///   "length": int
 ///   "returnType": String
-///   "names": List<String>
+///   "names": List&lt;String&gt;
 ///   "canCreateGetter": bool
-///   "parameters": List<RefactoringMethodParameter>
-///   "offsets": List<int>
-///   "lengths": List<int>
+///   "parameters": List&lt;RefactoringMethodParameter&gt;
+///   "offsets": List&lt;int&gt;
+///   "lengths": List&lt;int&gt;
 /// }
 final Matcher isExtractMethodFeedback =
     LazyMatcher(() => MatchesJsonObject('extractMethod feedback', {
@@ -2757,7 +2757,7 @@ final Matcher isExtractMethodFeedback =
 ///   "returnType": String
 ///   "createGetter": bool
 ///   "name": String
-///   "parameters": List<RefactoringMethodParameter>
+///   "parameters": List&lt;RefactoringMethodParameter&gt;
 ///   "extractAll": bool
 /// }
 final Matcher isExtractMethodOptions =
@@ -2797,7 +2797,7 @@ final Matcher isFlutterGetWidgetDescriptionParams = LazyMatcher(() =>
 /// flutter.getWidgetDescription result
 ///
 /// {
-///   "properties": List<FlutterWidgetProperty>
+///   "properties": List&lt;FlutterWidgetProperty&gt;
 /// }
 final Matcher isFlutterGetWidgetDescriptionResult = LazyMatcher(() =>
     MatchesJsonObject('flutter.getWidgetDescription result',
@@ -2816,7 +2816,7 @@ final Matcher isFlutterOutlineParams = LazyMatcher(() => MatchesJsonObject(
 /// flutter.setSubscriptions params
 ///
 /// {
-///   "subscriptions": Map<FlutterService, List<FilePath>>
+///   "subscriptions": Map&lt;FlutterService, List&lt;FilePath&gt;&gt;
 /// }
 final Matcher isFlutterSetSubscriptionsParams = LazyMatcher(() =>
     MatchesJsonObject('flutter.setSubscriptions params',
@@ -2888,8 +2888,8 @@ final Matcher isKytheGetKytheEntriesParams = LazyMatcher(() =>
 /// kythe.getKytheEntries result
 ///
 /// {
-///   "entries": List<KytheEntry>
-///   "files": List<FilePath>
+///   "entries": List&lt;KytheEntry&gt;
+///   "files": List&lt;FilePath&gt;
 /// }
 final Matcher isKytheGetKytheEntriesResult = LazyMatcher(() =>
     MatchesJsonObject('kythe.getKytheEntries result',
@@ -3023,8 +3023,8 @@ final Matcher isSearchGetElementDeclarationsParams = LazyMatcher(() =>
 /// search.getElementDeclarations result
 ///
 /// {
-///   "declarations": List<ElementDeclaration>
-///   "files": List<FilePath>
+///   "declarations": List&lt;ElementDeclaration&gt;
+///   "files": List&lt;FilePath&gt;
 /// }
 final Matcher isSearchGetElementDeclarationsResult = LazyMatcher(() =>
     MatchesJsonObject('search.getElementDeclarations result', {
@@ -3047,7 +3047,7 @@ final Matcher isSearchGetTypeHierarchyParams = LazyMatcher(() =>
 /// search.getTypeHierarchy result
 ///
 /// {
-///   "hierarchyItems": optional List<TypeHierarchyItem>
+///   "hierarchyItems": optional List&lt;TypeHierarchyItem&gt;
 /// }
 final Matcher isSearchGetTypeHierarchyResult = LazyMatcher(() =>
     MatchesJsonObject('search.getTypeHierarchy result', null,
@@ -3057,7 +3057,7 @@ final Matcher isSearchGetTypeHierarchyResult = LazyMatcher(() =>
 ///
 /// {
 ///   "id": SearchId
-///   "results": List<SearchResult>
+///   "results": List&lt;SearchResult&gt;
 ///   "isLast": bool
 /// }
 final Matcher isSearchResultsParams = LazyMatcher(() => MatchesJsonObject(
@@ -3117,7 +3117,7 @@ final Matcher isServerLogParams = LazyMatcher(
 /// server.setSubscriptions params
 ///
 /// {
-///   "subscriptions": List<ServerService>
+///   "subscriptions": List&lt;ServerService&gt;
 /// }
 final Matcher isServerSetSubscriptionsParams = LazyMatcher(() =>
     MatchesJsonObject('server.setSubscriptions params',

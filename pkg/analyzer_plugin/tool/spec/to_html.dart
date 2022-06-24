@@ -700,6 +700,9 @@ class ToHtmlVisitor extends HierarchicalApiVisitor
 /// }
 class TypeVisitor extends HierarchicalApiVisitor
     with HtmlMixin, HtmlCodeGenerator {
+  static const String lt = '&lt;';
+  static const String gt = '&gt;';
+
   /// Set of fields which should be shown in boldface, or null if no field
   /// should be shown in boldface.
   final Set<String>? fieldsToBold;
@@ -727,18 +730,18 @@ class TypeVisitor extends HierarchicalApiVisitor
 
   @override
   void visitTypeList(TypeList typeList) {
-    write('List<');
+    write('List$lt');
     visitTypeDecl(typeList.itemType);
-    write('>');
+    write(gt);
   }
 
   @override
   void visitTypeMap(TypeMap typeMap) {
-    write('Map<');
+    write('Map$lt');
     visitTypeDecl(typeMap.keyType);
     write(', ');
     visitTypeDecl(typeMap.valueType);
-    write('>');
+    write(gt);
   }
 
   @override

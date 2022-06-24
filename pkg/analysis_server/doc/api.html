@@ -479,7 +479,7 @@ a:focus, a:hover {
   "id": String
   "method": "server.setSubscriptions"
   "params": {
-    "<b>subscriptions</b>": List<<a href="#type_ServerService">ServerService</a>>
+    "<b>subscriptions</b>": List&lt;<a href="#type_ServerService">ServerService</a>&gt;
   }
 }</pre><br><pre>response: {
   "id": String
@@ -495,7 +495,7 @@ a:focus, a:hover {
       subscriptions will remain unchanged.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: List<<a href="#type_ServerService">ServerService</a>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: List&lt;<a href="#type_ServerService">ServerService</a>&gt;</b></dt><dd>
         
         <p>A list of the services being subscribed to.</p>
       </dd></dl></dd><dt class="request"><a name="request_server.cancelRequest">server.cancelRequest</a></dt><dd><div class="box"><pre>request: {
@@ -667,7 +667,7 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>errors</b>": List<<a href="#type_AnalysisError">AnalysisError</a>>
+    "<b>errors</b>": List&lt;<a href="#type_AnalysisError">AnalysisError</a>&gt;
   }
 }</pre></div>
     <p>
@@ -704,7 +704,7 @@ a:focus, a:hover {
         <p>
           The file for which errors are being requested.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>errors: List<<a href="#type_AnalysisError">AnalysisError</a>></b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>errors: List&lt;<a href="#type_AnalysisError">AnalysisError</a>&gt;</b></dt><dd>
         
         <p>
           The errors associated with the file.
@@ -720,7 +720,7 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>hovers</b>": List<<a href="#type_HoverInformation">HoverInformation</a>>
+    "<b>hovers</b>": List&lt;<a href="#type_HoverInformation">HoverInformation</a>&gt;
   }
 }</pre></div>
     <p>
@@ -741,7 +741,7 @@ a:focus, a:hover {
         <p>
           The offset for which hover information is being requested.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>hovers: List<<a href="#type_HoverInformation">HoverInformation</a>></b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>hovers: List&lt;<a href="#type_HoverInformation">HoverInformation</a>&gt;</b></dt><dd>
         
         <p>
           The hover information associated with the
@@ -758,8 +758,8 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>libraries</b>": List<<a href="#type_FilePath">FilePath</a>>
-    "<b>packageMap</b>": Map<String, Map<String, List<<a href="#type_FilePath">FilePath</a>>>>
+    "<b>libraries</b>": List&lt;<a href="#type_FilePath">FilePath</a>&gt;
+    "<b>packageMap</b>": Map&lt;String, Map&lt;String, List&lt;<a href="#type_FilePath">FilePath</a>&gt;&gt;&gt;
   }
 }</pre></div>
     <p>
@@ -771,13 +771,13 @@ a:focus, a:hover {
       analyzedFiles notification instead.
     </p>
     
-  <h4>returns:</h4><dl><dt class="field"><b>libraries: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
+  <h4>returns:</h4><dl><dt class="field"><b>libraries: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
         
         <p>
           A list of the paths of library elements referenced by
           files in existing analysis roots.
         </p>
-      </dd><dt class="field"><b>packageMap: Map<String, Map<String, List<<a href="#type_FilePath">FilePath</a>>>></b></dt><dd>
+      </dd><dt class="field"><b>packageMap: Map&lt;String, Map&lt;String, List&lt;<a href="#type_FilePath">FilePath</a>&gt;&gt;&gt;</b></dt><dd>
         
         <p>
           A mapping from context source roots to package maps which map
@@ -796,9 +796,9 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>files</b>": List<<a href="#type_FilePath">FilePath</a>>
-    "<b>targets</b>": List<<a href="#type_NavigationTarget">NavigationTarget</a>>
-    "<b>regions</b>": List<<a href="#type_NavigationRegion">NavigationRegion</a>>
+    "<b>files</b>": List&lt;<a href="#type_FilePath">FilePath</a>&gt;
+    "<b>targets</b>": List&lt;<a href="#type_NavigationTarget">NavigationTarget</a>&gt;
+    "<b>regions</b>": List&lt;<a href="#type_NavigationRegion">NavigationRegion</a>&gt;
   }
 }</pre></div>
     <p>
@@ -845,19 +845,19 @@ a:focus, a:hover {
           The length of the region for which navigation information is being
           requested.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>files: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>files: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
         
         <p>
           A list of the paths of files that are referenced by the navigation
           targets.
         </p>
-      </dd><dt class="field"><b>targets: List<<a href="#type_NavigationTarget">NavigationTarget</a>></b></dt><dd>
+      </dd><dt class="field"><b>targets: List&lt;<a href="#type_NavigationTarget">NavigationTarget</a>&gt;</b></dt><dd>
         
         <p>
           A list of the navigation targets that are referenced by the
           navigation regions.
         </p>
-      </dd><dt class="field"><b>regions: List<<a href="#type_NavigationRegion">NavigationRegion</a>></b></dt><dd>
+      </dd><dt class="field"><b>regions: List&lt;<a href="#type_NavigationRegion">NavigationRegion</a>&gt;</b></dt><dd>
         
         <p>
           A list of the navigation regions within the requested region of
@@ -873,7 +873,7 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>sources</b>": Map<String, List<String>>
+    "<b>sources</b>": Map&lt;String, List&lt;String&gt;&gt;
   }
 }</pre></div>
     <p>
@@ -893,7 +893,7 @@ a:focus, a:hover {
         <p>
           The file for which reachable source information is being requested.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>sources: Map<String, List<String>></b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>sources: Map&lt;String, List&lt;String&gt;&gt;</b></dt><dd>
         
         <p>
           A mapping from source URIs to directly reachable source URIs. For
@@ -924,9 +924,9 @@ a:focus, a:hover {
   "id": String
   "method": "analysis.setAnalysisRoots"
   "params": {
-    "<b>included</b>": List<<a href="#type_FilePath">FilePath</a>>
-    "<b>excluded</b>": List<<a href="#type_FilePath">FilePath</a>>
-    "<b>packageRoots</b>": <span style="color:#999999">optional</span> Map<<a href="#type_FilePath">FilePath</a>, <a href="#type_FilePath">FilePath</a>>
+    "<b>included</b>": List&lt;<a href="#type_FilePath">FilePath</a>&gt;
+    "<b>excluded</b>": List&lt;<a href="#type_FilePath">FilePath</a>&gt;
+    "<b>packageRoots</b>": <span style="color:#999999">optional</span> Map&lt;<a href="#type_FilePath">FilePath</a>, <a href="#type_FilePath">FilePath</a>&gt;
   }
 }</pre><br><pre>response: {
   "id": String
@@ -965,19 +965,19 @@ a:focus, a:hover {
       be used to resolve package: URI’s within the file.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>included: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>included: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
         
         <p>
           A list of the files and directories that should be
           analyzed.
         </p>
-      </dd><dt class="field"><b>excluded: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
+      </dd><dt class="field"><b>excluded: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
         
         <p>
           A list of the files and directories within the
           included directories that should not be analyzed.
         </p>
-      </dd><dt class="field"><b>packageRoots: Map<<a href="#type_FilePath">FilePath</a>, <a href="#type_FilePath">FilePath</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>packageRoots: Map&lt;<a href="#type_FilePath">FilePath</a>, <a href="#type_FilePath">FilePath</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           A mapping from source directories to package roots
@@ -1003,7 +1003,7 @@ a:focus, a:hover {
   "id": String
   "method": "analysis.setGeneralSubscriptions"
   "params": {
-    "<b>subscriptions</b>": List<<a href="#type_GeneralAnalysisService">GeneralAnalysisService</a>>
+    "<b>subscriptions</b>": List&lt;<a href="#type_GeneralAnalysisService">GeneralAnalysisService</a>&gt;
   }
 }</pre><br><pre>response: {
   "id": String
@@ -1020,14 +1020,14 @@ a:focus, a:hover {
       remain unchanged.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: List<<a href="#type_GeneralAnalysisService">GeneralAnalysisService</a>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: List&lt;<a href="#type_GeneralAnalysisService">GeneralAnalysisService</a>&gt;</b></dt><dd>
         
         <p>A list of the services being subscribed to.</p>
       </dd></dl></dd><dt class="request"><a name="request_analysis.setPriorityFiles">analysis.setPriorityFiles</a></dt><dd><div class="box"><pre>request: {
   "id": String
   "method": "analysis.setPriorityFiles"
   "params": {
-    "<b>files</b>": List<<a href="#type_FilePath">FilePath</a>>
+    "<b>files</b>": List&lt;<a href="#type_FilePath">FilePath</a>&gt;
   }
 }</pre><br><pre>response: {
   "id": String
@@ -1059,7 +1059,7 @@ a:focus, a:hover {
       actual priority files.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>files: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>files: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
         
         <p>
           The files that are to be a priority for analysis.
@@ -1068,7 +1068,7 @@ a:focus, a:hover {
   "id": String
   "method": "analysis.setSubscriptions"
   "params": {
-    "<b>subscriptions</b>": Map<<a href="#type_AnalysisService">AnalysisService</a>, List<<a href="#type_FilePath">FilePath</a>>>
+    "<b>subscriptions</b>": Map&lt;<a href="#type_AnalysisService">AnalysisService</a>, List&lt;<a href="#type_FilePath">FilePath</a>&gt;&gt;
   }
 }</pre><br><pre>response: {
   "id": String
@@ -1108,7 +1108,7 @@ a:focus, a:hover {
       subscriptions will remain unchanged.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: Map<<a href="#type_AnalysisService">AnalysisService</a>, List<<a href="#type_FilePath">FilePath</a>>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: Map&lt;<a href="#type_AnalysisService">AnalysisService</a>, List&lt;<a href="#type_FilePath">FilePath</a>&gt;&gt;</b></dt><dd>
         
         <p>
           A table mapping services to a list of the files being
@@ -1118,7 +1118,7 @@ a:focus, a:hover {
   "id": String
   "method": "analysis.updateContent"
   "params": {
-    "<b>files</b>": Map<<a href="#type_FilePath">FilePath</a>, <a href="#type_AddContentOverlay">AddContentOverlay</a> | <a href="#type_ChangeContentOverlay">ChangeContentOverlay</a> | <a href="#type_RemoveContentOverlay">RemoveContentOverlay</a>>
+    "<b>files</b>": Map&lt;<a href="#type_FilePath">FilePath</a>, <a href="#type_AddContentOverlay">AddContentOverlay</a> | <a href="#type_ChangeContentOverlay">ChangeContentOverlay</a> | <a href="#type_RemoveContentOverlay">RemoveContentOverlay</a>&gt;
   }
 }</pre><br><pre>response: {
   "id": String
@@ -1138,7 +1138,7 @@ a:focus, a:hover {
     </p>
     
     
-  <h4>parameters:</h4><dl><dt class="field"><b>files: Map<<a href="#type_FilePath">FilePath</a>, <a href="#type_AddContentOverlay">AddContentOverlay</a> | <a href="#type_ChangeContentOverlay">ChangeContentOverlay</a> | <a href="#type_RemoveContentOverlay">RemoveContentOverlay</a>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>files: Map&lt;<a href="#type_FilePath">FilePath</a>, <a href="#type_AddContentOverlay">AddContentOverlay</a> | <a href="#type_ChangeContentOverlay">ChangeContentOverlay</a> | <a href="#type_RemoveContentOverlay">RemoveContentOverlay</a>&gt;</b></dt><dd>
         
         <p>
           A table mapping the files whose content has changed to a
@@ -1172,7 +1172,7 @@ a:focus, a:hover {
       </dd></dl></dd></dl><h3>Notifications</h3><dl><dt class="notification"><a name="notification_analysis.analyzedFiles">analysis.analyzedFiles</a></dt><dd><div class="box"><pre>notification: {
   "event": "analysis.analyzedFiles"
   "params": {
-    "<b>directories</b>": List<<a href="#type_FilePath">FilePath</a>>
+    "<b>directories</b>": List&lt;<a href="#type_FilePath">FilePath</a>&gt;
   }
 }</pre></div>
     <p>
@@ -1184,7 +1184,7 @@ a:focus, a:hover {
       of services passed in an analysis.setGeneralSubscriptions request.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>directories: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>directories: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
         
         <p>
           A list of the paths of the files that are being analyzed.
@@ -1193,7 +1193,7 @@ a:focus, a:hover {
   "event": "analysis.closingLabels"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>labels</b>": List<<a href="#type_ClosingLabel">ClosingLabel</a>>
+    "<b>labels</b>": List&lt;<a href="#type_ClosingLabel">ClosingLabel</a>&gt;
   }
 }</pre></div>
     <p>
@@ -1211,7 +1211,7 @@ a:focus, a:hover {
         <p>
           The file the closing labels relate to.
         </p>
-      </dd><dt class="field"><b>labels: List<<a href="#type_ClosingLabel">ClosingLabel</a>></b></dt><dd>
+      </dd><dt class="field"><b>labels: List&lt;<a href="#type_ClosingLabel">ClosingLabel</a>&gt;</b></dt><dd>
         
         <p>
           Closing labels relevant to the file. Each item
@@ -1228,7 +1228,7 @@ a:focus, a:hover {
   "event": "analysis.errors"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>errors</b>": List<<a href="#type_AnalysisError">AnalysisError</a>>
+    "<b>errors</b>": List&lt;<a href="#type_AnalysisError">AnalysisError</a>&gt;
   }
 }</pre></div>
     <p>
@@ -1242,7 +1242,7 @@ a:focus, a:hover {
         <p>
           The file containing the errors.
         </p>
-      </dd><dt class="field"><b>errors: List<<a href="#type_AnalysisError">AnalysisError</a>></b></dt><dd>
+      </dd><dt class="field"><b>errors: List&lt;<a href="#type_AnalysisError">AnalysisError</a>&gt;</b></dt><dd>
         
         <p>
           The errors contained in the file.
@@ -1250,7 +1250,7 @@ a:focus, a:hover {
       </dd></dl></dd><dt class="notification"><a name="notification_analysis.flushResults">analysis.flushResults</a></dt><dd><div class="box"><pre>notification: {
   "event": "analysis.flushResults"
   "params": {
-    "<b>files</b>": List<<a href="#type_FilePath">FilePath</a>>
+    "<b>files</b>": List&lt;<a href="#type_FilePath">FilePath</a>&gt;
   }
 }</pre></div>
     <p>
@@ -1271,7 +1271,7 @@ a:focus, a:hover {
       notification.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>files: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>files: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
         
         <p>
           The files that are no longer being analyzed.
@@ -1280,7 +1280,7 @@ a:focus, a:hover {
   "event": "analysis.folding"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>regions</b>": List<<a href="#type_FoldingRegion">FoldingRegion</a>>
+    "<b>regions</b>": List&lt;<a href="#type_FoldingRegion">FoldingRegion</a>&gt;
   }
 }</pre></div>
     <p>
@@ -1302,7 +1302,7 @@ a:focus, a:hover {
         <p>
           The file containing the folding regions.
         </p>
-      </dd><dt class="field"><b>regions: List<<a href="#type_FoldingRegion">FoldingRegion</a>></b></dt><dd>
+      </dd><dt class="field"><b>regions: List&lt;<a href="#type_FoldingRegion">FoldingRegion</a>&gt;</b></dt><dd>
         
         <p>
           The folding regions contained in the file.
@@ -1311,7 +1311,7 @@ a:focus, a:hover {
   "event": "analysis.highlights"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>regions</b>": List<<a href="#type_HighlightRegion">HighlightRegion</a>>
+    "<b>regions</b>": List&lt;<a href="#type_HighlightRegion">HighlightRegion</a>&gt;
   }
 }</pre></div>
     <p>
@@ -1329,7 +1329,7 @@ a:focus, a:hover {
         <p>
           The file containing the highlight regions.
         </p>
-      </dd><dt class="field"><b>regions: List<<a href="#type_HighlightRegion">HighlightRegion</a>></b></dt><dd>
+      </dd><dt class="field"><b>regions: List&lt;<a href="#type_HighlightRegion">HighlightRegion</a>&gt;</b></dt><dd>
         
         <p>
           The highlight regions contained in the file. Each
@@ -1343,8 +1343,8 @@ a:focus, a:hover {
   "event": "analysis.implemented"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>classes</b>": List<<a href="#type_ImplementedClass">ImplementedClass</a>>
-    "<b>members</b>": List<<a href="#type_ImplementedMember">ImplementedMember</a>>
+    "<b>classes</b>": List&lt;<a href="#type_ImplementedClass">ImplementedClass</a>&gt;
+    "<b>members</b>": List&lt;<a href="#type_ImplementedMember">ImplementedMember</a>&gt;
   }
 }</pre></div>
     <p>
@@ -1363,12 +1363,12 @@ a:focus, a:hover {
         <p>
           The file with which the implementations are associated.
         </p>
-      </dd><dt class="field"><b>classes: List<<a href="#type_ImplementedClass">ImplementedClass</a>></b></dt><dd>
+      </dd><dt class="field"><b>classes: List&lt;<a href="#type_ImplementedClass">ImplementedClass</a>&gt;</b></dt><dd>
         
         <p>
           The classes defined in the file that are implemented or extended.
         </p>
-      </dd><dt class="field"><b>members: List<<a href="#type_ImplementedMember">ImplementedMember</a>></b></dt><dd>
+      </dd><dt class="field"><b>members: List&lt;<a href="#type_ImplementedMember">ImplementedMember</a>&gt;</b></dt><dd>
         
         <p>
           The member defined in the file that are implemented or overridden.
@@ -1418,9 +1418,9 @@ a:focus, a:hover {
   "event": "analysis.navigation"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>regions</b>": List<<a href="#type_NavigationRegion">NavigationRegion</a>>
-    "<b>targets</b>": List<<a href="#type_NavigationTarget">NavigationTarget</a>>
-    "<b>files</b>": List<<a href="#type_FilePath">FilePath</a>>
+    "<b>regions</b>": List&lt;<a href="#type_NavigationRegion">NavigationRegion</a>&gt;
+    "<b>targets</b>": List&lt;<a href="#type_NavigationTarget">NavigationTarget</a>&gt;
+    "<b>files</b>": List&lt;<a href="#type_FilePath">FilePath</a>&gt;
   }
 }</pre></div>
     <p>
@@ -1438,7 +1438,7 @@ a:focus, a:hover {
         <p>
           The file containing the navigation regions.
         </p>
-      </dd><dt class="field"><b>regions: List<<a href="#type_NavigationRegion">NavigationRegion</a>></b></dt><dd>
+      </dd><dt class="field"><b>regions: List&lt;<a href="#type_NavigationRegion">NavigationRegion</a>&gt;</b></dt><dd>
         
         <p>
           The navigation regions contained in the file.
@@ -1452,14 +1452,14 @@ a:focus, a:hover {
           regions that are returned do not overlap other
           navigation regions.
         </p>
-      </dd><dt class="field"><b>targets: List<<a href="#type_NavigationTarget">NavigationTarget</a>></b></dt><dd>
+      </dd><dt class="field"><b>targets: List&lt;<a href="#type_NavigationTarget">NavigationTarget</a>&gt;</b></dt><dd>
         
         <p>
           The navigation targets referenced in the file.
           They are referenced by <tt>NavigationRegion</tt>s by their
           index in this array.
         </p>
-      </dd><dt class="field"><b>files: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
+      </dd><dt class="field"><b>files: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
         
         <p>
           The files containing navigation targets referenced in the file.
@@ -1470,7 +1470,7 @@ a:focus, a:hover {
   "event": "analysis.occurrences"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>occurrences</b>": List<<a href="#type_Occurrences">Occurrences</a>>
+    "<b>occurrences</b>": List&lt;<a href="#type_Occurrences">Occurrences</a>&gt;
   }
 }</pre></div>
     <p>
@@ -1489,7 +1489,7 @@ a:focus, a:hover {
         <p>
           The file in which the references occur.
         </p>
-      </dd><dt class="field"><b>occurrences: List<<a href="#type_Occurrences">Occurrences</a>></b></dt><dd>
+      </dd><dt class="field"><b>occurrences: List&lt;<a href="#type_Occurrences">Occurrences</a>&gt;</b></dt><dd>
         
         <p>
           The occurrences of references to elements within the
@@ -1543,7 +1543,7 @@ a:focus, a:hover {
   "event": "analysis.overrides"
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
-    "<b>overrides</b>": List<<a href="#type_Override">Override</a>>
+    "<b>overrides</b>": List&lt;<a href="#type_Override">Override</a>&gt;
   }
 }</pre></div>
     <p>
@@ -1561,7 +1561,7 @@ a:focus, a:hover {
         <p>
           The file with which the overrides are associated.
         </p>
-      </dd><dt class="field"><b>overrides: List<<a href="#type_Override">Override</a>></b></dt><dd>
+      </dd><dt class="field"><b>overrides: List&lt;<a href="#type_Override">Override</a>&gt;</b></dt><dd>
         
         <p>
           The overrides associated with the file.
@@ -1634,7 +1634,7 @@ a:focus, a:hover {
   "result": {
     "<b>replacementOffset</b>": int
     "<b>replacementLength</b>": int
-    "<b>suggestions</b>": List<<a href="#type_CompletionSuggestion">CompletionSuggestion</a>>
+    "<b>suggestions</b>": List&lt;<a href="#type_CompletionSuggestion">CompletionSuggestion</a>&gt;
     "<b>isIncomplete</b>": bool
   }
 }</pre></div>
@@ -1685,7 +1685,7 @@ a:focus, a:hover {
           suggestion is applied (that is, the number of characters in the
           existing identifier).
         </p>
-      </dd><dt class="field"><b>suggestions: List<<a href="#type_CompletionSuggestion">CompletionSuggestion</a>></b></dt><dd>
+      </dd><dt class="field"><b>suggestions: List&lt;<a href="#type_CompletionSuggestion">CompletionSuggestion</a>&gt;</b></dt><dd>
         
         <p>
           The completion suggestions being reported. This list is filtered
@@ -1711,7 +1711,7 @@ a:focus, a:hover {
   "id": String
   "method": "completion.setSubscriptions"
   "params": {
-    "<b>subscriptions</b>": List<<a href="#type_CompletionService">CompletionService</a>>
+    "<b>subscriptions</b>": List&lt;<a href="#type_CompletionService">CompletionService</a>&gt;
   }
 }</pre><br><pre>response: {
   "id": String
@@ -1727,14 +1727,14 @@ a:focus, a:hover {
       remain unchanged.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: List<<a href="#type_CompletionService">CompletionService</a>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: List&lt;<a href="#type_CompletionService">CompletionService</a>&gt;</b></dt><dd>
         
         <p>A list of the services being subscribed to.</p>
       </dd></dl></dd><dt class="request deprecated"><a name="request_completion.registerLibraryPaths">completion.registerLibraryPaths</a></dt><dd><div class="box"><pre>request: {
   "id": String
   "method": "completion.registerLibraryPaths"
   "params": {
-    "<b>paths</b>": List<<a href="#type_LibraryPathSet">LibraryPathSet</a>>
+    "<b>paths</b>": List&lt;<a href="#type_LibraryPathSet">LibraryPathSet</a>&gt;
   }
 }</pre><br><pre>response: {
   "id": String
@@ -1749,7 +1749,7 @@ a:focus, a:hover {
       will be generated. All previous paths are replaced by the given set of paths.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>paths: List<<a href="#type_LibraryPathSet">LibraryPathSet</a>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>paths: List&lt;<a href="#type_LibraryPathSet">LibraryPathSet</a>&gt;</b></dt><dd>
         
         <p>
           A list of objects each containing a path and the additional libraries from which
@@ -1891,12 +1891,12 @@ a:focus, a:hover {
     "<b>id</b>": <a href="#type_CompletionId">CompletionId</a>
     "<b>replacementOffset</b>": int
     "<b>replacementLength</b>": int
-    "<b>results</b>": List<<a href="#type_CompletionSuggestion">CompletionSuggestion</a>>
+    "<b>results</b>": List&lt;<a href="#type_CompletionSuggestion">CompletionSuggestion</a>&gt;
     "<b>isLast</b>": bool
     "<b>libraryFile</b>": <span style="color:#999999">optional</span> <a href="#type_FilePath">FilePath</a>
-    "<b>includedSuggestionSets</b>": <span style="color:#999999">optional</span> List<<a href="#type_IncludedSuggestionSet">IncludedSuggestionSet</a>>
-    "<b>includedElementKinds</b>": <span style="color:#999999">optional</span> List<<a href="#type_ElementKind">ElementKind</a>>
-    "<b>includedSuggestionRelevanceTags</b>": <span style="color:#999999">optional</span> List<<a href="#type_IncludedSuggestionRelevanceTag">IncludedSuggestionRelevanceTag</a>>
+    "<b>includedSuggestionSets</b>": <span style="color:#999999">optional</span> List&lt;<a href="#type_IncludedSuggestionSet">IncludedSuggestionSet</a>&gt;
+    "<b>includedElementKinds</b>": <span style="color:#999999">optional</span> List&lt;<a href="#type_ElementKind">ElementKind</a>&gt;
+    "<b>includedSuggestionRelevanceTags</b>": <span style="color:#999999">optional</span> List&lt;<a href="#type_IncludedSuggestionRelevanceTag">IncludedSuggestionRelevanceTag</a>&gt;
   }
 }</pre></div>
     <p>
@@ -1929,7 +1929,7 @@ a:focus, a:hover {
           replaced when the suggestion is applied (that is, the
           number of characters in the existing identifier).
         </p>
-      </dd><dt class="field"><b>results: List<<a href="#type_CompletionSuggestion">CompletionSuggestion</a>></b></dt><dd>
+      </dd><dt class="field"><b>results: List&lt;<a href="#type_CompletionSuggestion">CompletionSuggestion</a>&gt;</b></dt><dd>
         
         <p>
           The completion suggestions being reported. The
@@ -1955,21 +1955,21 @@ a:focus, a:hover {
           the corresponding <tt>existingImports</tt> notification will be sent
           before the completion notification.
         </p>
-      </dd><dt class="field"><b>includedSuggestionSets: List<<a href="#type_IncludedSuggestionSet">IncludedSuggestionSet</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>includedSuggestionSets: List&lt;<a href="#type_IncludedSuggestionSet">IncludedSuggestionSet</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           References to <tt>AvailableSuggestionSet</tt> objects previously sent
           to the client. The client can include applicable names from the
           referenced library in code completion suggestions.
         </p>
-      </dd><dt class="field"><b>includedElementKinds: List<<a href="#type_ElementKind">ElementKind</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>includedElementKinds: List&lt;<a href="#type_ElementKind">ElementKind</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The client is expected to check this list against the
           <tt>ElementKind</tt> sent in <tt>IncludedSuggestionSet</tt> to decide
           whether or not these symbols should should be presented to the user.
         </p>
-      </dd><dt class="field"><b>includedSuggestionRelevanceTags: List<<a href="#type_IncludedSuggestionRelevanceTag">IncludedSuggestionRelevanceTag</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>includedSuggestionRelevanceTags: List&lt;<a href="#type_IncludedSuggestionRelevanceTag">IncludedSuggestionRelevanceTag</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The client is expected to check this list against the values of the
@@ -1987,8 +1987,8 @@ a:focus, a:hover {
       </dd></dl></dd><dt class="notification"><a name="notification_completion.availableSuggestions">completion.availableSuggestions</a></dt><dd><div class="box"><pre>notification: {
   "event": "completion.availableSuggestions"
   "params": {
-    "<b>changedLibraries</b>": <span style="color:#999999">optional</span> List<<a href="#type_AvailableSuggestionSet">AvailableSuggestionSet</a>>
-    "<b>removedLibraries</b>": <span style="color:#999999">optional</span> List<int>
+    "<b>changedLibraries</b>": <span style="color:#999999">optional</span> List&lt;<a href="#type_AvailableSuggestionSet">AvailableSuggestionSet</a>&gt;
+    "<b>removedLibraries</b>": <span style="color:#999999">optional</span> List&lt;int&gt;
   }
 }</pre></div>
     <p>
@@ -2001,13 +2001,13 @@ a:focus, a:hover {
       not included in either list.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>changedLibraries: List<<a href="#type_AvailableSuggestionSet">AvailableSuggestionSet</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>changedLibraries: List&lt;<a href="#type_AvailableSuggestionSet">AvailableSuggestionSet</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           A list of pre-computed, potential completions coming from
           this set of completion suggestions.
         </p>
-      </dd><dt class="field"><b>removedLibraries: List<int><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>removedLibraries: List&lt;int&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           A list of library ids that no longer apply.
@@ -2236,7 +2236,7 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>hierarchyItems</b>": <span style="color:#999999">optional</span> List<<a href="#type_TypeHierarchyItem">TypeHierarchyItem</a>>
+    "<b>hierarchyItems</b>": <span style="color:#999999">optional</span> List&lt;<a href="#type_TypeHierarchyItem">TypeHierarchyItem</a>&gt;
   }
 }</pre></div>
     <p>
@@ -2262,7 +2262,7 @@ a:focus, a:hover {
           True if the client is only requesting superclasses and
           interfaces hierarchy.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>hierarchyItems: List<<a href="#type_TypeHierarchyItem">TypeHierarchyItem</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>hierarchyItems: List&lt;<a href="#type_TypeHierarchyItem">TypeHierarchyItem</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           A list of the types in the requested hierarchy. The
@@ -2282,7 +2282,7 @@ a:focus, a:hover {
   "event": "search.results"
   "params": {
     "<b>id</b>": <a href="#type_SearchId">SearchId</a>
-    "<b>results</b>": List<<a href="#type_SearchResult">SearchResult</a>>
+    "<b>results</b>": List&lt;<a href="#type_SearchResult">SearchResult</a>&gt;
     "<b>isLast</b>": bool
   }
 }</pre></div>
@@ -2299,7 +2299,7 @@ a:focus, a:hover {
         <p>
           The id associated with the search.
         </p>
-      </dd><dt class="field"><b>results: List<<a href="#type_SearchResult">SearchResult</a>></b></dt><dd>
+      </dd><dt class="field"><b>results: List&lt;<a href="#type_SearchResult">SearchResult</a>&gt;</b></dt><dd>
         
         <p>
           The search results being reported.
@@ -2343,7 +2343,7 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>edits</b>": List<<a href="#type_SourceEdit">SourceEdit</a>>
+    "<b>edits</b>": List&lt;<a href="#type_SourceEdit">SourceEdit</a>&gt;
     "<b>selectionOffset</b>": int
     "<b>selectionLength</b>": int
   }
@@ -2387,7 +2387,7 @@ a:focus, a:hover {
         <p>
           The line length to be used by the formatter.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>edits: List<<a href="#type_SourceEdit">SourceEdit</a>></b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>edits: List&lt;<a href="#type_SourceEdit">SourceEdit</a>&gt;</b></dt><dd>
         
         <p>
           The edit(s) to be applied in order to format the code. The list
@@ -2416,7 +2416,7 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>assists</b>": List<<a href="#type_SourceChange">SourceChange</a>>
+    "<b>assists</b>": List&lt;<a href="#type_SourceChange">SourceChange</a>&gt;
   }
 }</pre></div>
     <p>
@@ -2445,7 +2445,7 @@ a:focus, a:hover {
           The length of the code for which assists are being
           requested.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>assists: List<<a href="#type_SourceChange">SourceChange</a>></b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>assists: List&lt;<a href="#type_SourceChange">SourceChange</a>&gt;</b></dt><dd>
         
         <p>
           The assists that are available at the given location.
@@ -2462,7 +2462,7 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>kinds</b>": List<<a href="#type_RefactoringKind">RefactoringKind</a>>
+    "<b>kinds</b>": List&lt;<a href="#type_RefactoringKind">RefactoringKind</a>&gt;
   }
 }</pre></div>
     <p>
@@ -2489,7 +2489,7 @@ a:focus, a:hover {
           The length of the code on which the refactoring would be
           based.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>kinds: List<<a href="#type_RefactoringKind">RefactoringKind</a>></b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>kinds: List&lt;<a href="#type_RefactoringKind">RefactoringKind</a>&gt;</b></dt><dd>
         
         <p>
           The kinds of refactorings that are valid for the given
@@ -2506,7 +2506,7 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>fixes</b>": List<<a href="#type_AnalysisErrorFixes">AnalysisErrorFixes</a>>
+    "<b>fixes</b>": List&lt;<a href="#type_AnalysisErrorFixes">AnalysisErrorFixes</a>&gt;
   }
 }</pre></div>
     <p>
@@ -2534,7 +2534,7 @@ a:focus, a:hover {
           The offset used to select the errors for which fixes
           will be returned.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>fixes: List<<a href="#type_AnalysisErrorFixes">AnalysisErrorFixes</a>></b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>fixes: List&lt;<a href="#type_AnalysisErrorFixes">AnalysisErrorFixes</a>&gt;</b></dt><dd>
         
         <p>
           The fixes that are available for the errors at the given offset.
@@ -2596,12 +2596,12 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>initialProblems</b>": List<<a href="#type_RefactoringProblem">RefactoringProblem</a>>
-    "<b>optionsProblems</b>": List<<a href="#type_RefactoringProblem">RefactoringProblem</a>>
-    "<b>finalProblems</b>": List<<a href="#type_RefactoringProblem">RefactoringProblem</a>>
+    "<b>initialProblems</b>": List&lt;<a href="#type_RefactoringProblem">RefactoringProblem</a>&gt;
+    "<b>optionsProblems</b>": List&lt;<a href="#type_RefactoringProblem">RefactoringProblem</a>&gt;
+    "<b>finalProblems</b>": List&lt;<a href="#type_RefactoringProblem">RefactoringProblem</a>&gt;
     "<b>feedback</b>": <span style="color:#999999">optional</span> <a href="#type_RefactoringFeedback">RefactoringFeedback</a>
     "<b>change</b>": <span style="color:#999999">optional</span> <a href="#type_SourceChange">SourceChange</a>
-    "<b>potentialEdits</b>": <span style="color:#999999">optional</span> List<String>
+    "<b>potentialEdits</b>": <span style="color:#999999">optional</span> List&lt;String&gt;
   }
 }</pre></div>
     <p>
@@ -2652,14 +2652,14 @@ a:focus, a:hover {
           does not require any options or if the values of those
           options are not known.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>initialProblems: List<<a href="#type_RefactoringProblem">RefactoringProblem</a>></b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>initialProblems: List&lt;<a href="#type_RefactoringProblem">RefactoringProblem</a>&gt;</b></dt><dd>
         
         <p>
           The initial status of the refactoring, i.e. problems related to
           the context in which the refactoring is requested.
           The array will be empty if there are no known problems.
         </p>
-      </dd><dt class="field"><b>optionsProblems: List<<a href="#type_RefactoringProblem">RefactoringProblem</a>></b></dt><dd>
+      </dd><dt class="field"><b>optionsProblems: List&lt;<a href="#type_RefactoringProblem">RefactoringProblem</a>&gt;</b></dt><dd>
         
         <p>
           The options validation status, i.e. problems in the given options,
@@ -2667,7 +2667,7 @@ a:focus, a:hover {
           compatibility, etc.
           The array will be empty if there are no known problems.
         </p>
-      </dd><dt class="field"><b>finalProblems: List<<a href="#type_RefactoringProblem">RefactoringProblem</a>></b></dt><dd>
+      </dd><dt class="field"><b>finalProblems: List&lt;<a href="#type_RefactoringProblem">RefactoringProblem</a>&gt;</b></dt><dd>
         
         <p>
           The final status of the refactoring, i.e. problems identified in
@@ -2694,7 +2694,7 @@ a:focus, a:hover {
           refactoring that requires them, or if only validation
           was requested.
         </p>
-      </dd><dt class="field"><b>potentialEdits: List<String><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>potentialEdits: List&lt;String&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The ids of source edits that are not known to be valid. An edit is
@@ -2861,15 +2861,15 @@ a:focus, a:hover {
     "<b>offset</b>": int
     "<b>contextFile</b>": <a href="#type_FilePath">FilePath</a>
     "<b>contextOffset</b>": int
-    "<b>variables</b>": List<<a href="#type_RuntimeCompletionVariable">RuntimeCompletionVariable</a>>
-    "<b>expressions</b>": <span style="color:#999999">optional</span> List<<a href="#type_RuntimeCompletionExpression">RuntimeCompletionExpression</a>>
+    "<b>variables</b>": List&lt;<a href="#type_RuntimeCompletionVariable">RuntimeCompletionVariable</a>&gt;
+    "<b>expressions</b>": <span style="color:#999999">optional</span> List&lt;<a href="#type_RuntimeCompletionExpression">RuntimeCompletionExpression</a>&gt;
   }
 }</pre><br><pre>response: {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>suggestions</b>": <span style="color:#999999">optional</span> List<<a href="#type_CompletionSuggestion">CompletionSuggestion</a>>
-    "<b>expressions</b>": <span style="color:#999999">optional</span> List<<a href="#type_RuntimeCompletionExpression">RuntimeCompletionExpression</a>>
+    "<b>suggestions</b>": <span style="color:#999999">optional</span> List&lt;<a href="#type_CompletionSuggestion">CompletionSuggestion</a>&gt;
+    "<b>expressions</b>": <span style="color:#999999">optional</span> List&lt;<a href="#type_RuntimeCompletionExpression">RuntimeCompletionExpression</a>&gt;
   }
 }</pre></div>
     <p>
@@ -2915,13 +2915,13 @@ a:focus, a:hover {
           The offset in the context file, e.g. the line offset in the current
           debugger frame.
         </p>
-      </dd><dt class="field"><b>variables: List<<a href="#type_RuntimeCompletionVariable">RuntimeCompletionVariable</a>></b></dt><dd>
+      </dd><dt class="field"><b>variables: List&lt;<a href="#type_RuntimeCompletionVariable">RuntimeCompletionVariable</a>&gt;</b></dt><dd>
         
         <p>
           The runtime context variables that are potentially referenced in the
           code.
         </p>
-      </dd><dt class="field"><b>expressions: List<<a href="#type_RuntimeCompletionExpression">RuntimeCompletionExpression</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>expressions: List&lt;<a href="#type_RuntimeCompletionExpression">RuntimeCompletionExpression</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The list of sub-expressions in the code for which the client wants
@@ -2935,7 +2935,7 @@ a:focus, a:hover {
           given code. The client may provide an empty list, in this case the
           server will return completion suggestions.
         </p>
-      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>suggestions: List<<a href="#type_CompletionSuggestion">CompletionSuggestion</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd></dl><h4>returns:</h4><dl><dt class="field"><b>suggestions: List&lt;<a href="#type_CompletionSuggestion">CompletionSuggestion</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The completion suggestions. In contrast to usual completion request,
@@ -2948,7 +2948,7 @@ a:focus, a:hover {
           the server omits this field in the response, and instead will return
           the "expressions" field.
         </p>
-      </dd><dt class="field"><b>expressions: List<<a href="#type_RuntimeCompletionExpression">RuntimeCompletionExpression</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>expressions: List&lt;<a href="#type_RuntimeCompletionExpression">RuntimeCompletionExpression</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The list of sub-expressions in the code for which the server would
@@ -3035,7 +3035,7 @@ a:focus, a:hover {
   "id": String
   "method": "execution.setSubscriptions"
   "params": {
-    "<b>subscriptions</b>": List<<a href="#type_ExecutionService">ExecutionService</a>>
+    "<b>subscriptions</b>": List&lt;<a href="#type_ExecutionService">ExecutionService</a>&gt;
   }
 }</pre><br><pre>response: {
   "id": String
@@ -3055,7 +3055,7 @@ a:focus, a:hover {
       remain unchanged.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: List<<a href="#type_ExecutionService">ExecutionService</a>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: List&lt;<a href="#type_ExecutionService">ExecutionService</a>&gt;</b></dt><dd>
         
         <p>
           A list of the services being subscribed to.
@@ -3065,7 +3065,7 @@ a:focus, a:hover {
   "params": {
     "<b>file</b>": <a href="#type_FilePath">FilePath</a>
     "<b>kind</b>": <span style="color:#999999">optional</span> <a href="#type_ExecutableKind">ExecutableKind</a>
-    "<b>referencedFiles</b>": <span style="color:#999999">optional</span> List<<a href="#type_FilePath">FilePath</a>>
+    "<b>referencedFiles</b>": <span style="color:#999999">optional</span> List&lt;<a href="#type_FilePath">FilePath</a>&gt;
   }
 }</pre></div>
     <p>
@@ -3089,7 +3089,7 @@ a:focus, a:hover {
           The kind of the executable file. This field is omitted if the file
           is not a Dart file.
         </p>
-      </dd><dt class="field"><b>referencedFiles: List<<a href="#type_FilePath">FilePath</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>referencedFiles: List&lt;<a href="#type_FilePath">FilePath</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           A list of the Dart files that are referenced by the file. This
@@ -3109,12 +3109,12 @@ a:focus, a:hover {
   "id": String
   "error": <span style="color:#999999">optional</span> <a href="#type_RequestError">RequestError</a>
   "result": {
-    "<b>contexts</b>": List<<a href="#type_ContextData">ContextData</a>>
+    "<b>contexts</b>": List&lt;<a href="#type_ContextData">ContextData</a>&gt;
   }
 }</pre></div>
     <p>Return server diagnostics.</p>
     
-  <h4>returns:</h4><dl><dt class="field"><b>contexts: List<<a href="#type_ContextData">ContextData</a>></b></dt><dd>
+  <h4>returns:</h4><dl><dt class="field"><b>contexts: List&lt;<a href="#type_ContextData">ContextData</a>&gt;</b></dt><dd>
         
         <p>The list of analysis contexts.</p>
       </dd></dl></dd><dt class="request"><a name="request_diagnostic.getServerPort">diagnostic.getServerPort</a></dt><dd><div class="box"><pre>request: {
@@ -3152,7 +3152,7 @@ a:focus, a:hover {
   "id": String
   "method": "flutter.setSubscriptions"
   "params": {
-    "<b>subscriptions</b>": Map<<a href="#type_FlutterService">FlutterService</a>, List<<a href="#type_FilePath">FilePath</a>>>
+    "<b>subscriptions</b>": Map&lt;<a href="#type_FlutterService">FlutterService</a>, List&lt;<a href="#type_FilePath">FilePath</a>&gt;&gt;
   }
 }</pre><br><pre>response: {
   "id": String
@@ -3192,7 +3192,7 @@ a:focus, a:hover {
       subscriptions will remain unchanged.
     </p>
     
-  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: Map<<a href="#type_FlutterService">FlutterService</a>, List<<a href="#type_FilePath">FilePath</a>>></b></dt><dd>
+  <h4>parameters:</h4><dl><dt class="field"><b>subscriptions: Map&lt;<a href="#type_FlutterService">FlutterService</a>, List&lt;<a href="#type_FilePath">FilePath</a>&gt;&gt;</b></dt><dd>
         
         <p>
           A table mapping services to a list of the files being
@@ -3356,7 +3356,7 @@ a:focus, a:hover {
         <p>
           The URL of a page containing documentation associated with this error.
         </p>
-      </dd><dt class="field"><b>contextMessages: List<<a href="#type_DiagnosticMessage">DiagnosticMessage</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>contextMessages: List&lt;<a href="#type_DiagnosticMessage">DiagnosticMessage</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           Additional messages associated with this diagnostic that provide
@@ -3385,7 +3385,7 @@ a:focus, a:hover {
         <p>
           The error with which the fixes are associated.
         </p>
-      </dd><dt class="field"><b>fixes: List<<a href="#type_SourceChange">SourceChange</a>></b></dt><dd>
+      </dd><dt class="field"><b>fixes: List&lt;<a href="#type_SourceChange">SourceChange</a>&gt;</b></dt><dd>
         
         <p>
           The fixes associated with the error.
@@ -3517,7 +3517,7 @@ a:focus, a:hover {
           A default String for use in generating argument list source contents
           on the client side.
         </p>
-      </dd><dt class="field"><b>defaultArgumentListTextRanges: List<int><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>defaultArgumentListTextRanges: List&lt;int&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           Pairs of offsets and lengths describing 'defaultArgumentListString'
@@ -3528,7 +3528,7 @@ a:focus, a:hover {
           use these ranges to treat the 'x' and 'y' values specially for linked
           edits.
         </p>
-      </dd><dt class="field"><b>parameterNames: List<String><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>parameterNames: List&lt;String&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           If the element is an executable, the names of the formal parameters of
@@ -3536,14 +3536,14 @@ a:focus, a:hover {
           names of positional parameters are empty strings. Omitted if the element
           is not an executable.
         </p>
-      </dd><dt class="field"><b>parameterTypes: List<String><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>parameterTypes: List&lt;String&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           If the element is an executable, the declared types of the formal parameters
           of all kinds - required, optional positional, and optional named.
           Omitted if the element is not an executable.
         </p>
-      </dd><dt class="field"><b>relevanceTags: List<<a href="#type_AvailableSuggestionRelevanceTag">AvailableSuggestionRelevanceTag</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>relevanceTags: List&lt;<a href="#type_AvailableSuggestionRelevanceTag">AvailableSuggestionRelevanceTag</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           This field is set if the relevance of this suggestion might be
@@ -3568,7 +3568,7 @@ a:focus, a:hover {
         <p>
           The URI of the library.
         </p>
-      </dd><dt class="field"><b>items: List<<a href="#type_AvailableSuggestion">AvailableSuggestion</a>></b></dt><dd>
+      </dd><dt class="field"><b>items: List&lt;<a href="#type_AvailableSuggestion">AvailableSuggestion</a>&gt;</b></dt><dd>
         
       </dd></dl></dd><dt class="typeDefinition"><a name="type_BulkFix">BulkFix: object</a></dt><dd>
     <p>
@@ -3580,7 +3580,7 @@ a:focus, a:hover {
         <p>
           The path of the library.
         </p>
-      </dd><dt class="field"><b>fixes: List<<a href="#type_BulkFixDetail">BulkFixDetail</a>></b></dt><dd>
+      </dd><dt class="field"><b>fixes: List&lt;<a href="#type_BulkFixDetail">BulkFixDetail</a>&gt;</b></dt><dd>
         
         <p>
           A list of bulk fix details.
@@ -3624,7 +3624,7 @@ a:focus, a:hover {
     
   <dl><dt class="field"><b>type = "change"</b></dt><dd>
         
-      </dd><dt class="field"><b>edits: List<<a href="#type_SourceEdit">SourceEdit</a>></b></dt><dd>
+      </dd><dt class="field"><b>edits: List&lt;<a href="#type_SourceEdit">SourceEdit</a>&gt;</b></dt><dd>
         
         <p>
           The edits to be applied to the file.
@@ -3817,7 +3817,7 @@ a:focus, a:hover {
           A default String for use in generating argument list source contents
           on the client side.
         </p>
-      </dd><dt class="field"><b>defaultArgumentListTextRanges: List<int><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>defaultArgumentListTextRanges: List&lt;int&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           Pairs of offsets and lengths describing 'defaultArgumentListString'
@@ -3840,14 +3840,14 @@ a:focus, a:hover {
           field being suggested. This field is omitted if the suggested element
           is not a getter, function or method.
         </p>
-      </dd><dt class="field"><b>parameterNames: List<String><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>parameterNames: List&lt;String&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The names of the parameters of the function or method being suggested.
           This field is omitted if the suggested element is not a setter,
           function or method.
         </p>
-      </dd><dt class="field"><b>parameterTypes: List<String><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>parameterTypes: List&lt;String&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The types of the parameters of the function or method being suggested.
@@ -3988,7 +3988,7 @@ a:focus, a:hover {
         <p>
           The number of work items in the queue.
         </p>
-      </dd><dt class="field"><b>cacheEntryExceptions: List<String></b></dt><dd>
+      </dd><dt class="field"><b>cacheEntryExceptions: List&lt;String&gt;</b></dt><dd>
         
         <p>
           Exceptions associated with cache entries.
@@ -4205,7 +4205,7 @@ a:focus, a:hover {
           It is an index in the <tt>strings</tt> field, in the enclosing
           <tt>ExistingImports</tt> and its <tt>ImportedElementSet</tt> object.
         </p>
-      </dd><dt class="field"><b>elements: List<int></b></dt><dd>
+      </dd><dt class="field"><b>elements: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The list of indexes of elements, in the enclosing
@@ -4221,7 +4221,7 @@ a:focus, a:hover {
         <p>
           The set of all unique imported elements for all imports.
         </p>
-      </dd><dt class="field"><b>imports: List<<a href="#type_ExistingImport">ExistingImport</a>></b></dt><dd>
+      </dd><dt class="field"><b>imports: List&lt;<a href="#type_ExistingImport">ExistingImport</a>&gt;</b></dt><dd>
         
         <p>
           The list of imports in the library.
@@ -4286,7 +4286,7 @@ a:focus, a:hover {
           If this node is a Dart element, the description of it; omitted
           otherwise.
         </p>
-      </dd><dt class="field"><b>attributes: List<<a href="#type_FlutterOutlineAttribute">FlutterOutlineAttribute</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>attributes: List&lt;<a href="#type_FlutterOutlineAttribute">FlutterOutlineAttribute</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           Additional attributes for this node, which might be interesting
@@ -4310,7 +4310,7 @@ a:focus, a:hover {
         <p>
           If FlutterOutlineKind.VARIABLE, the name of the variable.
         </p>
-      </dd><dt class="field"><b>children: List<<a href="#type_FlutterOutline">FlutterOutline</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>children: List&lt;<a href="#type_FlutterOutline">FlutterOutline</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The children of the node. The field will be omitted if the node has no
@@ -4441,7 +4441,7 @@ a:focus, a:hover {
       </dd><dt class="field"><b>name: String</b></dt><dd>
         
         <p>The name of the property to display to the user.</p>
-      </dd><dt class="field"><b>children: List<<a href="#type_FlutterWidgetProperty">FlutterWidgetProperty</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>children: List&lt;<a href="#type_FlutterWidgetProperty">FlutterWidgetProperty</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The list of children properties, if any. For example any property of
@@ -4468,7 +4468,7 @@ a:focus, a:hover {
     
   <dl><dt class="field"><b>kind: <a href="#type_FlutterWidgetPropertyEditorKind">FlutterWidgetPropertyEditorKind</a></b></dt><dd>
         
-      </dd><dt class="field"><b>enumItems: List<<a href="#type_FlutterWidgetPropertyValueEnumItem">FlutterWidgetPropertyValueEnumItem</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>enumItems: List&lt;<a href="#type_FlutterWidgetPropertyValueEnumItem">FlutterWidgetPropertyValueEnumItem</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
       </dd></dl></dd><dt class="typeDefinition"><a name="type_FlutterWidgetPropertyEditorKind">FlutterWidgetPropertyEditorKind: String</a></dt><dd>
     <p>
@@ -4789,18 +4789,18 @@ a:focus, a:hover {
       and <tt>elementNames</tt>.
     </p>
     
-  <dl><dt class="field"><b>strings: List<String></b></dt><dd>
+  <dl><dt class="field"><b>strings: List&lt;String&gt;</b></dt><dd>
         
         <p>
           The list of unique strings in this object.
         </p>
-      </dd><dt class="field"><b>uris: List<int></b></dt><dd>
+      </dd><dt class="field"><b>uris: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The library URI part of the element.
           It is an index in the <tt>strings</tt> field.
         </p>
-      </dd><dt class="field"><b>names: List<int></b></dt><dd>
+      </dd><dt class="field"><b>names: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The name part of a the element.
@@ -4823,7 +4823,7 @@ a:focus, a:hover {
           The prefix that was used when importing the library into the original
           source.
         </p>
-      </dd><dt class="field"><b>elements: List<String></b></dt><dd>
+      </dd><dt class="field"><b>elements: List&lt;String&gt;</b></dt><dd>
         
         <p>
           The names of the elements imported from the library.
@@ -4907,7 +4907,7 @@ a:focus, a:hover {
         <p>
           A fact label. The schema defines which fact labels are meaningful.
         </p>
-      </dd><dt class="field"><b>value: List<int><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>value: List&lt;int&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The <tt>String</tt> value of the fact.
@@ -4963,7 +4963,7 @@ a:focus, a:hover {
           in completion suggestions. This object associates filesystem regions
           to libraries and library directories of interest to the client.
         </p>
-      </dd><dt class="field"><b>libraryPaths: List<<a href="#type_FilePath">FilePath</a>></b></dt><dd>
+      </dd><dt class="field"><b>libraryPaths: List&lt;<a href="#type_FilePath">FilePath</a>&gt;</b></dt><dd>
         
         <p>
           The paths of the libraries of interest to the client for completion suggestions.
@@ -4985,7 +4985,7 @@ a:focus, a:hover {
       only a single position that is not linked to others.
     </p>
     
-  <dl><dt class="field"><b>positions: List<<a href="#type_Position">Position</a>></b></dt><dd>
+  <dl><dt class="field"><b>positions: List&lt;<a href="#type_Position">Position</a>&gt;</b></dt><dd>
         
         <p>
           The positions of the regions (after applying the relevant edits) that
@@ -4996,7 +4996,7 @@ a:focus, a:hover {
         <p>
           The length of the regions that should be edited simultaneously.
         </p>
-      </dd><dt class="field"><b>suggestions: List<<a href="#type_LinkedEditSuggestion">LinkedEditSuggestion</a>></b></dt><dd>
+      </dd><dt class="field"><b>suggestions: List&lt;<a href="#type_LinkedEditSuggestion">LinkedEditSuggestion</a>&gt;</b></dt><dd>
         
         <p>
           Pre-computed suggestions for what every region might want to be
@@ -5085,7 +5085,7 @@ a:focus, a:hover {
         <p>
           The length of the region from which the user can navigate.
         </p>
-      </dd><dt class="field"><b>targets: List<int></b></dt><dd>
+      </dd><dt class="field"><b>targets: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The indexes of the targets (in the enclosing navigation response) to
@@ -5150,7 +5150,7 @@ a:focus, a:hover {
         <p>
           The element that was referenced.
         </p>
-      </dd><dt class="field"><b>offsets: List<int></b></dt><dd>
+      </dd><dt class="field"><b>offsets: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The offsets of the name of the referenced element within the file.
@@ -5194,7 +5194,7 @@ a:focus, a:hover {
         <p>
           The length of the element code.
         </p>
-      </dd><dt class="field"><b>children: List<<a href="#type_Outline">Outline</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>children: List&lt;<a href="#type_Outline">Outline</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The children of the node. The field will be omitted if the node has no
@@ -5238,7 +5238,7 @@ a:focus, a:hover {
           no superclass member, in which case there must be at least
           one interface member.
         </p>
-      </dd><dt class="field"><b>interfaceMembers: List<<a href="#type_OverriddenMember">OverriddenMember</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>interfaceMembers: List&lt;<a href="#type_OverriddenMember">OverriddenMember</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The members inherited from interfaces that are overridden
@@ -5719,7 +5719,7 @@ a:focus, a:hover {
           The name of the type. Omitted if the type does not have a name, e.g.
           an inline function type.
         </p>
-      </dd><dt class="field"><b>typeArguments: List<<a href="#type_RuntimeCompletionExpressionType">RuntimeCompletionExpressionType</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>typeArguments: List&lt;<a href="#type_RuntimeCompletionExpressionType">RuntimeCompletionExpressionType</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The type arguments of the type.
@@ -5731,14 +5731,14 @@ a:focus, a:hover {
           If the type is a function type, the return type of the function.
           Omitted if the type is not a function type.
         </p>
-      </dd><dt class="field"><b>parameterTypes: List<<a href="#type_RuntimeCompletionExpressionType">RuntimeCompletionExpressionType</a>><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>parameterTypes: List&lt;<a href="#type_RuntimeCompletionExpressionType">RuntimeCompletionExpressionType</a>&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           If the type is a function type, the types of the function parameters
           of all kinds - required, optional positional, and optional named.
           Omitted if the type is not a function type.
         </p>
-      </dd><dt class="field"><b>parameterNames: List<String><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>parameterNames: List&lt;String&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           If the type is a function type, the names of the function parameters
@@ -5799,7 +5799,7 @@ a:focus, a:hover {
           reference to a method m from an unknown class were found,
           it would be marked as being a potential match.
         </p>
-      </dd><dt class="field"><b>path: List<<a href="#type_Element">Element</a>></b></dt><dd>
+      </dd><dt class="field"><b>path: List&lt;<a href="#type_Element">Element</a>&gt;</b></dt><dd>
         
         <p>
           The elements that contain the result, starting with the
@@ -5864,12 +5864,12 @@ a:focus, a:hover {
         <p>
           A human-readable description of the change to be applied.
         </p>
-      </dd><dt class="field"><b>edits: List<<a href="#type_SourceFileEdit">SourceFileEdit</a>></b></dt><dd>
+      </dd><dt class="field"><b>edits: List&lt;<a href="#type_SourceFileEdit">SourceFileEdit</a>&gt;</b></dt><dd>
         
         <p>
           A list of the edits used to effect the change, grouped by file.
         </p>
-      </dd><dt class="field"><b>linkedEditGroups: List<<a href="#type_LinkedEditGroup">LinkedEditGroup</a>></b></dt><dd>
+      </dd><dt class="field"><b>linkedEditGroups: List&lt;<a href="#type_LinkedEditGroup">LinkedEditGroup</a>&gt;</b></dt><dd>
         
         <p>
           A list of the linked editing groups used to customize the changes that
@@ -5945,7 +5945,7 @@ a:focus, a:hover {
           field to make sure that the file was not changed since then, so it is
           safe to apply the change.
         </p>
-      </dd><dt class="field"><b>edits: List<<a href="#type_SourceEdit">SourceEdit</a>></b></dt><dd>
+      </dd><dt class="field"><b>edits: List&lt;<a href="#type_SourceEdit">SourceEdit</a>&gt;</b></dt><dd>
         
         <p>
           A list of the edits used to effect the change.
@@ -5984,21 +5984,21 @@ a:focus, a:hover {
           this class. This field will be omitted if this item
           represents the class Object.
         </p>
-      </dd><dt class="field"><b>interfaces: List<int></b></dt><dd>
+      </dd><dt class="field"><b>interfaces: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The indexes of the items representing the interfaces
           implemented by this class. The list will be empty if
           there are no implemented interfaces.
         </p>
-      </dd><dt class="field"><b>mixins: List<int></b></dt><dd>
+      </dd><dt class="field"><b>mixins: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The indexes of the items representing the mixins
           referenced by this class. The list will be empty if
           there are no classes mixed in to this class.
         </p>
-      </dd><dt class="field"><b>subclasses: List<int></b></dt><dd>
+      </dd><dt class="field"><b>subclasses: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The indexes of the items representing the subtypes of
@@ -6056,30 +6056,30 @@ a:focus, a:hover {
     </p>
     
     
-  <h4>Feedback:</h4><dl><dt class="field"><b>coveringExpressionOffsets: List<int><span style="color:#999999"> (optional)</span></b></dt><dd>
+  <h4>Feedback:</h4><dl><dt class="field"><b>coveringExpressionOffsets: List&lt;int&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The offsets of the expressions that cover the specified
           selection, from the down most to the up most.
         </p>
-      </dd><dt class="field"><b>coveringExpressionLengths: List<int><span style="color:#999999"> (optional)</span></b></dt><dd>
+      </dd><dt class="field"><b>coveringExpressionLengths: List&lt;int&gt;<span style="color:#999999"> (optional)</span></b></dt><dd>
         
         <p>
           The lengths of the expressions that cover the specified
           selection, from the down most to the up most.
         </p>
-      </dd><dt class="field"><b>names: List<String></b></dt><dd>
+      </dd><dt class="field"><b>names: List&lt;String&gt;</b></dt><dd>
         
         <p>
           The proposed names for the local variable.
         </p>
-      </dd><dt class="field"><b>offsets: List<int></b></dt><dd>
+      </dd><dt class="field"><b>offsets: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The offsets of the expressions that would be replaced by
           a reference to the variable.
         </p>
-      </dd><dt class="field"><b>lengths: List<int></b></dt><dd>
+      </dd><dt class="field"><b>lengths: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The lengths of the expressions that would be replaced by
@@ -6134,7 +6134,7 @@ a:focus, a:hover {
           If the returned element does not have a declared return type,
           this field will contain an empty string.
         </p>
-      </dd><dt class="field"><b>names: List<String></b></dt><dd>
+      </dd><dt class="field"><b>names: List&lt;String&gt;</b></dt><dd>
         
         <p>
           The proposed names for the method.
@@ -6144,18 +6144,18 @@ a:focus, a:hover {
         <p>
           True if a getter could be created rather than a method.
         </p>
-      </dd><dt class="field"><b>parameters: List<<a href="#type_RefactoringMethodParameter">RefactoringMethodParameter</a>></b></dt><dd>
+      </dd><dt class="field"><b>parameters: List&lt;<a href="#type_RefactoringMethodParameter">RefactoringMethodParameter</a>&gt;</b></dt><dd>
         
         <p>
           The proposed parameters for the method.
         </p>
-      </dd><dt class="field"><b>offsets: List<int></b></dt><dd>
+      </dd><dt class="field"><b>offsets: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The offsets of the expressions or statements that would
           be replaced by an invocation of the method.
         </p>
-      </dd><dt class="field"><b>lengths: List<int></b></dt><dd>
+      </dd><dt class="field"><b>lengths: List&lt;int&gt;</b></dt><dd>
         
         <p>
           The lengths of the expressions or statements that would
@@ -6182,7 +6182,7 @@ a:focus, a:hover {
         <p>
           The name that the method should be given.
         </p>
-      </dd><dt class="field"><b>parameters: List<<a href="#type_RefactoringMethodParameter">RefactoringMethodParameter</a>></b></dt><dd>
+      </dd><dt class="field"><b>parameters: List&lt;<a href="#type_RefactoringMethodParameter">RefactoringMethodParameter</a>&gt;</b></dt><dd>
         
         <p>
           The parameters that should be defined for the method.

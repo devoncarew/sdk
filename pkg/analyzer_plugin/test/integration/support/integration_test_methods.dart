@@ -67,7 +67,7 @@ abstract class IntegrationTestMixin {
   ///   Information that the user can use to use to contact the maintainers of
   ///   the plugin when there is a problem.
   ///
-  /// interestingFiles: List<String>
+  /// interestingFiles: List&lt;String&gt;
   ///
   ///   The glob patterns of the files for which the plugin will provide
   ///   information. This value is ignored if the isCompatible field is false.
@@ -152,17 +152,17 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// files: List<FilePath>
+  /// files: List&lt;FilePath&gt;
   ///
   ///   A list of the paths of files that are referenced by the navigation
   ///   targets.
   ///
-  /// targets: List<NavigationTarget>
+  /// targets: List&lt;NavigationTarget&gt;
   ///
   ///   A list of the navigation targets that are referenced by the navigation
   ///   regions.
   ///
-  /// regions: List<NavigationRegion>
+  /// regions: List&lt;NavigationRegion&gt;
   ///
   ///   A list of the navigation regions within the requested region of the
   ///   file.
@@ -180,7 +180,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// events: List<WatchEvent>
+  /// events: List&lt;WatchEvent&gt;
   ///
   ///   The watch events that the plugin should handle.
   Future sendAnalysisHandleWatchEvents(List<WatchEvent> events) async {
@@ -194,7 +194,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// roots: List<ContextRoot>
+  /// roots: List&lt;ContextRoot&gt;
   ///
   ///   A list of the context roots that should be analyzed.
   Future sendAnalysisSetContextRoots(List<ContextRoot> roots) async {
@@ -214,7 +214,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// files: List<FilePath>
+  /// files: List&lt;FilePath&gt;
   ///
   ///   The files that are to be a priority for analysis.
   Future sendAnalysisSetPriorityFiles(List<String> files) async {
@@ -233,7 +233,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// subscriptions: Map<AnalysisService, List<FilePath>>
+  /// subscriptions: Map&lt;AnalysisService, List&lt;FilePath&gt;&gt;
   ///
   ///   A table mapping services to a list of the files being subscribed to the
   ///   service.
@@ -254,8 +254,8 @@ abstract class IntegrationTestMixin {
   ///
   /// Parameters
   ///
-  /// files: Map<FilePath, AddContentOverlay | ChangeContentOverlay |
-  /// RemoveContentOverlay>
+  /// files: Map&lt;FilePath, AddContentOverlay | ChangeContentOverlay |
+  /// RemoveContentOverlay&gt;
   ///
   ///   A table mapping the files whose content has changed to a description of
   ///   the content change.
@@ -276,7 +276,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file containing the errors.
   ///
-  /// errors: List<AnalysisError>
+  /// errors: List&lt;AnalysisError&gt;
   ///
   ///   The errors contained in the file.
   late Stream<AnalysisErrorsParams> onAnalysisErrors;
@@ -303,7 +303,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file containing the folding regions.
   ///
-  /// regions: List<FoldingRegion>
+  /// regions: List&lt;FoldingRegion&gt;
   ///
   ///   The folding regions contained in the file.
   late Stream<AnalysisFoldingParams> onAnalysisFolding;
@@ -327,7 +327,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file containing the highlight regions.
   ///
-  /// regions: List<HighlightRegion>
+  /// regions: List&lt;HighlightRegion&gt;
   ///
   ///   The highlight regions contained in the file.
   late Stream<AnalysisHighlightsParams> onAnalysisHighlights;
@@ -358,16 +358,16 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file containing the navigation regions.
   ///
-  /// regions: List<NavigationRegion>
+  /// regions: List&lt;NavigationRegion&gt;
   ///
   ///   The navigation regions contained in the file.
   ///
-  /// targets: List<NavigationTarget>
+  /// targets: List&lt;NavigationTarget&gt;
   ///
   ///   The navigation targets referenced in the file. They are referenced by
   ///   NavigationRegions by their index in this array.
   ///
-  /// files: List<FilePath>
+  /// files: List&lt;FilePath&gt;
   ///
   ///   The files containing navigation targets referenced in the file. They
   ///   are referenced by NavigationTargets by their index in this array.
@@ -394,7 +394,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file in which the references occur.
   ///
-  /// occurrences: List<Occurrences>
+  /// occurrences: List&lt;Occurrences&gt;
   ///
   ///   The occurrences of references to elements within the file.
   late Stream<AnalysisOccurrencesParams> onAnalysisOccurrences;
@@ -418,7 +418,7 @@ abstract class IntegrationTestMixin {
   ///
   ///   The file with which the outline is associated.
   ///
-  /// outline: List<Outline>
+  /// outline: List&lt;Outline&gt;
   ///
   ///   The outline fragments associated with the file.
   late Stream<AnalysisOutlineParams> onAnalysisOutline;
@@ -456,7 +456,7 @@ abstract class IntegrationTestMixin {
   ///   is applied (that is, the number of characters in the existing
   ///   identifier).
   ///
-  /// results: List<CompletionSuggestion>
+  /// results: List&lt;CompletionSuggestion&gt;
   ///
   ///   The completion suggestions being reported. The notification contains
   ///   all possible completions at the requested cursor position, even those
@@ -492,7 +492,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// assists: List<PrioritizedSourceChange>
+  /// assists: List&lt;PrioritizedSourceChange&gt;
   ///
   ///   The assists that are available at the given location.
   Future<EditGetAssistsResult> sendEditGetAssists(
@@ -522,7 +522,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// kinds: List<RefactoringKind>
+  /// kinds: List&lt;RefactoringKind&gt;
   ///
   ///   The kinds of refactorings that are valid for the given selection.
   ///
@@ -555,7 +555,7 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// fixes: List<AnalysisErrorFixes>
+  /// fixes: List&lt;AnalysisErrorFixes&gt;
   ///
   ///   The fixes that are available for the errors at the given offset.
   Future<EditGetFixesResult> sendEditGetFixes(String file, int offset) async {
@@ -601,19 +601,19 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// initialProblems: List<RefactoringProblem>
+  /// initialProblems: List&lt;RefactoringProblem&gt;
   ///
   ///   The initial status of the refactoring, that is, problems related to the
   ///   context in which the refactoring is requested. The list should be empty
   ///   if there are no known problems.
   ///
-  /// optionsProblems: List<RefactoringProblem>
+  /// optionsProblems: List&lt;RefactoringProblem&gt;
   ///
   ///   The options validation status, that is, problems in the given options,
   ///   such as light-weight validation of a new name, flags compatibility,
   ///   etc. The list should be empty if there are no known problems.
   ///
-  /// finalProblems: List<RefactoringProblem>
+  /// finalProblems: List&lt;RefactoringProblem&gt;
   ///
   ///   The final status of the refactoring, that is, problems identified in
   ///   the result of a full, potentially expensive validation and / or change
@@ -633,7 +633,7 @@ abstract class IntegrationTestMixin {
   ///   changes from being computed, such as having no options specified for a
   ///   refactoring that requires them, or if only validation was requested.
   ///
-  /// potentialEdits: List<String> (optional)
+  /// potentialEdits: List&lt;String&gt; (optional)
   ///
   ///   The ids of source edits that are not known to be valid. An edit is not
   ///   known to be valid if there was insufficient type information for the
@@ -666,11 +666,11 @@ abstract class IntegrationTestMixin {
   ///
   /// Returns
   ///
-  /// entries: List<KytheEntry>
+  /// entries: List&lt;KytheEntry&gt;
   ///
   ///   The list of KytheEntry objects for the queried file.
   ///
-  /// files: List<FilePath>
+  /// files: List&lt;FilePath&gt;
   ///
   ///   The set of files paths that were required, but not in the file system,
   ///   to give a complete and accurate Kythe graph for the file. This could be
